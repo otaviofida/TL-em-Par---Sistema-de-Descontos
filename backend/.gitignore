@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+
+/src/generated/prisma
+
+# Uploads (manter .gitkeep)
+uploads/*
+!uploads/logos/.gitkeep
+!uploads/covers/.gitkeep

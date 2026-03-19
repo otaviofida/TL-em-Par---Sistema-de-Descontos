@@ -1,0 +1,132 @@
+import { CompanyRepository } from '../repositories/company.repository.js';
+import { CreateCompanyInput, UpdateCompanyInput, UpdateCompanyStatusInput } from '../schemas/company.schema.js';
+import { NotFoundError, AppError } from '../../../shared/errors/index.js';
+import { EditionRepository } from '../../edition/repositories/edition.repository.js';
+import { PaginationParams, PaginatedResult } from '../../../shared/helpers/pagination.js';
+import { getPrismaSkipTake } from '../../../shared/helpers/pagination.js';
+
+export class CompanyService {
+  constructor(
+    private companyRepo = new CompanyRepository(),
+    private editionRepo = new EditionRepository(),
+  ) {}
+
+  async create(data: CreateCompanyInput) {
+    const company = await this.companyRepo.create({
+      name: data.name,
+      description: data.description,
+      category: data.category,
+      address: data.address,
+      city: data.city,
+      phone: data.phone,
+      instagram: data.instagram,
+      logoUrl: data.logoUrl || undefined,
+      coverUrl: data.coverUrl || undefined,
+      benefitDescription: data.benefitDescription,
+      benefitRules: data.benefitRules,
+    });
+
+    // Auto-vincular à edição ativa se existir
+    const activeEdition = await this.editionRepo.findActive();
+    if (activeEdition) {
+      await this.editionRepo.linkCompanies(activeEdition.id, [company.id]);
+    }
+
+    return company;
+  }
+
+  async update(id: string, data: UpdateCompanyInput) {
+    const company = await this.companyRepo.findById(id);
+    if (!company) {
+      throw new NotFoundError('Empresa não encontrada.');
+    }
+
+    return this.companyRepo.update(id, {
+      ...data,
+      logoUrl: data.logoUrl || undefined,
+      coverUrl: data.coverUrl || undefined,
+    });
+  }
+
+  async updateStatus(id: string, data: UpdateCompanyStatusInput) {
+    const company = await this.companyRepo.findById(id);
+    if (!company) {
+      throw new NotFoundError('Empresa não encontrada.');
+    }
+
+    return this.companyRepo.update(id, { status: data.status });
+  }
+
+  async findAll(pagination: PaginationParams, filters: { search?: string; status?: string; editionId?: string }) {
+    const { skip, take } = getPrismaSkipTake(pagination);
+    const { data, total } = await this.companyRepo.findAll({
+      skip,
+      take,
+      search: filters.search,
+      status: filters.status as any,
+      editionId: filters.editionId,
+    });
+
+    return {
+      data,
+      meta: { page: pagination.page, limit: pagination.limit, total, totalPages: Math.ceil(total / pagination.limit) },
+    };
+  }
+
+  async findById(id: string) {
+    const company = await this.companyRepo.findById(id);
+    if (!company) {
+      throw new NotFoundError('Empresa não encontrada.');
+    }
+    return company;
+  }
+
+  async getQrToken(id: string) {
+    const company = await this.companyRepo.findById(id);
+    if (!company) {
+      throw new NotFoundError('Empresa não encontrada.');
+    }
+    return { qrToken: company.qrToken, companyName: company.name };
+  }
+
+  async listForSubscriber(userId: string, pagination: PaginationParams, filters: { search?: string; category?: string }) {
+    const activeEdition = await this.editionRepo.findActive();
+    if (!activeEdition) {
+      throw new AppError('Nenhuma edição ativa no momento.', 404, 'NO_ACTIVE_EDITION');
+    }
+
+    const { skip, take } = getPrismaSkipTake(pagination);
+    const { data, total } = await this.companyRepo.findActiveInEdition({
+      editionId: activeEdition.id,
+      skip,
+      take,
+      search: filters.search,
+      category: filters.category,
+      userId,
+    });
+
+    return {
+      data,
+      meta: { page: pagination.page, limit: pagination.limit, total, totalPages: Math.ceil(total / pagination.limit) },
+    };
+  }
+
+  async getDetailForSubscriber(companyId: string, userId: string) {
+    const activeEdition = await this.editionRepo.findActive();
+    if (!activeEdition) {
+      throw new AppError('Nenhuma edição ativa no momento.', 404, 'NO_ACTIVE_EDITION');
+    }
+
+    const company = await this.companyRepo.findByIdWithUsage(companyId, userId, activeEdition.id);
+    if (!company || company.status !== 'ACTIVE') {
+      throw new NotFoundError('Empresa não encontrada.');
+    }
+
+    const { benefitRedemptions, qrToken: _, ...companyData } = company;
+    return {
+      ...companyData,
+      alreadyUsed: benefitRedemptions.length > 0,
+      usedAt: benefitRedemptions.length > 0 ? benefitRedemptions[0].redeemedAt : null,
+    };
+  }
+}

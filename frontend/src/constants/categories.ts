@@ -1,0 +1,15 @@
+export const COMPANY_CATEGORIES = [
+  { value: 'japonesa', label: 'Japonesa' },
+  { value: 'brasileira', label: 'Brasileira' },
+  { value: 'marmitex', label: 'Marmitex' },
+  { value: 'lanches', label: 'Lanches' },
+  { value: 'pizza', label: 'Pizza' },
+  { value: 'acai', label: 'Açaí' },
+  { value: 'sorvete', label: 'Sorvete' },
+  { value: 'doces', label: 'Doces' },
+  { value: 'bebidas', label: 'Bebidas' },
+  { value: 'saudavel', label: 'Saudável' },
+  { value: 'pastel', label: 'Pastel' },
+  { value: 'italiana', label: 'Italiana' },
+  { value: 'padaria', label: 'Padaria' },
+] as const;
