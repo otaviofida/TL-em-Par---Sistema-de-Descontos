@@ -63,7 +63,10 @@ export function Badge({ variant = 'neutral', children, showIcon }: BadgeProps) {
 }
 
 // Helpers para status
-export function SubscriptionBadge({ status }: { status: string }) {
+export function SubscriptionBadge({ status, cancelAtPeriodEnd }: { status: string; cancelAtPeriodEnd?: boolean }) {
+  if (status === 'ACTIVE' && cancelAtPeriodEnd) {
+    return <Badge variant="warning" showIcon>Cancelando</Badge>;
+  }
   const map: Record<string, { variant: BadgeVariant; label: string }> = {
     ACTIVE: { variant: 'success', label: 'Ativa' },
     PAST_DUE: { variant: 'warning', label: 'Pendente' },

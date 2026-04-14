@@ -174,7 +174,7 @@ export function AdminUsersPage() {
               </UserInfo>
               <Actions>
                 {user.subscription ? (
-                  <SubscriptionBadge status={user.subscription.status} />
+                  <SubscriptionBadge status={user.subscription.status} cancelAtPeriodEnd={user.subscription?.cancelAtPeriodEnd} />
                 ) : (
                   <span style={{ fontSize: '0.75rem', color: '#999' }}>Sem assinatura</span>
                 )}

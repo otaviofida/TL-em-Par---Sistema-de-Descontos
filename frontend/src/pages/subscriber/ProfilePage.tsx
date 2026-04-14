@@ -328,7 +328,7 @@ export function ProfilePage() {
           <SubRow>
             <SubLabel>Assinatura</SubLabel>
             {sub ? (
-              <SubscriptionBadge status={sub.status} />
+              <SubscriptionBadge status={sub.status} cancelAtPeriodEnd={sub.cancelAtPeriodEnd} />
             ) : (
               <span style={{ color: '#999', fontSize: '0.75rem' }}>Sem assinatura</span>
             )}
@@ -396,7 +396,7 @@ export function ProfilePage() {
                   <SubInfoContent>
                     <SubInfoLabel>Status</SubInfoLabel>
                     <SubInfoValue>
-                      <SubscriptionBadge status={sub.status} />
+                      <SubscriptionBadge status={sub.status} cancelAtPeriodEnd={sub.cancelAtPeriodEnd} />
                     </SubInfoValue>
                   </SubInfoContent>
                 </SubInfoCard>

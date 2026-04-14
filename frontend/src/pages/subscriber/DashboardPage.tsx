@@ -363,7 +363,7 @@ export function DashboardPage() {
             {loadingSub ? (
               <Loading />
             ) : subscription ? (
-              <SubscriptionBadge status={subscription.status} />
+              <SubscriptionBadge status={subscription.status} cancelAtPeriodEnd={subscription.cancelAtPeriodEnd} />
             ) : (
               <NoSubMessage>
                 <p>Você ainda não possui assinatura</p>

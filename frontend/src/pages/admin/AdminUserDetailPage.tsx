@@ -246,7 +246,7 @@ export function AdminUserDetailPage() {
           <InfoLabel>Assinatura</InfoLabel>
           <InfoValue>
             {user.subscription ? (
-              <SubscriptionBadge status={user.subscription.status} />
+              <SubscriptionBadge status={user.subscription.status} cancelAtPeriodEnd={user.subscription.cancelAtPeriodEnd} />
             ) : (
               <span style={{ color: '#999' }}>Sem assinatura</span>
             )}

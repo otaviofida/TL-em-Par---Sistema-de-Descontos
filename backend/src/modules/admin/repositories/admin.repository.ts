@@ -97,7 +97,7 @@ export class AdminRepository {
           phone: true,
           cpf: true,
           createdAt: true,
-          subscription: { select: { status: true, currentPeriodEnd: true } },
+          subscription: { select: { status: true, currentPeriodEnd: true, cancelAtPeriodEnd: true } },
         },
       }),
       prisma.user.count({ where }),

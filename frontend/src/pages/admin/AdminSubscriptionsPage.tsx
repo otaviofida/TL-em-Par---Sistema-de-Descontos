@@ -8,6 +8,7 @@ import type { ApiResponse } from '../../types';
 interface SubscriptionItem {
   id: string;
   status: string;
+  cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: string;
   createdAt: string;
   user: { name: string; email: string };
@@ -69,7 +70,7 @@ export function AdminSubscriptionsPage() {
                   {sub.user.email} • Desde {formatDateShort(sub.createdAt)}
                 </Meta>
               </Info>
-              <SubscriptionBadge status={sub.status} />
+              <SubscriptionBadge status={sub.status} cancelAtPeriodEnd={sub.cancelAtPeriodEnd} />
             </Row>
           ))}
         </Table>
