@@ -8,8 +8,10 @@ import { NotificationService } from '../../notification/services/notification.se
 import { AuthRepository } from '../../auth/repositories/auth.repository.js';
 import { sendEmail, reviewRequestEmailHtml } from '../../../config/email.js';
 import { env } from '../../../config/env.js';
+import { PushService } from '../../push/services/push.service.js';
 
-const REVIEW_REQUEST_DELAY_MS = 2 * 60 * 60 * 1000; // 2 horas
+const REVIEW_REQUEST_DELAY_MS = 2 * 60 * 60 * 1000;    // 2 horas (email + notificação in-app)
+const PUSH_REVIEW_DELAY_MS    = 1 * 60 * 1000;          // TODO: alterar para 30 * 60 * 1000 (30 min) após teste
 
 export class BenefitService {
   constructor(
@@ -17,6 +19,7 @@ export class BenefitService {
     private companyRepo = new CompanyRepository(),
     private editionRepo = new EditionRepository(),
     private authRepo = new AuthRepository(),
+    private pushService = new PushService(),
   ) {}
 
   /**
@@ -88,7 +91,10 @@ export class BenefitService {
       data: { companyId: company.id, companyName: company.name },
     }).catch(err => console.error('[NOTIFICATION] Erro ao criar notificação de resgate:', err));
 
-    // Agenda pedido de avaliação 2h depois
+    // Agenda push de avaliação após PUSH_REVIEW_DELAY_MS (teste: 1min / produção: 30min)
+    this.schedulePushReviewRequest(userId, company.id, company.name);
+
+    // Agenda email + notificação in-app de avaliação 2h depois
     this.scheduleReviewRequest(userId, company.id, company.name);
 
     return {
@@ -129,6 +135,26 @@ export class BenefitService {
       data: formatted,
       meta: { page: pagination.page, limit: pagination.limit, total, totalPages: Math.ceil(total / pagination.limit) },
     };
+  }
+
+  private schedulePushReviewRequest(userId: string, companyId: string, companyName: string) {
+    setTimeout(async () => {
+      try {
+        const existingReview = await prisma.review.findFirst({ where: { userId, companyId } });
+        if (existingReview) return;
+
+        const reviewLink = `${env.FRONTEND_URL}/empresas/${companyId}`;
+        await this.pushService.sendToUser(userId, {
+          title: '⭐ Como foi sua experiência?',
+          message: `Avalie o ${companyName} e ajude outros assinantes!`,
+          url: reviewLink,
+        });
+
+        console.log(`[PUSH_REVIEW] Push de avaliação enviado para user ${userId} — ${companyName}`);
+      } catch (err) {
+        console.error('[PUSH_REVIEW] Erro ao enviar push de avaliação:', err);
+      }
+    }, PUSH_REVIEW_DELAY_MS);
   }
 
   private scheduleReviewRequest(userId: string, companyId: string, companyName: string) {
