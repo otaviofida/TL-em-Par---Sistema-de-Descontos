@@ -13,6 +13,7 @@ import ImageIllustration from '../../assets/admin-illustration.png';
 import { fadeIn } from '../../styles/animations';
 import { VideoSplash } from '../VideoSplash';
 import splashVideo from '../../assets/splash-video.mp4';
+import { usePushSubscription } from '../../hooks/usePushSubscription';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -525,6 +526,7 @@ export function UserLayout() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const bellRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  usePushSubscription();
   const [showSplash, setShowSplash] = useState(() => {
     if (sessionStorage.getItem('show_splash') === 'true') {
       sessionStorage.removeItem('show_splash');

@@ -15,6 +15,8 @@ import { subscriptionRoutes } from './modules/subscription/routes/subscription.r
 import { adminRoutes } from './modules/admin/routes/admin.routes.js';
 import { reviewRoutes } from './modules/review/routes/review.routes.js';
 import { notificationRoutes } from './modules/notification/routes/notification.routes.js';
+import { pushRoutes } from './modules/push/routes/push.routes.js';
+import { marketingRoutes } from './modules/marketing/routes/marketing.routes.js';
 
 const app = express();
 
@@ -87,6 +89,8 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/push', pushRoutes);
+app.use('/api/admin/marketing', marketingRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

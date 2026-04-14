@@ -54,6 +54,8 @@ model User {
   benefitRedemptions      BenefitRedemption[]
   reviews                 Review[]
   notifications           Notification[]
+  pushSubscriptions       PushSubscription[]
+  marketingPushes         MarketingPush[]
   refreshTokens           RefreshToken[]
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
@@ -254,4 +256,38 @@ model Notification {
   @@index([userId, read])
   @@index([userId, createdAt])
   @@map("notifications")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model MarketingPush {
+  id          String    @id @default(uuid())
+  title       String
+  message     String
+  url         String?
+  scheduledAt DateTime  @map("scheduled_at")
+  sentAt      DateTime? @map("sent_at")
+  status      String    @default("SCHEDULED")
+  sentCount   Int       @default(0) @map("sent_count")
+  failCount   Int       @default(0) @map("fail_count")
+  createdBy   String    @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  admin User @relation(fields: [createdBy], references: [id])
+
+  @@index([status, scheduledAt])
+  @@map("marketing_pushes")
 }

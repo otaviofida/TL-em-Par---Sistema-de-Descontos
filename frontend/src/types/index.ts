@@ -140,3 +140,19 @@ export interface Notification {
   data?: string;
   createdAt: string;
 }
+
+// Marketing Push
+export interface MarketingPush {
+  id: string;
+  title: string;
+  message: string;
+  url?: string;
+  scheduledAt: string;
+  sentAt?: string;
+  status: 'SCHEDULED' | 'SENDING' | 'SENT' | 'FAILED' | 'CANCELLED';
+  sentCount: number;
+  failCount: number;
+  createdBy: string;
+  createdAt: string;
+  admin?: { name: string };
+}

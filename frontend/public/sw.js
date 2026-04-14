@@ -95,3 +95,48 @@ self.addEventListener('fetch', (event) => {
       )
   );
 });
+
+// Push notification received
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  try {
+    const payload = event.data.json();
+    const options = {
+      body: payload.message || '',
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/icon-192x192.png',
+      vibrate: [100, 50, 100],
+      data: { url: payload.url || '/' },
+      actions: [{ action: 'open', title: 'Abrir' }],
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(payload.title || 'TL em Par', options)
+    );
+  } catch (err) {
+    console.error('[SW] Erro ao processar push:', err);
+  }
+});
+
+// Notification click — abre a URL do payload
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const url = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      // Se já tem uma aba aberta, foca nela e navega
+      for (const client of clients) {
+        if (client.url.includes(self.location.origin)) {
+          client.focus();
+          client.navigate(url);
+          return;
+        }
+      }
+      // Senão abre nova aba
+      return self.clients.openWindow(url);
+    })
+  );
+});

@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import {
   House, Hamburger, CalendarRange, Users, CreditCard,
-  ClipboardList, LogOut, Menu, User as UserIcon, BarChart3, Star,
+  ClipboardList, LogOut, Menu, User as UserIcon, BarChart3, Star, Megaphone,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react'; 
 import ImageIllustration from '../../assets/admin-illustration.png';  
@@ -269,6 +269,7 @@ const adminNav = [
   { to: '/admin/metricas', label: 'Métricas', icon: BarChart3 },
   { to: '/admin/validacoes', label: 'Validações', icon: ClipboardList },
   { to: '/admin/avaliacoes', label: 'Avaliações', icon: Star },
+  { to: '/admin/marketing', label: 'Marketing', icon: Megaphone },
 ];
 
 export function AdminLayout() {

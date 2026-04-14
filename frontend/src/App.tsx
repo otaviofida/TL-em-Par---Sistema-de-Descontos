@@ -37,6 +37,7 @@ import { AdminSubscriptionsPage } from './pages/admin/AdminSubscriptionsPage';
 import { AdminRedemptionsPage } from './pages/admin/AdminRedemptionsPage';
 import { AdminMetricsPage } from './pages/admin/AdminMetricsPage';
 import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
+import { AdminMarketingPage } from './pages/admin/AdminMarketingPage';
 
 export function App() {
   return (
@@ -89,6 +90,7 @@ export function App() {
           <Route path="/admin/metricas" element={<AdminMetricsPage />} />
           <Route path="/admin/validacoes" element={<AdminRedemptionsPage />} />
           <Route path="/admin/avaliacoes" element={<AdminReviewsPage />} />
+          <Route path="/admin/marketing" element={<AdminMarketingPage />} />
         </Route>
       </Route>
     </Routes>
