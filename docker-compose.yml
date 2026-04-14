@@ -37,10 +37,10 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:?Defina STRIPE_SECRET_KEY no .env}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:?Defina STRIPE_WEBHOOK_SECRET no .env}
       STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:?Defina STRIPE_PRICE_ID no .env}
-      FRONTEND_URL: https://srv19774812.stayx.cloud
-      API_URL: https://srv19774812.stayx.cloud
-      STRIPE_SUCCESS_URL: https://srv19774812.stayx.cloud/assinatura/sucesso
-      STRIPE_CANCEL_URL: https://srv19774812.stayx.cloudayx.cloud/assinatura/cancelado
+      FRONTEND_URL: http://66.253.112.233
+      API_URL: http://66.253.112.233
+      STRIPE_SUCCESS_URL: http://66.253.112.233/assinatura/sucesso
+      STRIPE_CANCEL_URL: http://66.253.112.233/assinatura/cancelado
     volumes:
       - uploads:/app/uploads
     expose:
