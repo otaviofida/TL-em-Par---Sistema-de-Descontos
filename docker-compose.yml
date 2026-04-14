@@ -41,6 +41,11 @@ services:
       API_URL: http://66.253.112.233
       STRIPE_SUCCESS_URL: http://66.253.112.233/assinatura/sucesso
       STRIPE_CANCEL_URL: http://66.253.112.233/assinatura/cancelado
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@tlempar.com.br}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
     volumes:
       - uploads:/app/uploads
     expose:

@@ -55,7 +55,7 @@ export class AuthController {
       if (!req.file) {
         return res.status(400).json({ success: false, error: { code: 'NO_FILE', message: 'Nenhum arquivo enviado.' } });
       }
-      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+      const avatarUrl = (req as any).cloudinaryUrl;
       const result = await authService.updateAvatar(req.userId!, avatarUrl);
       return sendSuccess(res, result);
     } catch (err) {

@@ -191,7 +191,7 @@ export class AdminController {
       if (!req.file) {
         return res.status(400).json({ success: false, error: { code: 'VALIDATION', message: 'Nenhum arquivo enviado.' } });
       }
-      const url = `/uploads/logos/${req.file.filename}`;
+      const url = (req as any).cloudinaryUrl;
       return sendSuccess(res, { url }, 201);
     } catch (err) {
       next(err);
@@ -203,7 +203,7 @@ export class AdminController {
       if (!req.file) {
         return res.status(400).json({ success: false, error: { code: 'VALIDATION', message: 'Nenhum arquivo enviado.' } });
       }
-      const url = `/uploads/covers/${req.file.filename}`;
+      const url = (req as any).cloudinaryUrl;
       return sendSuccess(res, { url }, 201);
     } catch (err) {
       next(err);

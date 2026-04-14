@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { AdminController } from '../controllers/admin.controller.js';
 import { validate } from '../../../middlewares/validate.js';
 import { authenticate, requireAdmin } from '../../../middlewares/auth.js';
-import { uploadLogo, uploadCover } from '../../../middlewares/upload.js';
+import { uploadLogo, uploadCover, cloudinaryUpload } from '../../../middlewares/upload.js';
 import { createCompanySchema, updateCompanySchema, updateCompanyStatusSchema } from '../../company/schemas/company.schema.js';
 
 const router = Router();
@@ -38,8 +38,8 @@ router.patch('/companies/:id/status', validate(updateCompanyStatusSchema), contr
 router.get('/companies/:id/qr-token', controller.getCompanyQrToken);
 
 // Uploads
-router.post('/upload/logo', uploadLogo.single('logo'), controller.uploadLogo);
-router.post('/upload/cover', uploadCover.single('cover'), controller.uploadCover);
+router.post('/upload/logo', uploadLogo.single('logo'), cloudinaryUpload('logos', 'logos'), controller.uploadLogo);
+router.post('/upload/cover', uploadCover.single('cover'), cloudinaryUpload('covers', 'covers'), controller.uploadCover);
 
 // Audit Logs
 router.get('/audit-logs', controller.listAuditLogs);

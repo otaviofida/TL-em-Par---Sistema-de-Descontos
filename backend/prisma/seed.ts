@@ -1,15 +1,23 @@
 import { PrismaClient } from '../src/generated/prisma/index.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/tlempar?schema=public' });
 const prisma = new PrismaClient({ adapter });
 
+function generateSecurePassword(): string {
+  return crypto.randomBytes(16).toString('base64url');
+}
+
 async function main() {
   console.log('🌱 Seeding database...');
 
+  const adminPwd = process.env.ADMIN_PASSWORD || generateSecurePassword();
+  const userPwd = process.env.TEST_USER_PASSWORD || generateSecurePassword();
+
   // Criar admin
-  const adminPassword = await bcrypt.hash('admin12345', 12);
+  const adminPassword = await bcrypt.hash(adminPwd, 12);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@tlempar.com.br' },
     update: {},
@@ -24,7 +32,7 @@ async function main() {
   console.log(`✅ Admin criado: ${admin.email}`);
 
   // Criar usuário de teste
-  const userPassword = await bcrypt.hash('user12345', 12);
+  const userPassword = await bcrypt.hash(userPwd, 12);
   const user = await prisma.user.upsert({
     where: { email: 'usuario@teste.com' },
     update: {},
@@ -149,9 +157,12 @@ async function main() {
   console.log(`✅ ${activeCompanies.length} empresas vinculadas à edição`);
 
   console.log('\n🎉 Seed concluído com sucesso!');
-  console.log('\nCredenciais de teste:');
-  console.log('  Admin: admin@tlempar.com.br / admin12345');
-  console.log('  User:  usuario@teste.com / user12345');
+  console.log('\nCredenciais:');
+  console.log(`  Admin: admin@tlempar.com.br / ${adminPwd}`);
+  console.log(`  User:  usuario@teste.com / ${userPwd}`);
+  if (!process.env.ADMIN_PASSWORD) {
+    console.log('\n⚠️  Senhas geradas aleatoriamente. Defina ADMIN_PASSWORD e TEST_USER_PASSWORD para usar senhas fixas.');
+  }
 }
 
 main()

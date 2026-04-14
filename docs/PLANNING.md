@@ -105,28 +105,28 @@ Frontend transformado em PWA instalável no celular. Implementação manual (sem
 
 ---
 
-### Fase 2.1 — Correções Pré-Produção
+### Fase 2.1 — Correções Pré-Produção (Parcialmente concluída)
 
-| Tarefa | Descrição | Prioridade |
-|--------|-----------|-----------|
-| 2.1.1 | **Email transacional** — Integrar Resend/SendGrid para forgot-password (hoje só loga no console) | Alta |
-| 2.1.2 | **Trocar senhas padrão** — Alterar admin12345/user12345 em produção | Alta |
-| 2.1.3 | **Upload para S3/Cloudinary** — Uploads locais se perdem no redeploy do container | Alta |
-| 2.1.4 | **HTTPS obrigatório** — Configurar domínio + SSL (ver seção acima) | Alta |
-| 2.1.5 | **Stripe modo live** — Migrar chaves de teste para produção | Alta |
+| Tarefa | Descrição | Status |
+|--------|-----------|--------|
+| 2.1.1 | **Email transacional** — Integração Resend para forgot-password com template HTML | ✅ |
+| 2.1.2 | **Trocar senhas padrão** — Seed agora usa env vars (ADMIN_PASSWORD / TEST_USER_PASSWORD) | ✅ |
+| 2.1.3 | **Upload Cloudinary** — Uploads híbridos (Cloudinary quando configurado, local como fallback) | ✅ |
+| 2.1.4 | **HTTPS obrigatório** — Configurar domínio + SSL | ⏳ Aguardando domínio |
+| 2.1.5 | **Stripe modo live** — Migrar chaves de teste para produção | ⏳ Aguardando decisão de lançamento |
 
 ---
 
-### Fase 2.2 — Melhorias de Produto
+### Fase 2.2 — Melhorias de Produto ✅ Concluída
 
-| Tarefa | Descrição | Prioridade |
-|--------|-----------|-----------|
-| 2.2.1 | Confirmação de email no cadastro | Média |
-| 2.2.2 | Notificações por email (nova edição, assinatura expirando) | Média |
-| 2.2.3 | Soft delete para empresas/edições/usuários | Média |
-| 2.2.4 | Auditoria — log de ações do admin | Média |
-| 2.2.5 | Relatórios PDF para admin (exportar métricas) | Média |
-| 2.2.6 | Filtros avançados no histórico de validações | Baixa |
+| Tarefa | Descrição | Status |
+|--------|-----------|--------|
+| 2.2.1 | Confirmação de email no cadastro | ⏳ Depende de 2.1.1 (email transacional) |
+| 2.2.2 | Notificações por email (nova edição, assinatura expirando) | ⏳ Depende de 2.1.1 (email transacional) |
+| 2.2.3 | Soft delete para empresas/edições/usuários (`deletedAt`, filtros em queries, restore endpoint) | ✅ |
+| 2.2.4 | Auditoria — log de ações do admin (`AuditLog`, `GET /admin/audit-logs`) | ✅ |
+| 2.2.5 | Relatórios PDF para admin (`pdfkit`, `GET /admin/reports/metrics/pdf`, botão exportar) | ✅ |
+| 2.2.6 | Filtros avançados no histórico de validações (busca, categoria, data) | ✅ |
 
 ---
 
@@ -182,11 +182,11 @@ Frontend transformado em PWA instalável no celular. Implementação manual (sem
 
 ```
 1. PWA (2.0)               ✅ Concluído
-2. Domínio + SSL (2.1.4)   ← Quando domínio estiver pronto
-3. Email transacional (2.1.1) ← Desbloqueia forgot-password
-4. Upload S3 (2.1.3)       ← Antes de ter muitos dados
-5. Stripe live (2.1.5)     ← Quando for lançar de verdade
-6. Testes + Sentry (2.3)   ← Estabilidade pós-lançamento
-7. Melhorias (2.2)          ← Iteração contínua
+2. Melhorias (2.2)          ✅ Concluído (soft delete, auditoria, PDF, filtros)
+3. Domínio + SSL (2.1.4)   ← Quando domínio estiver pronto
+4. Email transacional (2.1.1) ← Desbloqueia forgot-password + 2.2.1/2.2.2
+5. Upload S3 (2.1.3)       ← Antes de ter muitos dados
+6. Stripe live (2.1.5)     ← Quando for lançar de verdade
+7. Testes + Sentry (2.3)   ← Estabilidade pós-lançamento
 8. Crescimento (3.0)        ← Quando tiver base de usuários
 ```

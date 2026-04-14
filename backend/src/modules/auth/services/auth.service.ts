@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 import { env } from '../../../config/env.js';
+import { sendEmail, passwordResetEmailHtml } from '../../../config/email.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { RegisterInput, LoginInput, UpdateProfileInput, ForgotPasswordInput, ResetPasswordInput } from '../schemas/auth.schema.js';
 import { UnauthorizedError, ConflictError, NotFoundError, AppError } from '../../../shared/errors/index.js';
@@ -120,17 +121,23 @@ export class AuthService {
     // Limpa tokens antigos/usados
     await this.authRepo.deleteExpiredPasswordResetTokens(user.id);
 
-    // Gera token com validade de 1 hora
-    const token = uuidv4();
+    // Gera token seguro com validade de 1 hora
+    const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 1);
 
     await this.authRepo.createPasswordResetToken(user.id, token, expiresAt);
 
-    // TODO: Integrar serviço de email (Resend/SendGrid/Nodemailer)
-    // Por enquanto, loga o link no console (apenas em desenvolvimento)
     const resetLink = `${env.FRONTEND_URL}/redefinir-senha/${token}`;
-    if (env.NODE_ENV === 'development') {
+
+    // Envia email via Resend (fallback: console.log em dev)
+    const emailSent = await sendEmail({
+      to: user.email,
+      subject: 'Redefinir sua senha — TL EM PAR',
+      html: passwordResetEmailHtml(user.name, resetLink),
+    });
+
+    if (!emailSent && env.NODE_ENV === 'development') {
       console.log(`\n🔑 [PASSWORD RESET] Link para ${user.email}: ${resetLink}\n`);
     }
 
