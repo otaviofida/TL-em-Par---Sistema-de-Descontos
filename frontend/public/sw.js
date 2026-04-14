@@ -1,12 +1,12 @@
-const CACHE_NAME = 'tlempar-v2';
+const CACHE_NAME = 'tlempar-v3';
 const OFFLINE_URL = '/offline.html';
 
 // Assets estáticos para pre-cache
 const PRECACHE_ASSETS = [
   '/',
   '/offline.html',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+  '/icons/icon-192x192.png?v=2',
+  '/icons/icon-512x512.png?v=2',
   '/manifest.json',
 ];
 
@@ -104,8 +104,8 @@ self.addEventListener('push', (event) => {
     const payload = event.data.json();
     const options = {
       body: payload.message || '',
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-192x192.png',
+      icon: '/icons/icon-192x192.png?v=2',
+      badge: '/icons/icon-192x192.png?v=2',
       vibrate: [100, 50, 100],
       data: { url: payload.url || '/' },
       actions: [{ action: 'open', title: 'Abrir' }],
