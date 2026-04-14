@@ -247,6 +247,43 @@ const Main = styled.main`
   position: relative;
   animation: ${fadeIn} 0.3s ease-out both;
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) { padding: 2rem; }
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
+`;
+
+const BottomNavBar = styled.nav`
+  display: none;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: ${({ theme }) => theme.colors.dark};
+    z-index: 100;
+    padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const BottomNavItem = styled(Link)<{ $active?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.25rem 0.75rem;
+  font-size: 10px;
+  font-weight: ${({ $active, theme }) => ($active ? theme.fontWeights.bold : theme.fontWeights.medium)};
+  color: ${({ $active, theme }) => ($active ? theme.colors.primary : 'rgba(255,255,255,0.55)')};
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+
+  svg {
+    transition: transform 0.2s;
+    ${({ $active }) => $active && 'transform: scale(1.1);'}
+  }
 `;
 
 const Overlay = styled.div<{ $open: boolean }>`
@@ -310,6 +347,13 @@ const userNav = [
   { to: '/validar', label: 'Validar QR Code', icon: QrCode },
   { to: '/historico', label: 'Meu histórico', icon: History },
   { to: '/perfil', label: 'Meu perfil', icon: UserIcon },
+];
+
+const bottomNav = [
+  { to: '/painel', label: 'Início', icon: Home },
+  { to: '/empresas', label: 'Restaurantes', icon: UtensilsCrossed },
+  { to: '/validar', label: 'QR Code', icon: QrCode },
+  { to: '/perfil', label: 'Minha Conta', icon: UserIcon },
 ];
 
 export function UserLayout() {
@@ -460,6 +504,15 @@ export function UserLayout() {
           <Outlet />
         </Main>
       </Content>
+
+      <BottomNavBar>
+        {bottomNav.map(({ to, label, icon: Icon }) => (
+          <BottomNavItem key={to} to={to} $active={isActive(to)}>
+            <Icon size={20} />
+            {label}
+          </BottomNavItem>
+        ))}
+      </BottomNavBar>
     </Container>
   );
 }
