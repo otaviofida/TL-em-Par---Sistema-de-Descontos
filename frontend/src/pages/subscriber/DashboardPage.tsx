@@ -108,6 +108,7 @@ const QuickLinksGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
+  margin-bottom: 1.5rem;
   animation: ${fadeInUp} 0.45s ease-out 0.15s both;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
@@ -303,47 +304,48 @@ export function DashboardPage() {
   const redemptionCount = historyMeta?.total ?? 0;
 
   return (
-    <PageGrid>
-      {/* ── Coluna esquerda: Banner + Links ── */}
-      <LeftColumn>
-        <Banner>
-          <BannerInner>
-            <BannerTitle>Bem vindo, <strong>{user?.name?.split(' ')[0] || 'Usuário'}</strong></BannerTitle>
-            <BannerText>Explore todos nossos restaurantes parceiros e curta cada experiência.</BannerText>
-            <BannerLink to="/empresas">Ver parceiros</BannerLink>
-          </BannerInner>
-        </Banner>
+    <>
+      <QuickLinksGrid>
+        <Link to="/empresas">
+          <QuickLink>
+            <QuickIcon $bg="#FFF3D6"><UtensilsCrossed size={20} color="#feb621" /></QuickIcon>
+            <QuickContent>
+              <QuickTitle>Restaurantes</QuickTitle>
+              <QuickDesc>Veja os parceiros</QuickDesc>
+            </QuickContent>
+          </QuickLink>
+        </Link>
+        <Link to="/validar">
+          <QuickLink>
+            <QuickIcon $bg="#E8F5E9"><QrCode size={20} color="#22c55e" /></QuickIcon>
+            <QuickContent>
+              <QuickTitle>Validar QR</QuickTitle>
+              <QuickDesc>Use seu benefício</QuickDesc>
+            </QuickContent>
+          </QuickLink>
+        </Link>
+        <Link to="/historico">
+          <QuickLink>
+            <QuickIcon $bg="#EDE7F6"><History size={20} color="#7c3aed" /></QuickIcon>
+            <QuickContent>
+              <QuickTitle>Histórico</QuickTitle>
+              <QuickDesc>Seus resgates</QuickDesc>
+            </QuickContent>
+          </QuickLink>
+        </Link>
+      </QuickLinksGrid>
 
-        <QuickLinksGrid>
-          <Link to="/empresas">
-            <QuickLink>
-              <QuickIcon $bg="#FFF3D6"><UtensilsCrossed size={20} color="#feb621" /></QuickIcon>
-              <QuickContent>
-                <QuickTitle>Restaurantes</QuickTitle>
-                <QuickDesc>Veja os parceiros</QuickDesc>
-              </QuickContent>
-            </QuickLink>
-          </Link>
-          <Link to="/validar">
-            <QuickLink>
-              <QuickIcon $bg="#E8F5E9"><QrCode size={20} color="#22c55e" /></QuickIcon>
-              <QuickContent>
-                <QuickTitle>Validar QR</QuickTitle>
-                <QuickDesc>Use seu benefício</QuickDesc>
-              </QuickContent>
-            </QuickLink>
-          </Link>
-          <Link to="/historico">
-            <QuickLink>
-              <QuickIcon $bg="#EDE7F6"><History size={20} color="#7c3aed" /></QuickIcon>
-              <QuickContent>
-                <QuickTitle>Histórico</QuickTitle>
-                <QuickDesc>Seus resgates</QuickDesc>
-              </QuickContent>
-            </QuickLink>
-          </Link>
-        </QuickLinksGrid>
-      </LeftColumn>
+      <PageGrid>
+        {/* ── Coluna esquerda: Banner ── */}
+        <LeftColumn>
+          <Banner>
+            <BannerInner>
+              <BannerTitle>Bem vindo, <strong>{user?.name?.split(' ')[0] || 'Usuário'}</strong></BannerTitle>
+              <BannerText>Explore todos nossos restaurantes parceiros e curta cada experiência.</BannerText>
+              <BannerLink to="/empresas">Ver parceiros</BannerLink>
+            </BannerInner>
+          </Banner>
+        </LeftColumn>
 
       {/* ── Coluna direita: Perfil ── */}
       <RightColumn>
@@ -401,5 +403,6 @@ export function DashboardPage() {
         </ProfileCard>
       </RightColumn>
     </PageGrid>
+    </>
   );
 }
