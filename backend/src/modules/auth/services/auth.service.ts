@@ -43,7 +43,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, user.role);
 
     return {
-      user: { id: user.id, name: user.name, email: user.email, role: user.role, subscription: null, emailVerified: false },
+      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, cpf: user.cpf, birthDate: user.birthDate, gender: user.gender, avatarUrl: user.avatarUrl, role: user.role, subscription: null, emailVerified: false },
       ...tokens,
     };
   }
@@ -64,7 +64,7 @@ export class AuthService {
     const { password: _, ...userWithoutPassword } = user;
 
     return {
-      user: { id: userWithoutPassword.id, name: userWithoutPassword.name, email: userWithoutPassword.email, role: userWithoutPassword.role, subscription: userWithoutPassword.subscription ?? null },
+      user: { id: userWithoutPassword.id, name: userWithoutPassword.name, email: userWithoutPassword.email, phone: userWithoutPassword.phone, cpf: userWithoutPassword.cpf, birthDate: userWithoutPassword.birthDate, gender: userWithoutPassword.gender, avatarUrl: userWithoutPassword.avatarUrl, role: userWithoutPassword.role, subscription: userWithoutPassword.subscription ?? null, emailVerified: userWithoutPassword.emailVerified },
       ...tokens,
     };
   }

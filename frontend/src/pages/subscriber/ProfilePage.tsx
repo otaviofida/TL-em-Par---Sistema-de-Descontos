@@ -5,7 +5,7 @@ import { api } from '../../lib/api';
 import { Button, Input, SubscriptionBadge } from '../../components/ui';
 import { getErrorMessage } from '../../utils/errorMessages';
 import toast from 'react-hot-toast';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Camera, Mail, CreditCard, Shield, CalendarDays, User as UserIcon, XCircle } from 'lucide-react';
 import { formatDateShort } from '../../utils/format';
 import { fadeInUp, fadeInLeft } from '../../styles/animations';
@@ -245,12 +245,18 @@ export function ProfilePage() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
     defaultValues: {
       name: user?.name ?? '',
       phone: user?.phone ?? '',
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      reset({ name: user.name ?? '', phone: user.phone ?? '' });
+    }
+  }, [user, reset]);
 
   const getInitials = (name?: string) => {
     if (!name) return '?';
