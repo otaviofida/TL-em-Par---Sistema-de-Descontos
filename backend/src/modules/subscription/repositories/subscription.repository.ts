@@ -41,6 +41,16 @@ export class SubscriptionRepository {
     });
   }
 
+  async createCancellationFeedback(data: {
+    userId: string;
+    reason: string;
+    rating: number;
+    improvement?: string;
+    wouldReturn?: string;
+  }) {
+    return prisma.cancellationFeedback.create({ data });
+  }
+
   async findAll(params: {
     skip: number;
     take: number;

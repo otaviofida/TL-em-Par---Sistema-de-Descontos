@@ -56,6 +56,7 @@ model User {
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
   auditLogs               AuditLog[]
+  cancellationFeedbacks   CancellationFeedback[]
 
   @@map("users")
 }
@@ -200,4 +201,18 @@ model AuditLog {
   @@index([userId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model CancellationFeedback {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  reason         String
+  rating         Int
+  improvement    String?
+  wouldReturn    String?  @map("would_return")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("cancellation_feedbacks")
 }

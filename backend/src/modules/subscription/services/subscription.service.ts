@@ -4,6 +4,7 @@ import { SubscriptionRepository } from '../repositories/subscription.repository.
 import { AuthRepository } from '../../auth/repositories/auth.repository.js';
 import { NotFoundError, AppError } from '../../../shared/errors/index.js';
 import { sendEmail, subscriptionExpiringEmailHtml } from '../../../config/email.js';
+import { CancelWithFeedbackInput } from '../schemas/subscription.schema.js';
 import Stripe from 'stripe';
 
 function getSubscriptionPeriod(sub: any) {
@@ -75,7 +76,7 @@ export class SubscriptionService {
     };
   }
 
-  async cancelSubscription(userId: string) {
+  async cancelSubscription(userId: string, feedback?: CancelWithFeedbackInput) {
     const subscription = await this.subscriptionRepo.findByUserId(userId);
     if (!subscription || !subscription.stripeSubscriptionId) {
       throw new NotFoundError('Nenhuma assinatura ativa para cancelar.');
@@ -89,6 +90,17 @@ export class SubscriptionService {
       status: subscription.status,
       cancelAtPeriodEnd: true,
     });
+
+    // Salvar feedback de cancelamento
+    if (feedback) {
+      await this.subscriptionRepo.createCancellationFeedback({
+        userId,
+        reason: feedback.reason,
+        rating: feedback.rating,
+        improvement: feedback.improvement,
+        wouldReturn: feedback.wouldReturn,
+      });
+    }
 
     // Notificar usuário que a assinatura será cancelada
     const user = await this.authRepo.findUserById(userId);

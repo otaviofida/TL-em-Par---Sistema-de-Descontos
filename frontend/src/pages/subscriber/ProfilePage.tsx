@@ -6,9 +6,10 @@ import { Button, Input, SubscriptionBadge } from '../../components/ui';
 import { getErrorMessage } from '../../utils/errorMessages';
 import toast from 'react-hot-toast';
 import { useState, useRef } from 'react';
-import { Camera, Mail, CreditCard, Shield, CalendarDays, User as UserIcon } from 'lucide-react';
+import { Camera, Mail, CreditCard, Shield, CalendarDays, User as UserIcon, XCircle } from 'lucide-react';
 import { formatDateShort } from '../../utils/format';
 import { fadeInUp, fadeInLeft } from '../../styles/animations';
+import { CancelSubscriptionModal } from '../../components/CancelSubscriptionModal';
 
 /* ── Page ───────────────────────────────────────────── */
 
@@ -241,6 +242,7 @@ export function ProfilePage() {
   const { user, loadUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
@@ -429,10 +431,28 @@ export function ProfilePage() {
                   </SubInfoCard>
                 )}
               </SubGrid>
+
+              {sub.status === 'ACTIVE' && !sub.cancelAtPeriodEnd && (
+                <div style={{ marginTop: '1.25rem' }}>
+                  <Button
+                    $variant="outline"
+                    $size="sm"
+                    onClick={() => setShowCancelModal(true)}
+                    style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                  >
+                    <XCircle size={16} />
+                    Cancelar assinatura
+                  </Button>
+                </div>
+              )}
             </SectionCard>
           )}
         </MainColumn>
       </PageGrid>
+
+      {showCancelModal && (
+        <CancelSubscriptionModal onClose={() => setShowCancelModal(false)} />
+      )}
     </>
   );
 }

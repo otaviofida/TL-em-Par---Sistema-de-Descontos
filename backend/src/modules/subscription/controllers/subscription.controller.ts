@@ -27,7 +27,7 @@ export class SubscriptionController {
 
   async cancel(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await subscriptionService.cancelSubscription(req.userId!);
+      const result = await subscriptionService.cancelSubscription(req.userId!, req.body);
       return sendSuccess(res, result);
     } catch (err) {
       next(err);
