@@ -5,12 +5,15 @@ import { EditionRepository } from '../../edition/repositories/edition.repository
 import { ReviewRepository } from '../../review/repositories/review.repository.js';
 import { PaginationParams, PaginatedResult } from '../../../shared/helpers/pagination.js';
 import { getPrismaSkipTake } from '../../../shared/helpers/pagination.js';
+import { PushService } from '../../push/services/push.service.js';
+import { env } from '../../../config/env.js';
 
 export class CompanyService {
   constructor(
     private companyRepo = new CompanyRepository(),
     private editionRepo = new EditionRepository(),
     private reviewRepo = new ReviewRepository(),
+    private pushService = new PushService(),
   ) {}
 
   async create(data: CreateCompanyInput) {
@@ -33,6 +36,13 @@ export class CompanyService {
     if (activeEdition) {
       await this.editionRepo.linkCompanies(activeEdition.id, [company.id]);
     }
+
+    // Push para todos os inscritos avisando do novo restaurante
+    this.pushService.sendToAll({
+      title: '🍽️ Novo restaurante no clube!',
+      message: `${company.name} acabou de entrar no TL em Par. Confira o benefício!`,
+      url: `${env.FRONTEND_URL}/empresas/${company.id}`,
+    }).catch(err => console.error('[PUSH] Erro ao notificar novo restaurante:', err));
 
     return company;
   }
