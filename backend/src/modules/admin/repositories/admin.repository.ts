@@ -232,7 +232,7 @@ export class AdminRepository {
 
     // Valor estimado (assinaturas ativas * preço mensal)
     // O preço é fixo, mas podemos calcular baseado no count
-    const MONTHLY_PRICE = 39.90;
+    const MONTHLY_PRICE = 29.90;
     const totalRevenue = totalActiveSubscriptions * MONTHLY_PRICE;
 
     return {
