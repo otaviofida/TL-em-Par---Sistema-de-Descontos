@@ -3,6 +3,8 @@ import { env } from './env.js';
 
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
+const LOGO_URL = `${env.FRONTEND_URL}/logo.png`;
+
 interface SendEmailParams {
   to: string;
   subject: string;
@@ -38,133 +40,139 @@ export async function sendEmail(params: SendEmailParams): Promise<boolean> {
   }
 }
 
-export function passwordResetEmailHtml(name: string, resetLink: string): string {
+function emailLayout(content: string): string {
+  const year = new Date().getFullYear();
   return `
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8"></head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px;">
-  <div style="max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-    <div style="text-align: center; margin-bottom: 24px;">
-      <h1 style="font-size: 24px; color: #1a1a1a; margin: 0;">TL EM PAR</h1>
-      <p style="color: #feb621; font-size: 14px; margin: 4px 0 0;">Clube de Benefícios Gastronômicos</p>
-    </div>
-    <h2 style="font-size: 18px; color: #1a1a1a;">Olá, ${name}!</h2>
-    <p style="color: #555; line-height: 1.6;">Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para criar uma nova senha:</p>
-    <div style="text-align: center; margin: 28px 0;">
-      <a href="${resetLink}" style="display: inline-block; background: #feb621; color: #1a1a1a; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 16px;">
-        Redefinir Senha
-      </a>
-    </div>
-    <p style="color: #888; font-size: 13px; line-height: 1.5;">
-      Este link expira em <strong>1 hora</strong>.<br>
-      Se você não solicitou a redefinição, ignore este email.
-    </p>
-    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
-    <p style="color: #aaa; font-size: 11px; text-align: center;">TL EM PAR &copy; ${new Date().getFullYear()}</p>
-  </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #0d0d0d;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #0d0d0d; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width: 480px; width: 100%;">
+          <!-- Header com logo -->
+          <tr>
+            <td align="center" style="padding: 0 0 24px;">
+              <img src="${LOGO_URL}" alt="TL EM PAR" width="120" style="display: block; max-width: 120px; height: auto;" />
+            </td>
+          </tr>
+          <!-- Card principal -->
+          <tr>
+            <td style="background: #1a1a1a; border-radius: 16px; padding: 36px 32px; border: 1px solid #2a2a2a;">
+              ${content}
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding: 24px 0 0;">
+              <p style="color: #555; font-size: 12px; margin: 0; line-height: 1.5;">
+                TL EM PAR — Clube de Benefícios Gastronômicos<br>
+                &copy; ${year} Todos os direitos reservados
+              </p>
+              <p style="margin: 8px 0 0;">
+                <a href="${env.FRONTEND_URL}" style="color: #feb621; font-size: 12px; text-decoration: none;">tlempar.com.br</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`.trim();
+}
+
+function emailButton(href: string, text: string): string {
+  return `
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding: 28px 0;">
+        <a href="${href}" style="display: inline-block; background: #feb621; color: #1a1a1a; font-weight: 700; padding: 14px 36px; border-radius: 12px; text-decoration: none; font-size: 16px; letter-spacing: 0.3px;">
+          ${text}
+        </a>
+      </td>
+    </tr>
+  </table>`;
+}
+
+export function passwordResetEmailHtml(name: string, resetLink: string): string {
+  return emailLayout(`
+    <h2 style="font-size: 20px; color: #ffffff; margin: 0 0 16px;">Olá, ${name}!</h2>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para criar uma nova senha:
+    </p>
+    ${emailButton(resetLink, '🔑 Redefinir Senha')}
+    <p style="color: #666; font-size: 13px; line-height: 1.5; margin: 0; padding-top: 8px; border-top: 1px solid #2a2a2a;">
+      Este link expira em <strong style="color: #feb621;">1 hora</strong>.<br>
+      Se você não solicitou a redefinição, ignore este email.
+    </p>
+  `);
 }
 
 export function emailVerificationHtml(name: string, verifyLink: string): string {
-  return `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"></head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px;">
-  <div style="max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-    <div style="text-align: center; margin-bottom: 24px;">
-      <h1 style="font-size: 24px; color: #1a1a1a; margin: 0;">TL EM PAR</h1>
-      <p style="color: #feb621; font-size: 14px; margin: 4px 0 0;">Clube de Benefícios Gastronômicos</p>
-    </div>
-    <h2 style="font-size: 18px; color: #1a1a1a;">Bem-vindo(a), ${name}!</h2>
-    <p style="color: #555; line-height: 1.6;">Obrigado por se cadastrar no TL EM PAR! Para ativar sua conta, confirme seu email clicando no botão abaixo:</p>
-    <div style="text-align: center; margin: 28px 0;">
-      <a href="${verifyLink}" style="display: inline-block; background: #feb621; color: #1a1a1a; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 16px;">
-        Confirmar Email
-      </a>
-    </div>
-    <p style="color: #888; font-size: 13px; line-height: 1.5;">
-      Este link expira em <strong>24 horas</strong>.<br>
+  return emailLayout(`
+    <h2 style="font-size: 20px; color: #ffffff; margin: 0 0 16px;">Bem-vindo(a), ${name}! 👋</h2>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Obrigado por se cadastrar no <strong style="color: #feb621;">TL EM PAR</strong>!
+      Para ativar sua conta, confirme seu email clicando no botão abaixo:
+    </p>
+    ${emailButton(verifyLink, '✉️ Confirmar Email')}
+    <p style="color: #666; font-size: 13px; line-height: 1.5; margin: 0; padding-top: 8px; border-top: 1px solid #2a2a2a;">
+      Este link expira em <strong style="color: #feb621;">24 horas</strong>.<br>
       Se você não criou esta conta, ignore este email.
     </p>
-    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
-    <p style="color: #aaa; font-size: 11px; text-align: center;">TL EM PAR &copy; ${new Date().getFullYear()}</p>
-  </div>
-</body>
-</html>`.trim();
+  `);
 }
 
 export function welcomeEmailHtml(name: string): string {
-  return `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"></head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px;">
-  <div style="max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-    <div style="text-align: center; margin-bottom: 24px;">
-      <h1 style="font-size: 24px; color: #1a1a1a; margin: 0;">TL EM PAR</h1>
-      <p style="color: #feb621; font-size: 14px; margin: 4px 0 0;">Clube de Benefícios Gastronômicos</p>
+  return emailLayout(`
+    <div style="text-align: center;">
+      <p style="font-size: 48px; margin: 0 0 16px;">🎉</p>
+      <h2 style="font-size: 22px; color: #ffffff; margin: 0 0 16px;">Email confirmado, ${name}!</h2>
+      <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+        Sua conta está ativa. Agora você pode assinar o clube e aproveitar todos os
+        <strong style="color: #feb621;">benefícios gastronômicos</strong> da sua cidade.
+      </p>
+      <p style="color: #feb621; font-size: 18px; font-weight: 700; margin: 20px 0 0;">
+        Bom apetite! 🍽️
+      </p>
     </div>
-    <h2 style="font-size: 18px; color: #1a1a1a;">Email confirmado, ${name}! 🎉</h2>
-    <p style="color: #555; line-height: 1.6;">Sua conta está ativa. Agora você pode assinar o clube e aproveitar todos os benefícios gastronômicos da sua cidade.</p>
-    <p style="color: #555; line-height: 1.6;">Bom apetite!</p>
-    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
-    <p style="color: #aaa; font-size: 11px; text-align: center;">TL EM PAR &copy; ${new Date().getFullYear()}</p>
-  </div>
-</body>
-</html>`.trim();
+  `);
 }
 
 export function newEditionEmailHtml(name: string, editionName: string, loginLink: string): string {
-  return `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"></head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px;">
-  <div style="max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-    <div style="text-align: center; margin-bottom: 24px;">
-      <h1 style="font-size: 24px; color: #1a1a1a; margin: 0;">TL EM PAR</h1>
-      <p style="color: #feb621; font-size: 14px; margin: 4px 0 0;">Clube de Benefícios Gastronômicos</p>
+  return emailLayout(`
+    <div style="text-align: center; margin-bottom: 20px;">
+      <p style="font-size: 48px; margin: 0;">🍽️</p>
     </div>
-    <h2 style="font-size: 18px; color: #1a1a1a;">Nova edição disponível! 🍽️</h2>
-    <p style="color: #555; line-height: 1.6;">Olá, ${name}! A edição <strong>${editionName}</strong> acabou de ser ativada.</p>
-    <p style="color: #555; line-height: 1.6;">Acesse o app e confira os restaurantes e benefícios desta edição!</p>
-    <div style="text-align: center; margin: 28px 0;">
-      <a href="${loginLink}" style="display: inline-block; background: #feb621; color: #1a1a1a; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 16px;">
-        Ver Edição
-      </a>
-    </div>
-    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
-    <p style="color: #aaa; font-size: 11px; text-align: center;">TL EM PAR &copy; ${new Date().getFullYear()}</p>
-  </div>
-</body>
-</html>`.trim();
+    <h2 style="font-size: 20px; color: #ffffff; margin: 0 0 16px;">Nova edição disponível!</h2>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Olá, ${name}! A edição <strong style="color: #feb621;">${editionName}</strong> acabou de ser ativada.
+    </p>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Acesse o app e confira os restaurantes e benefícios desta edição!
+    </p>
+    ${emailButton(loginLink, '👀 Ver Edição')}
+  `);
 }
 
 export function subscriptionExpiringEmailHtml(name: string, expirationDate: string, renewLink: string): string {
-  return `
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"></head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; padding: 20px;">
-  <div style="max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-    <div style="text-align: center; margin-bottom: 24px;">
-      <h1 style="font-size: 24px; color: #1a1a1a; margin: 0;">TL EM PAR</h1>
-      <p style="color: #feb621; font-size: 14px; margin: 4px 0 0;">Clube de Benefícios Gastronômicos</p>
+  return emailLayout(`
+    <div style="text-align: center; margin-bottom: 20px;">
+      <p style="font-size: 48px; margin: 0;">⏳</p>
     </div>
-    <h2 style="font-size: 18px; color: #1a1a1a;">Sua assinatura está acabando ⏳</h2>
-    <p style="color: #555; line-height: 1.6;">Olá, ${name}! Sua assinatura do TL EM PAR está marcada para cancelamento em <strong>${expirationDate}</strong>.</p>
-    <p style="color: #555; line-height: 1.6;">Se quiser continuar aproveitando os benefícios, basta renovar sua assinatura.</p>
-    <div style="text-align: center; margin: 28px 0;">
-      <a href="${renewLink}" style="display: inline-block; background: #feb621; color: #1a1a1a; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 16px;">
-        Renovar Assinatura
-      </a>
-    </div>
-    <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
-    <p style="color: #aaa; font-size: 11px; text-align: center;">TL EM PAR &copy; ${new Date().getFullYear()}</p>
-  </div>
-</body>
-</html>`.trim();
+    <h2 style="font-size: 20px; color: #ffffff; margin: 0 0 16px;">Sua assinatura está acabando</h2>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Olá, ${name}! Sua assinatura do TL EM PAR está marcada para cancelamento em
+      <strong style="color: #feb621;">${expirationDate}</strong>.
+    </p>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Se quiser continuar aproveitando os benefícios, basta renovar sua assinatura.
+    </p>
+    ${emailButton(renewLink, '🔄 Renovar Assinatura')}
+  `);
 }

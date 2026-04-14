@@ -35,20 +35,20 @@ enum EditionStatus {
 // ============ MODELS ============
 
 model User {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  password  String
-  phone     String?
-  cpf       String?   @unique
-  birthDate DateTime? @map("birth_date")
-  gender    String?
-  avatarUrl      String?   @map("avatar_url")
-  emailVerified  Boolean   @default(false) @map("email_verified")
-  role           Role      @default(USER)
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-  deletedAt      DateTime? @map("deleted_at")
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password      String
+  phone         String?
+  cpf           String?   @unique
+  birthDate     DateTime? @map("birth_date")
+  gender        String?
+  avatarUrl     String?   @map("avatar_url")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
 
   subscription            Subscription?
   benefitRedemptions      BenefitRedemption[]

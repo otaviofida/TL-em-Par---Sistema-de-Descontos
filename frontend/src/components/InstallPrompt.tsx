@@ -8,29 +8,44 @@ interface BeforeInstallPromptEvent extends Event {
 
 const Banner = styled.div`
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: ${({ theme }) => theme.colors.dark};
-  color: ${({ theme }) => theme.colors.white};
-  padding: 16px 20px;
+  bottom: 20px;
+  right: 20px;
+  width: 280px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 16px;
   display: flex;
   align-items: center;
   gap: 12px;
   z-index: 9999;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+  @keyframes slideIn {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    width: calc(100% - 32px);
+    right: 16px;
+    bottom: 16px;
   }
 `;
 
 const Icon = styled.img`
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
+  flex-shrink: 0;
 `;
 
 const TextWrap = styled.div`
@@ -40,40 +55,51 @@ const TextWrap = styled.div`
 
 const Title = styled.p`
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   margin: 0;
+  color: #1a1a1a;
 `;
 
 const Subtitle = styled.p`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  margin: 0;
+  font-size: 11px;
+  color: #888;
+  margin: 2px 0 0;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
 `;
 
 const InstallBtn = styled.button`
   background: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.dark};
   border: none;
-  padding: 10px 20px;
+  padding: 8px 14px;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
 
   &:active {
-    background: ${({ theme }) => theme.colors.primaryDark};
+    opacity: 0.85;
   }
 `;
 
 const CloseBtn = styled.button`
   background: none;
   border: none;
-  color: ${({ theme }) => theme.colors.textSecondary};
-  font-size: 20px;
+  color: #aaa;
+  font-size: 18px;
   cursor: pointer;
-  padding: 4px;
+  padding: 2px;
   line-height: 1;
+
+  &:hover {
+    color: #666;
+  }
 `;
 
 export function InstallPrompt() {
@@ -116,8 +142,10 @@ export function InstallPrompt() {
         <Title>Instalar TL em Par</Title>
         <Subtitle>Acesse direto da tela inicial</Subtitle>
       </TextWrap>
-      <InstallBtn onClick={handleInstall}>Instalar</InstallBtn>
-      <CloseBtn onClick={handleDismiss} aria-label="Fechar">×</CloseBtn>
+      <Actions>
+        <InstallBtn onClick={handleInstall}>Instalar</InstallBtn>
+        <CloseBtn onClick={handleDismiss} aria-label="Fechar">×</CloseBtn>
+      </Actions>
     </Banner>
   );
 }
