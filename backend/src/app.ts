@@ -16,6 +16,9 @@ import { adminRoutes } from './modules/admin/routes/admin.routes.js';
 
 const app = express();
 
+// Trust proxy (Nginx reverse proxy)
+app.set('trust proxy', 1);
+
 // Security
 app.use(helmet());
 
