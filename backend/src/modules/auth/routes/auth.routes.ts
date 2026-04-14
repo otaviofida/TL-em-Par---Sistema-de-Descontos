@@ -13,6 +13,8 @@ router.post('/login', validate(loginSchema), controller.login);
 router.post('/refresh', validate(refreshTokenSchema), controller.refresh);
 router.post('/forgot-password', validate(forgotPasswordSchema), controller.forgotPassword);
 router.post('/reset-password', validate(resetPasswordSchema), controller.resetPassword);
+router.get('/verify-email/:token', controller.verifyEmail);
+router.post('/resend-verification', authenticate, controller.resendVerification);
 router.get('/me', authenticate, controller.me);
 router.put('/profile', authenticate, validate(updateProfileSchema), controller.updateProfile);
 router.put('/avatar', authenticate, uploadAvatar.single('avatar'), cloudinaryUpload('avatars', 'avatars'), controller.uploadAvatar);

@@ -75,4 +75,34 @@ export class AuthRepository {
       },
     });
   }
+
+  // Email Verification Token
+  async createEmailVerificationToken(userId: string, token: string, expiresAt: Date) {
+    return prisma.emailVerificationToken.create({
+      data: { userId, token, expiresAt },
+    });
+  }
+
+  async findEmailVerificationToken(token: string) {
+    return prisma.emailVerificationToken.findUnique({
+      where: { token },
+      include: { user: true },
+    });
+  }
+
+  async markEmailVerificationTokenUsed(id: string) {
+    return prisma.emailVerificationToken.update({
+      where: { id },
+      data: { used: true },
+    });
+  }
+
+  async deleteExpiredEmailVerificationTokens(userId: string) {
+    return prisma.emailVerificationToken.deleteMany({
+      where: {
+        userId,
+        OR: [{ used: true }, { expiresAt: { lt: new Date() } }],
+      },
+    });
+  }
 }

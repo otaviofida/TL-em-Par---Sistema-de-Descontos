@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { env } from '../../../config/env.js';
-import { sendEmail, passwordResetEmailHtml } from '../../../config/email.js';
+import { sendEmail, passwordResetEmailHtml, emailVerificationHtml, welcomeEmailHtml } from '../../../config/email.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { RegisterInput, LoginInput, UpdateProfileInput, ForgotPasswordInput, ResetPasswordInput } from '../schemas/auth.schema.js';
 import { UnauthorizedError, ConflictError, NotFoundError, AppError } from '../../../shared/errors/index.js';
@@ -37,10 +37,13 @@ export class AuthService {
       gender: data.gender,
     });
 
+    // Envia email de verificação
+    await this.sendVerificationEmail(user.id, user.email, user.name);
+
     const tokens = await this.generateTokens(user.id, user.role);
 
     return {
-      user: { id: user.id, name: user.name, email: user.email, role: user.role, subscription: null },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, subscription: null, emailVerified: false },
       ...tokens,
     };
   }
@@ -170,6 +173,70 @@ export class AuthService {
     await this.authRepo.deleteUserRefreshTokens(resetToken.userId);
 
     return { message: 'Senha redefinida com sucesso.' };
+  }
+
+  async verifyEmail(token: string) {
+    const verificationToken = await this.authRepo.findEmailVerificationToken(token);
+
+    if (!verificationToken) {
+      throw new AppError('Token inválido ou expirado.', 400, 'INVALID_VERIFICATION_TOKEN');
+    }
+
+    if (verificationToken.used) {
+      throw new AppError('Este link já foi utilizado.', 400, 'TOKEN_ALREADY_USED');
+    }
+
+    if (verificationToken.expiresAt <= new Date()) {
+      throw new AppError('Token expirado. Solicite um novo email de verificação.', 400, 'TOKEN_EXPIRED');
+    }
+
+    await this.authRepo.updateUser(verificationToken.userId, { emailVerified: true });
+    await this.authRepo.markEmailVerificationTokenUsed(verificationToken.id);
+
+    // Envia email de boas-vindas
+    await sendEmail({
+      to: verificationToken.user.email,
+      subject: 'Bem-vindo(a) ao TL EM PAR! 🎉',
+      html: welcomeEmailHtml(verificationToken.user.name),
+    });
+
+    return { message: 'Email verificado com sucesso!' };
+  }
+
+  async resendVerificationEmail(userId: string) {
+    const user = await this.authRepo.findUserById(userId);
+    if (!user) {
+      throw new NotFoundError('Usuário não encontrado.');
+    }
+
+    if (user.emailVerified) {
+      throw new AppError('Email já verificado.', 400, 'EMAIL_ALREADY_VERIFIED');
+    }
+
+    await this.sendVerificationEmail(user.id, user.email, user.name);
+    return { message: 'Email de verificação reenviado.' };
+  }
+
+  private async sendVerificationEmail(userId: string, email: string, name: string) {
+    await this.authRepo.deleteExpiredEmailVerificationTokens(userId);
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    await this.authRepo.createEmailVerificationToken(userId, token, expiresAt);
+
+    const verifyLink = `${env.FRONTEND_URL}/verificar-email/${token}`;
+
+    const emailSent = await sendEmail({
+      to: email,
+      subject: 'Confirme seu email — TL EM PAR',
+      html: emailVerificationHtml(name, verifyLink),
+    });
+
+    if (!emailSent && env.NODE_ENV === 'development') {
+      console.log(`\n✉️ [EMAIL VERIFY] Link para ${email}: ${verifyLink}\n`);
+    }
   }
 
   private async generateTokens(userId: string, role: Role) {

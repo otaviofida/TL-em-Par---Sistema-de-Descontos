@@ -15,9 +15,10 @@
 | Frontend SPA | ✅ Rodando | HTML carregando via Nginx |
 | PWA | ✅ Instalável | manifest.json, Service Worker, prompt de instalação, tela offline |
 | HTTP | ✅ Funcionando | `http://66.253.112.233` |
-| SSL/HTTPS | ⏳ Propagando | Domínio `tlempar.com.br` em propagação DNS |
-| Stripe | ✅ Conta real (modo teste) | Chaves da conta real configuradas, produto R$29,90/mês |
-| Resend | ⚠️ Sandbox | API key configurada, mas emails só para o dono da conta até verificar domínio |
+| SSL/HTTPS | ✅ Funcionando | `https://tlempar.com.br` via Cloudflare (modo Flexible) |
+| Domínio | ✅ Ativo | `tlempar.com.br` — DNS via Cloudflare proxy |
+| Stripe | ✅ Conta real (modo teste) | Chaves configuradas, webhook ativo, produto R$29,90/mês |
+| Resend | ✅ Domínio verificado | `noreply@tlempar.com.br` — emails para qualquer destinatário |
 | Cloudinary | ✅ Configurado | Uploads de imagens via Cloudinary (cloud: dokexngyo) |
 
 ### Credenciais de Teste (Produção)
@@ -29,60 +30,18 @@
 
 ---
 
-## Pendências do Deploy (Domínio)
+## ~~Pendências do Deploy (Domínio)~~ ✅ Concluído
 
-O domínio `tlempar.com.br` está em **propagação DNS**. Quando estiver resolvendo para `66.253.112.233`, executar os passos abaixo:
+Todas as pendências de domínio foram resolvidas em 14/04/2026:
 
-### 1. Configurar DNS
-- Apontar registro **A** de `tlempar.com.br` → `66.253.112.233`
-- Apontar registro **A** de `www.tlempar.com.br` → `66.253.112.233`
-- Aguardar propagação DNS (até 48h, geralmente minutos)
-
-### 2. Atualizar URLs no docker-compose.yml
-```yaml
-FRONTEND_URL: https://tlempar.com.br
-API_URL: https://tlempar.com.br
-STRIPE_SUCCESS_URL: https://tlempar.com.br/assinatura/sucesso
-STRIPE_CANCEL_URL: https://tlempar.com.br/assinatura/cancelado
-```
-
-### 3. Atualizar Nginx
-```bash
-ssh root@66.253.112.233
-cd ~/tl-em-par
-# Restaurar config SSL
-cp nginx/conf.d/tlempar.conf.ssl-backup nginx/conf.d/tlempar.conf
-# Editar server_name para tlempar.com.br
-nano nginx/conf.d/tlempar.conf
-nano nginx/conf.d/tlempar-init.conf
-```
-
-### 4. Emitir Certificado SSL
-```bash
-# Primeiro, subir com config HTTP (tlempar-init.conf)
-docker compose restart nginx
-
-# Emitir certificado
-docker compose run --rm certbot certonly \
-  --webroot -w /var/www/certbot \
-  -d tlempar.com.br -d www.tlempar.com.br \
-  --email otaviofida@gmail.com --agree-tos --no-eff-email
-
-# Trocar para config SSL
-rm nginx/conf.d/tlempar-init.conf
-docker compose restart nginx
-```
-
-### 5. Configurar Stripe para Produção
-- Criar chaves **live** no Stripe Dashboard
-- Atualizar `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID` no `.env` da VPS
-- Configurar webhook endpoint: `https://tlempar.com.br/api/subscriptions/webhook`
-- Testar o fluxo completo de pagamento
-
-### 6. Atualizar Webhook do Stripe
-- No Stripe Dashboard → Developers → Webhooks
-- Endpoint: `https://tlempar.com.br/api/subscriptions/webhook`
-- Eventos: `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.deleted`
+- ✅ DNS configurado via Cloudflare (proxy ativo)
+- ✅ URLs atualizadas no `docker-compose.yml` para `https://tlempar.com.br`
+- ✅ Nginx `server_name` atualizado para `tlempar.com.br`
+- ✅ SSL/HTTPS via Cloudflare Flexible (sem Certbot — Cloudflare termina SSL)
+- ✅ Frontend + Backend reconstruídos com novas URLs
+- ✅ Stripe webhook configurado: `https://tlempar.com.br/api/subscriptions/webhook`
+- ✅ Domínio verificado no Resend — `EMAIL_FROM=noreply@tlempar.com.br`
+- ✅ Testes de sanidade: HTTPS, login, webhook — todos passando
 
 ---
 
@@ -117,27 +76,27 @@ Frontend transformado em PWA instalável no celular. Implementação manual (sem
 | 2.1.4 | **Stripe conta real** — Conta criada, produto R$29,90/mês, chaves teste configuradas na VPS | ✅ |
 | 2.1.5 | **Preço atualizado** — `MONTHLY_PRICE` alterado de R$39,90 para R$29,90 | ✅ |
 
-> **Serviços configurados na VPS (.env):** Resend (sandbox), Cloudinary (ativo), Stripe (conta real, modo teste)
+> **Serviços configurados na VPS (.env):** Resend (domínio verificado), Cloudinary (ativo), Stripe (conta real, modo teste, webhook ativo)
 
 ---
 
-### Fase 2.1.5 — Ativação de Domínio (PRÓXIMA — aguardando propagação DNS)
+### Fase 2.1.5 — Ativação de Domínio ✅ Concluída
 
-Quando o domínio `tlempar.com.br` propagar, executar **nesta ordem**:
+Domínio `tlempar.com.br` ativado em 14/04/2026 via Cloudflare.
 
-| # | Tarefa | Onde |
-|---|--------|------|
-| 1 | Verificar propagação DNS (`dig tlempar.com.br`) | Local |
-| 2 | Atualizar `FRONTEND_URL`, `API_URL`, `STRIPE_*_URL` no `docker-compose.yml` | Código |
-| 3 | Atualizar `server_name` no Nginx para `tlempar.com.br` | VPS |
-| 4 | Emitir certificado SSL via Certbot | VPS |
-| 5 | Ativar config SSL do Nginx | VPS |
-| 6 | Rebuild frontend + backend (URLs mudam em build-time) | VPS |
-| 7 | Configurar webhook no Stripe: `https://tlempar.com.br/api/subscriptions/webhook` | Stripe Dashboard |
-| 8 | Atualizar `STRIPE_WEBHOOK_SECRET` (whsec_) no `.env` da VPS | VPS |
-| 9 | Verificar domínio no Resend (registros DNS) → desbloqueia emails para qualquer destinatário | Resend Dashboard |
-| 10 | Atualizar `EMAIL_FROM` para `noreply@tlempar.com.br` | VPS .env |
-| 11 | Testes: SSL, login, forgot-password (email real), checkout Stripe, upload Cloudinary | VPS |
+| # | Tarefa | Status |
+|---|--------|--------|
+| 1 | Verificar propagação DNS | ✅ Via Cloudflare proxy |
+| 2 | Atualizar URLs no `docker-compose.yml` | ✅ `https://tlempar.com.br` |
+| 3 | Atualizar `server_name` no Nginx | ✅ `tlempar.com.br www.tlempar.com.br` |
+| 4 | SSL/HTTPS | ✅ Cloudflare Flexible (sem Certbot) |
+| 5 | Ativar config SSL do Nginx | ✅ N/A — Cloudflare termina SSL |
+| 6 | Rebuild frontend + backend | ✅ |
+| 7 | Webhook Stripe | ✅ `https://tlempar.com.br/api/subscriptions/webhook` |
+| 8 | `STRIPE_WEBHOOK_SECRET` na VPS | ✅ |
+| 9 | Verificar domínio no Resend | ✅ |
+| 10 | `EMAIL_FROM=noreply@tlempar.com.br` | ✅ |
+| 11 | Testes de sanidade | ✅ HTTPS, login, webhook — OK |
 
 ---
 
@@ -185,9 +144,9 @@ Quando o domínio `tlempar.com.br` propagar, executar **nesta ordem**:
 
 | Feature | Backend | Frontend | Pendência |
 |---------|---------|----------|-----------|
-| Recuperação de senha | ✅ Resend integrado | ✅ Páginas prontas | ⚠️ **Resend em sandbox** — só envia para o email do dono da conta até verificar domínio no Resend |
+| Recuperação de senha | ✅ Resend integrado | ✅ Páginas prontas | ✅ Resolvido — Domínio verificado no Resend, emails para qualquer destinatário |
 | Uploads de imagens | ✅ Cloudinary + fallback local | ✅ Upload funcional | ✅ Resolvido — Cloudinary configurado na VPS |
-| Stripe webhook | ✅ Endpoint pronto | ✅ Checkout funcional | ⚠️ **Webhook não configurado** — precisa de domínio HTTPS para criar no Stripe Dashboard |
+| Stripe webhook | ✅ Endpoint pronto | ✅ Checkout funcional | ✅ Resolvido — Webhook configurado em `https://tlempar.com.br/api/subscriptions/webhook` |
 
 ---
 
@@ -199,7 +158,7 @@ Quando o domínio `tlempar.com.br` propagar, executar **nesta ordem**:
 | ~~UUID para password reset tokens~~ | ~~Aceitável para MVP~~ | ✅ Trocado por `crypto.randomBytes(32)` |
 | localStorage para JWT | Padrão SPA, vulnerável a XSS | Migrar para httpOnly cookies quando tiver domínio próprio |
 | Sem rate limiting por IP no Nginx | DDos básico | Adicionar `limit_req_zone` no nginx.conf |
-| Certbot container rodando loop vazio | Gasta recursos | Parar/remover até ter domínio com SSL |
+| ~~Certbot container rodando loop vazio~~ | ~~Gasta recursos~~ | ✅ SSL via Cloudflare — Certbot não necessário |
 
 ---
 
@@ -209,7 +168,7 @@ Quando o domínio `tlempar.com.br` propagar, executar **nesta ordem**:
 1. PWA (2.0)                  ✅ Concluído
 2. Melhorias (2.2)             ✅ Concluído (soft delete, auditoria, PDF, filtros)
 3. Correções pré-prod (2.1)    ✅ Concluído (Resend, Cloudinary, Stripe conta real, senhas)
-4. Ativação domínio (2.1.5)    ← PRÓXIMO — DNS propagando
-5. Testes + Sentry (2.3)       ← Estabilidade pós-lançamento
+4. Ativação domínio (2.1.5)    ✅ Concluído (HTTPS, webhook, Resend domínio, testes OK)
+5. Testes + Sentry (2.3)       ← PRÓXIMO — Estabilidade pós-lançamento
 6. Crescimento (3.0)            ← Quando tiver base de usuários
 ```

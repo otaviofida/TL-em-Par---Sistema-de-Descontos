@@ -3,6 +3,8 @@ import { CreateEditionInput, UpdateEditionInput, LinkCompaniesInput } from '../s
 import { NotFoundError, AppError } from '../../../shared/errors/index.js';
 import { PaginationParams, getPrismaSkipTake } from '../../../shared/helpers/pagination.js';
 import { prisma } from '../../../config/prisma.js';
+import { sendEmail, newEditionEmailHtml } from '../../../config/email.js';
+import { env } from '../../../config/env.js';
 
 export class EditionService {
   constructor(private editionRepo = new EditionRepository()) {}
@@ -42,6 +44,11 @@ export class EditionService {
       if (activeCompanies.length > 0) {
         await this.editionRepo.linkCompanies(id, activeCompanies.map(c => c.id));
       }
+
+      // Notificar assinantes ativos por email (fire-and-forget)
+      this.notifyActiveSubscribers(updated.name).catch(err =>
+        console.error('[EDITION] Erro ao notificar assinantes:', err)
+      );
     }
 
     return updated;
@@ -89,5 +96,30 @@ export class EditionService {
     }
 
     return this.editionRepo.findEditionCompanies(editionId);
+  }
+
+  private async notifyActiveSubscribers(editionName: string) {
+    const subscribers = await prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        emailVerified: true,
+        subscription: { status: 'ACTIVE' },
+      },
+      select: { name: true, email: true },
+    });
+
+    const loginLink = `${env.FRONTEND_URL}/login`;
+    let sent = 0;
+
+    for (const sub of subscribers) {
+      const ok = await sendEmail({
+        to: sub.email,
+        subject: `Nova edição: ${editionName} — TL EM PAR 🍽️`,
+        html: newEditionEmailHtml(sub.name, editionName, loginLink),
+      });
+      if (ok) sent++;
+    }
+
+    console.log(`[EDITION] Notificação de nova edição enviada para ${sent}/${subscribers.length} assinantes.`);
   }
 }

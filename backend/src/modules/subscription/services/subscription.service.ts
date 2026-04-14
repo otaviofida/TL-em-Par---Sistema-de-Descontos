@@ -3,6 +3,7 @@ import { env } from '../../../config/env.js';
 import { SubscriptionRepository } from '../repositories/subscription.repository.js';
 import { AuthRepository } from '../../auth/repositories/auth.repository.js';
 import { NotFoundError, AppError } from '../../../shared/errors/index.js';
+import { sendEmail, subscriptionExpiringEmailHtml } from '../../../config/email.js';
 import Stripe from 'stripe';
 
 function getSubscriptionPeriod(sub: any) {
@@ -88,6 +89,17 @@ export class SubscriptionService {
       status: subscription.status,
       cancelAtPeriodEnd: true,
     });
+
+    // Notificar usuário que a assinatura será cancelada
+    const user = await this.authRepo.findUserById(userId);
+    if (user && subscription.currentPeriodEnd) {
+      const expirationDate = subscription.currentPeriodEnd.toLocaleDateString('pt-BR');
+      sendEmail({
+        to: user.email,
+        subject: 'Sua assinatura será cancelada — TL EM PAR',
+        html: subscriptionExpiringEmailHtml(user.name, expirationDate, `${env.FRONTEND_URL}/assinatura`),
+      }).catch(err => console.error('[SUBSCRIPTION] Erro ao enviar email de cancelamento:', err));
+    }
 
     return {
       status: subscription.status,
