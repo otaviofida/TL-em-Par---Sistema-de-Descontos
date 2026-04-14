@@ -76,6 +76,19 @@ const MetaItem = styled.span`
   gap: 0.375rem;
 `;
 
+const MetaLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover, &:active {
+    color: ${({ theme }) => theme.colors.primary};
+  }
+`;
+
 const BenefitCard = styled(Card)`
   background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary} 0%, ${({ theme }) => theme.colors.primaryDark} 100%);
   color: ${({ theme }) => theme.colors.dark};
@@ -154,10 +167,10 @@ export function CompanyDetailPage() {
             <MetaItem><MapPin size={14} /> {company.address}{company.city ? `, ${company.city}` : ''}</MetaItem>
           )}
           {company.phone && (
-            <MetaItem><Phone size={14} /> {company.phone}</MetaItem>
+            <MetaLink href={`tel:${company.phone.replace(/\D/g, '')}`}><Phone size={14} /> {company.phone}</MetaLink>
           )}
           {company.instagram && (
-            <MetaItem><Instagram size={14} /> {company.instagram}</MetaItem>
+            <MetaLink href={`https://instagram.com/${company.instagram.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer"><Instagram size={14} /> {company.instagram}</MetaLink>
           )}
         </MetaRow>
       </Header>

@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Button, Loading, EmptyState, CompanyStatusBadge } from '../../components/ui';
 import { Link } from 'react-router-dom';
-import { Plus, Edit, Search, UtensilsCrossed, Store, CheckCircle, XCircle, MapPin, Tag, Trash2, Power } from 'lucide-react';
+import { Plus, Edit, Search, UtensilsCrossed, Store, CheckCircle, XCircle, MapPin, Tag, Trash2, Power, Phone, Instagram } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getErrorMessage } from '../../utils/errorMessages';
 import { COMPANY_CATEGORIES } from '../../constants/categories';
@@ -290,6 +290,20 @@ const CategoryTag = styled.span`
   flex-shrink: 0;
 `;
 
+const MetaLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: ${({ theme }) => theme.colors.textLight};
+  text-decoration: none;
+  transition: color 0.2s;
+  flex-shrink: 0;
+
+  &:hover, &:active {
+    color: ${({ theme }) => theme.colors.primary};
+  }
+`;
+
 const CardActions = styled.div`
   display: flex;
   align-items: center;
@@ -523,6 +537,14 @@ export function AdminCompaniesPage() {
                         <MapPin size={10} />
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{company.address}</span>
                       </>
+                    )}
+                  </MetaRow>
+                  <MetaRow>
+                    {company.phone && (
+                      <MetaLink href={`tel:${company.phone.replace(/\D/g, '')}`}><Phone size={10} /> {company.phone}</MetaLink>
+                    )}
+                    {company.instagram && (
+                      <MetaLink href={`https://instagram.com/${company.instagram.replace(/^@/, '')}`} target="_blank" rel="noopener noreferrer"><Instagram size={10} /> {company.instagram}</MetaLink>
                     )}
                   </MetaRow>
                 </CardBody>
