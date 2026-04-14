@@ -11,7 +11,7 @@ import { env } from '../../../config/env.js';
 import { PushService } from '../../push/services/push.service.js';
 
 const REVIEW_REQUEST_DELAY_MS = 2 * 60 * 60 * 1000;    // 2 horas (email + notificação in-app)
-const PUSH_REVIEW_DELAY_MS    = 1 * 60 * 1000;          // TODO: alterar para 30 * 60 * 1000 (30 min) após teste
+const PUSH_REVIEW_DELAY_MS    = 30 * 60 * 1000;          // 30 minutos
 
 export class BenefitService {
   constructor(
