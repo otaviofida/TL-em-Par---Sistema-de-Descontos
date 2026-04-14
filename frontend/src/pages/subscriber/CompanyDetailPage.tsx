@@ -238,7 +238,7 @@ const RatingRow = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.25rem;
+  margin: 0.5rem 0 0.75rem;
 `;
 
 export function CompanyDetailPage() {
@@ -325,7 +325,7 @@ export function CompanyDetailPage() {
         <Name>{company.name}</Name>
         {(company.avgRating ?? 0) > 0 && (
           <RatingRow>
-            <StarRating value={company.avgRating!} size={18} count={company.reviewCount} showCount />
+            <StarRating value={company.avgRating!} size={14} count={company.reviewCount} showCount />
           </RatingRow>
         )}
         {company.description && <Description>{company.description}</Description>}

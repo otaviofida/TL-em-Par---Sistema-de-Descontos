@@ -24,7 +24,6 @@ import { CompanyDetailPage } from './pages/subscriber/CompanyDetailPage';
 import { ValidateBenefitPage } from './pages/subscriber/ValidateBenefitPage';
 import { HistoryPage } from './pages/subscriber/HistoryPage';
 import { ProfilePage } from './pages/subscriber/ProfilePage';
-import { NotificationsPage } from './pages/subscriber/NotificationsPage';
 
 // Admin
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -69,7 +68,6 @@ export function App() {
             <Route path="/validar" element={<ValidateBenefitPage />} />
             <Route path="/historico" element={<HistoryPage />} />
             <Route path="/perfil" element={<ProfilePage />} />
-            <Route path="/notificacoes" element={<NotificationsPage />} />
             <Route path="/assinar" element={<CheckoutPage />} />
           </Route>
         </Route>
