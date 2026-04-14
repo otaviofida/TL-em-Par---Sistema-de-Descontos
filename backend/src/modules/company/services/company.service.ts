@@ -111,6 +111,14 @@ export class CompanyService {
     };
   }
 
+  async softDelete(id: string) {
+    const company = await this.companyRepo.findById(id);
+    if (!company) {
+      throw new NotFoundError('Empresa não encontrada.');
+    }
+    return this.companyRepo.softDelete(id);
+  }
+
   async getDetailForSubscriber(companyId: string, userId: string) {
     const activeEdition = await this.editionRepo.findActive();
     if (!activeEdition) {

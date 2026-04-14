@@ -177,6 +177,22 @@ export class AdminController {
     }
   }
 
+  async deleteCompany(req: Request, res: Response, next: NextFunction) {
+    try {
+      await companyService.softDelete(req.params.id as string);
+      await auditService.log({
+        userId: (req as any).userId,
+        action: 'DELETE_COMPANY',
+        entity: 'Company',
+        entityId: req.params.id as string,
+        ipAddress: String(req.ip ?? ''),
+      });
+      return sendSuccess(res, { message: 'Empresa removida com sucesso.' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async getCompanyQrToken(req: Request, res: Response, next: NextFunction) {
     try {
       const result = await companyService.getQrToken(req.params.id as string);

@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Button, Loading, EmptyState, CompanyStatusBadge } from '../../components/ui';
 import { Link } from 'react-router-dom';
-import { Plus, Edit, Search, UtensilsCrossed, Store, CheckCircle, XCircle, MapPin } from 'lucide-react';
+import { Plus, Edit, Search, UtensilsCrossed, Store, CheckCircle, XCircle, MapPin, Tag, Trash2, Power } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getErrorMessage } from '../../utils/errorMessages';
 import { COMPANY_CATEGORIES } from '../../constants/categories';
@@ -171,8 +171,8 @@ const ResultCount = styled.p`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
   animation: ${fadeIn} 0.4s ease-out 0.15s both;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
@@ -182,71 +182,101 @@ const Grid = styled.div`
 
 const CompanyCard = styled.div`
   background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.border};
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
   border-radius: ${({ theme }) => theme.radii.xl};
-  padding: 1.25rem;
-  display: flex;
-  gap: 1rem;
-  transition: all 0.2s;
+  overflow: hidden;
+  transition: all 0.25s ease;
 
   &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: ${({ theme }) => theme.shadows.md};
+    box-shadow: ${({ theme }) => theme.shadows.lg};
+    transform: translateY(-4px);
   }
 `;
 
-const CompanyLogo = styled.div`
-  width: 56px;
-  height: 56px;
-  border-radius: ${({ theme }) => theme.radii.lg};
+const CoverWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 140px;
   background: ${({ theme }) => theme.colors.surfaceAlt};
+  overflow: hidden;
+`;
+
+const CoverImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const CoverFallback = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.surfaceAlt} 0%, ${({ theme }) => theme.colors.borderLight} 100%);
+`;
+
+const LogoOverlay = styled.div`
+  position: absolute;
+  bottom: -18px;
+  left: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: ${({ theme }) => theme.radii.lg};
+  background: ${({ theme }) => theme.colors.surface};
+  border: 2px solid ${({ theme }) => theme.colors.surface};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 
   img { width: 100%; height: 100%; object-fit: cover; }
 `;
 
-const CompanyBody = styled.div`
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+const StatusOverlay = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
 `;
 
-const CompanyTopRow = styled.div`
+const CardBody = styled.div`
+  padding: 24px 14px 10px;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 4px;
 `;
 
 const CompanyName = styled.h3`
   font-size: ${({ theme }) => theme.fontSizes.md};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.text};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const BenefitRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: ${({ theme }) => theme.colors.primary};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
-const CompanyBenefit = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.primary};
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
+const MetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: ${({ theme }) => theme.colors.textLight};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`;
-
-const CompanyMeta = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.7rem;
-  color: ${({ theme }) => theme.colors.textLight};
 `;
 
 const CategoryTag = styled.span`
@@ -256,40 +286,50 @@ const CategoryTag = styled.span`
   font-size: 0.65rem;
   font-weight: ${({ theme }) => theme.fontWeights.medium};
   color: ${({ theme }) => theme.colors.textSecondary};
-  text-transform: capitalize;
+  flex-shrink: 0;
 `;
 
-const CompanyFooter = styled.div`
+const CardActions = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 0.25rem;
+  padding: 8px 14px 14px;
   gap: 0.5rem;
 `;
 
-const Actions = styled.div`
+const ActionsLeft = styled.div`
   display: flex;
-  gap: 0.25rem;
-  align-items: center;
+  gap: 4px;
 `;
 
-const ActionBtn = styled.button<{ $danger?: boolean }>`
-  background: none;
-  border: none;
-  padding: 0.3rem 0.6rem;
+const ActionBtn = styled.button<{ $variant?: 'edit' | 'toggle' | 'delete' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
   border-radius: ${({ theme }) => theme.radii.md};
   font-size: ${({ theme }) => theme.fontSizes.xs};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
-  color: ${({ theme, $danger }) => $danger ? theme.colors.error : theme.colors.textSecondary};
+  border: none;
   cursor: pointer;
-  transition: background 0.15s;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
+  transition: all 0.15s;
 
-  &:hover {
-    background: ${({ theme }) => theme.colors.surfaceAlt};
-  }
+  ${({ theme, $variant }) => {
+    switch ($variant) {
+      case 'edit':
+        return `background: ${theme.colors.surfaceAlt}; color: ${theme.colors.text};
+          &:hover { background: ${theme.colors.border}; }`;
+      case 'toggle':
+        return `background: transparent; color: ${theme.colors.textSecondary}; border: 1px solid ${theme.colors.border};
+          &:hover { border-color: ${theme.colors.primary}; color: ${theme.colors.primary}; }`;
+      case 'delete':
+        return `background: transparent; color: ${theme.colors.textLight};
+          &:hover { background: ${theme.colors.errorBg}; color: ${theme.colors.error}; }`;
+      default:
+        return `background: ${theme.colors.surfaceAlt}; color: ${theme.colors.textSecondary};
+          &:hover { background: ${theme.colors.border}; }`;
+    }
+  }}
 `;
 
 /* ── helpers ────────────────────────────────────────── */
@@ -330,6 +370,23 @@ export function AdminCompaniesPage() {
     },
     onError: (err) => toast.error(getErrorMessage(err)),
   });
+
+  const deleteCompany = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/companies/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-companies'] });
+      toast.success('Empresa excluída com sucesso!');
+    },
+    onError: (err) => toast.error(getErrorMessage(err)),
+  });
+
+  const handleDelete = (company: Company) => {
+    if (window.confirm(`Tem certeza que deseja excluir "${company.name}"?`)) {
+      deleteCompany.mutate(company.id);
+    }
+  };
 
   const filtered = useMemo(() => {
     if (!data) return [];
@@ -428,47 +485,64 @@ export function AdminCompaniesPage() {
           <Grid>
             {filtered.map((company) => (
               <CompanyCard key={company.id}>
-                <CompanyLogo>
-                  {company.logoUrl ? (
-                    <img src={company.logoUrl} alt={company.name} />
+                <CoverWrapper>
+                  {company.coverUrl ? (
+                    <CoverImage src={company.coverUrl} alt={company.name} />
                   ) : (
-                    <UtensilsCrossed size={22} color="#ccc" />
+                    <CoverFallback>
+                      <UtensilsCrossed size={36} color="#ccc" />
+                    </CoverFallback>
                   )}
-                </CompanyLogo>
-                <CompanyBody>
-                  <CompanyTopRow>
-                    <CompanyName>{company.name}</CompanyName>
+                  <LogoOverlay>
+                    {company.logoUrl ? (
+                      <img src={company.logoUrl} alt={company.name} />
+                    ) : (
+                      <UtensilsCrossed size={18} color="#ccc" />
+                    )}
+                  </LogoOverlay>
+                  <StatusOverlay>
                     <CompanyStatusBadge status={company.status ?? 'ACTIVE'} />
-                  </CompanyTopRow>
+                  </StatusOverlay>
+                </CoverWrapper>
+
+                <CardBody>
+                  <CompanyName>{company.name}</CompanyName>
 
                   {company.benefitDescription && (
-                    <CompanyBenefit>{company.benefitDescription}</CompanyBenefit>
+                    <BenefitRow>
+                      <Tag size={12} />
+                      {company.benefitDescription}
+                    </BenefitRow>
                   )}
 
-                  <CompanyMeta>
+                  <MetaRow>
                     {company.category && <CategoryTag>{getCategoryLabel(company.category)}</CategoryTag>}
                     {company.address && (
                       <>
                         <MapPin size={10} />
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{company.address}</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{company.address}</span>
                       </>
                     )}
-                  </CompanyMeta>
+                  </MetaRow>
+                </CardBody>
 
-                  <CompanyFooter>
-                    <Actions>
-                      <Link to={`/admin/empresas/${company.id}/editar`}>
-                        <ActionBtn><Edit size={13} /> Editar</ActionBtn>
-                      </Link>
-                      <ActionBtn
-                        $danger={company.status === 'ACTIVE'}
-                        onClick={() => toggleStatus.mutate({ id: company.id, status: company.status ?? 'ACTIVE' })}
-                      >
-                        {company.status === 'ACTIVE' ? 'Desativar' : 'Ativar'}
-                      </ActionBtn>
-                    </Actions>
-                  </CompanyFooter>
-                </CompanyBody>
+                <CardActions>
+                  <ActionsLeft>
+                    <Link to={`/admin/empresas/${company.id}/editar`}>
+                      <ActionBtn $variant="edit"><Edit size={13} /> Editar</ActionBtn>
+                    </Link>
+                    <ActionBtn
+                      $variant="toggle"
+                      onClick={() => toggleStatus.mutate({ id: company.id, status: company.status ?? 'ACTIVE' })}
+                    >
+                      <Power size={13} />
+                      {company.status === 'ACTIVE' ? 'Desativar' : 'Ativar'}
+                    </ActionBtn>
+                  </ActionsLeft>
+                  <ActionBtn $variant="delete" onClick={() => handleDelete(company)}>
+                    <Trash2 size={13} />
+                  </ActionBtn>
+                </CardActions>
               </CompanyCard>
             ))}
           </Grid>

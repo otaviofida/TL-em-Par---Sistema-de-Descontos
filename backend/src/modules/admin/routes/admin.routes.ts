@@ -35,6 +35,7 @@ router.get('/companies/:id', controller.getCompany);
 router.post('/companies', validate(createCompanySchema), controller.createCompany);
 router.put('/companies/:id', validate(updateCompanySchema), controller.updateCompany);
 router.patch('/companies/:id/status', validate(updateCompanyStatusSchema), controller.updateCompanyStatus);
+router.delete('/companies/:id', controller.deleteCompany);
 router.get('/companies/:id/qr-token', controller.getCompanyQrToken);
 
 // Uploads
