@@ -3,7 +3,7 @@ import { env } from '../../../config/env.js';
 import { SubscriptionRepository } from '../repositories/subscription.repository.js';
 import { AuthRepository } from '../../auth/repositories/auth.repository.js';
 import { NotFoundError, AppError } from '../../../shared/errors/index.js';
-import { sendEmail, subscriptionExpiringEmailHtml } from '../../../config/email.js';
+import { sendEmail, subscriptionExpiringEmailHtml, welcomeEmailHtml } from '../../../config/email.js';
 import { CancelWithFeedbackInput } from '../schemas/subscription.schema.js';
 import Stripe from 'stripe';
 
@@ -166,6 +166,16 @@ export class SubscriptionService {
       ...period,
       cancelAtPeriodEnd: false,
     });
+
+    // Envia email de boas-vindas após pagamento confirmado
+    const user = await this.authRepo.findUserById(userId);
+    if (user) {
+      sendEmail({
+        to: user.email,
+        subject: 'Bem-vindo(a) ao TL EM PAR! 🎉',
+        html: welcomeEmailHtml(user.name),
+      });
+    }
   }
 
   async handleInvoicePaid(invoice: Stripe.Invoice) {

@@ -132,14 +132,29 @@ export function welcomeEmailHtml(name: string): string {
   return emailLayout(`
     <div style="text-align: center;">
       <p style="font-size: 48px; margin: 0 0 16px;">🎉</p>
+      <h2 style="font-size: 22px; color: #ffffff; margin: 0 0 16px;">Bem-vindo(a) ao TL EM PAR, ${name}!</h2>
+      <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+        Seu pagamento foi confirmado e sua assinatura já está <strong style="color: #22c55e;">ativa</strong>!
+      </p>
+      <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+        Agora você tem acesso a todos os <strong style="color: #feb621;">benefícios gastronômicos</strong>
+        dos nossos restaurantes parceiros. Explore, aproveite e bom apetite! 🍽️
+      </p>
+      ${emailButton(`${env.FRONTEND_URL}/empresas`, '🍴 Ver Restaurantes')}
+    </div>
+  `);
+}
+
+export function emailVerifiedPaymentHtml(name: string): string {
+  return emailLayout(`
+    <div style="text-align: center;">
+      <p style="font-size: 48px; margin: 0 0 16px;">✅</p>
       <h2 style="font-size: 22px; color: #ffffff; margin: 0 0 16px;">Email confirmado, ${name}!</h2>
       <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
-        Sua conta está ativa. Agora você pode assinar o clube e aproveitar todos os
-        <strong style="color: #feb621;">benefícios gastronômicos</strong> da sua cidade.
+        Sua conta foi verificada com sucesso. Agora é só realizar o pagamento para ativar sua assinatura
+        e começar a aproveitar todos os <strong style="color: #feb621;">benefícios gastronômicos</strong>.
       </p>
-      <p style="color: #feb621; font-size: 18px; font-weight: 700; margin: 20px 0 0;">
-        Bom apetite! 🍽️
-      </p>
+      ${emailButton(`${env.FRONTEND_URL}/login`, '💳 Fazer Pagamento')}
     </div>
   `);
 }

@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { env } from '../../../config/env.js';
-import { sendEmail, passwordResetEmailHtml, emailVerificationHtml, welcomeEmailHtml } from '../../../config/email.js';
+import { sendEmail, passwordResetEmailHtml, emailVerificationHtml, emailVerifiedPaymentHtml } from '../../../config/email.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { RegisterInput, LoginInput, UpdateProfileInput, ForgotPasswordInput, ResetPasswordInput } from '../schemas/auth.schema.js';
 import { UnauthorizedError, ConflictError, NotFoundError, AppError } from '../../../shared/errors/index.js';
@@ -193,11 +193,11 @@ export class AuthService {
     await this.authRepo.updateUser(verificationToken.userId, { emailVerified: true });
     await this.authRepo.markEmailVerificationTokenUsed(verificationToken.id);
 
-    // Envia email de boas-vindas
+    // Envia email informando que o pagamento é o próximo passo
     await sendEmail({
       to: verificationToken.user.email,
-      subject: 'Bem-vindo(a) ao TL EM PAR! 🎉',
-      html: welcomeEmailHtml(verificationToken.user.name),
+      subject: 'Email confirmado! Agora é só pagar 💳',
+      html: emailVerifiedPaymentHtml(verificationToken.user.name),
     });
 
     return { message: 'Email verificado com sucesso!' };
