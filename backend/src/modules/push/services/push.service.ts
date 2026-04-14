@@ -62,6 +62,7 @@ export class PushService {
         );
         sent++;
       } catch (err: any) {
+        console.error(`[PUSH] Falha ao enviar para ${sub.endpoint.slice(0, 60)}...:`, err.statusCode, err.body || err.message);
         if (err.statusCode === 410 || err.statusCode === 404) {
           await this.pushRepo.deleteById(sub.id);
         }
