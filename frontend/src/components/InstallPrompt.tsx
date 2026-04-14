@@ -1,10 +1,20 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
+import { Share } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
+function isIos() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
+}
+
+function isInStandaloneMode() {
+  return ('standalone' in navigator && (navigator as unknown as { standalone: boolean }).standalone)
+    || window.matchMedia('(display-mode: standalone)').matches;
 }
 
 const Banner = styled.div`
@@ -106,12 +116,22 @@ const CloseBtn = styled.button`
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [show, setShow] = useState(false);
+  const [iosPrompt, setIosPrompt] = useState(false);
 
   useEffect(() => {
-    // Não mostrar se já foi dispensado recentemente
+    // Não mostrar se já instalado ou já dispensado
+    if (isInStandaloneMode()) return;
     const dismissed = sessionStorage.getItem('pwa-install-dismissed');
     if (dismissed) return;
 
+    // iOS: mostrar banner manual
+    if (isIos()) {
+      setIosPrompt(true);
+      setShow(true);
+      return;
+    }
+
+    // Chrome/Android: capturar evento nativo
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -140,11 +160,22 @@ export function InstallPrompt() {
     <Banner>
       <Icon src="/icons/icon-192x192.png" alt="TL em Par" />
       <TextWrap>
-        <Title>Instalar TL em Par</Title>
-        <Subtitle>Acesse direto da tela inicial</Subtitle>
+        {iosPrompt ? (
+          <>
+            <Title>Instalar TL em Par</Title>
+            <Subtitle>
+              Toque em <Share size={11} style={{ verticalAlign: 'middle', marginInline: 2 }} /> e depois <strong>"Adicionar à Tela de Início"</strong>
+            </Subtitle>
+          </>
+        ) : (
+          <>
+            <Title>Instalar TL em Par</Title>
+            <Subtitle>Acesse direto da tela inicial</Subtitle>
+          </>
+        )}
       </TextWrap>
       <Actions>
-        <InstallBtn onClick={handleInstall}>Instalar</InstallBtn>
+        {!iosPrompt && <InstallBtn onClick={handleInstall}>Instalar</InstallBtn>}
         <CloseBtn onClick={handleDismiss} aria-label="Fechar">×</CloseBtn>
       </Actions>
     </Banner>,
