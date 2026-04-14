@@ -400,8 +400,11 @@ const NotifDropdown = styled.div<{ $open: boolean }>`
   overflow: hidden;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: calc(100vw - 2rem);
-    right: -1rem;
+    position: fixed;
+    top: 6.5rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    width: auto;
   }
 `;
 
