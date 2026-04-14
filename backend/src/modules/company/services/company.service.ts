@@ -6,6 +6,8 @@ import { ReviewRepository } from '../../review/repositories/review.repository.js
 import { PaginationParams, PaginatedResult } from '../../../shared/helpers/pagination.js';
 import { getPrismaSkipTake } from '../../../shared/helpers/pagination.js';
 import { PushService } from '../../push/services/push.service.js';
+import { NotificationService } from '../../notification/services/notification.service.js';
+import { prisma } from '../../../config/prisma.js';
 import { env } from '../../../config/env.js';
 
 export class CompanyService {
@@ -37,11 +39,23 @@ export class CompanyService {
       await this.editionRepo.linkCompanies(activeEdition.id, [company.id]);
     }
 
-    // Push para todos os inscritos avisando do novo restaurante
+    // Notificação in-app + push para todos os assinantes ativos
+    const companyUrl = `${env.FRONTEND_URL}/empresas/${company.id}`;
+    prisma.subscription.findMany({ where: { status: 'ACTIVE' }, select: { userId: true } })
+      .then(subs => Promise.all(subs.map(s =>
+        NotificationService.notify(s.userId, {
+          type: 'NEW_COMPANY',
+          title: '🍽️ Novo restaurante no clube!',
+          message: `${company.name} acabou de entrar no TL em Par. Confira o benefício!`,
+          data: { companyId: company.id, companyName: company.name },
+        }),
+      )))
+      .catch(err => console.error('[NOTIFICATION] Erro ao notificar novo restaurante:', err));
+
     this.pushService.sendToAll({
       title: '🍽️ Novo restaurante no clube!',
       message: `${company.name} acabou de entrar no TL em Par. Confira o benefício!`,
-      url: `${env.FRONTEND_URL}/empresas/${company.id}`,
+      url: companyUrl,
     }).catch(err => console.error('[PUSH] Erro ao notificar novo restaurante:', err));
 
     return company;

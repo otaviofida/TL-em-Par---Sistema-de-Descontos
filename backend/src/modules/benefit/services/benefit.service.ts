@@ -144,6 +144,16 @@ export class BenefitService {
         if (existingReview) return;
 
         const reviewLink = `${env.FRONTEND_URL}/empresas/${companyId}`;
+
+        // Notificação in-app (dropdown)
+        await NotificationService.notify(userId, {
+          type: 'REVIEW_REQUEST',
+          title: '⭐ Como foi sua experiência?',
+          message: `Avalie o ${companyName} e ajude outros assinantes!`,
+          data: { companyId, companyName },
+        });
+
+        // Push notification
         await this.pushService.sendToUser(userId, {
           title: '⭐ Como foi sua experiência?',
           message: `Avalie o ${companyName} e ajude outros assinantes!`,
