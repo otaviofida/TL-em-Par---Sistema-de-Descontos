@@ -20,12 +20,17 @@ export async function sendEmail(params: SendEmailParams): Promise<boolean> {
   }
 
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: env.EMAIL_FROM,
       to: params.to,
       subject: params.subject,
       html: params.html,
     });
+    console.log(`[EMAIL] Enviado para ${params.to} — id: ${result.data?.id ?? 'N/A'}`);
+    if (result.error) {
+      console.error(`[EMAIL] Erro Resend:`, result.error);
+      return false;
+    }
     return true;
   } catch (error) {
     console.error(`[EMAIL] Erro ao enviar para ${params.to}:`, error);
