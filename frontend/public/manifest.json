@@ -2,7 +2,7 @@
   "name": "TL em Par — Clube de Descontos",
   "short_name": "TL em Par",
   "description": "Clube de benefícios gastronômicos por assinatura. Compre 1 e ganhe outro!",
-  "start_url": "/",
+  "start_url": "/login",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#faf8f5",
