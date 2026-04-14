@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
-import { Card, Loading, EmptyState } from '../../components/ui';
+import { Loading, EmptyState } from '../../components/ui';
 import { Link } from 'react-router-dom';
-import { MapPin, CheckCircle, UtensilsCrossed, Search } from 'lucide-react';
+import { MapPin, CheckCircle, UtensilsCrossed, Search, Tag } from 'lucide-react';
 import { useState } from 'react';
 import type { Company, ApiResponse } from '../../types';
 import { COMPANY_CATEGORIES } from '../../constants/categories';
@@ -40,67 +40,116 @@ const SearchBar = styled.div`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
   animation: ${fadeIn} 0.4s ease-out 0.1s both;
 `;
 
-const CompanyCard = styled(Card)`
-  display: flex;
-  gap: 1rem;
+const CompanyCard = styled.div`
+  background: ${({ theme }) => theme.colors.surface};
+  border-radius: ${({ theme }) => theme.radii.xl};
+  overflow: hidden;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  transition: all 0.25s ease;
   cursor: pointer;
-  transition: all 0.2s;
-  &:hover { box-shadow: ${({ theme }) => theme.shadows.lg}; transform: translateY(-2px); }
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.shadows.lg};
+    transform: translateY(-4px);
+  }
 `;
 
-const CompanyLogo = styled.div`
-  width: 64px;
-  height: 64px;
-  border-radius: ${({ theme }) => theme.radii.lg};
+const CoverWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  height: 160px;
   background: ${({ theme }) => theme.colors.surfaceAlt};
+  overflow: hidden;
+`;
+
+const CoverImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const CoverFallback = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.surfaceAlt} 0%, ${({ theme }) => theme.colors.borderLight} 100%);
+`;
+
+const LogoOverlay = styled.div`
+  position: absolute;
+  bottom: -20px;
+  left: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: ${({ theme }) => theme.radii.lg};
+  background: ${({ theme }) => theme.colors.surface};
+  border: 2px solid ${({ theme }) => theme.colors.surface};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 
   img { width: 100%; height: 100%; object-fit: cover; }
 `;
 
-const CompanyInfo = styled.div`
-  flex: 1;
-  min-width: 0;
+const UsedTag = styled.span`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(34, 197, 94, 0.9);
+  color: #fff;
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  padding: 4px 10px;
+  border-radius: ${({ theme }) => theme.radii.full};
+  backdrop-filter: blur(4px);
+`;
+
+const CardBody = styled.div`
+  padding: 28px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 `;
 
 const CompanyName = styled.h3`
   font-size: ${({ theme }) => theme.fontSizes.md};
-  font-weight: ${({ theme }) => theme.fontWeights.semibold};
-  margin-bottom: 0.25rem;
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.text};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
-const CompanyBenefit = styled.p`
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.primary};
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
-  margin-bottom: 0.25rem;
-`;
-
-const CompanyMeta = styled.div`
+const BenefitRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  color: ${({ theme }) => theme.colors.textSecondary};
+  gap: 6px;
+  color: ${({ theme }) => theme.colors.primary};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
 `;
 
-const UsedBadge = styled.span`
-  display: inline-flex;
+const AddressRow = styled.div`
+  display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 4px;
   font-size: ${({ theme }) => theme.fontSizes.xs};
-  font-weight: ${({ theme }) => theme.fontWeights.semibold};
-  color: ${({ theme }) => theme.colors.success};
-  margin-top: 0.25rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const FilterBar = styled.div`
@@ -186,33 +235,45 @@ export function CompaniesPage() {
       ) : (
         <Grid>
           {data.map((company) => (
-            <Link key={company.id} to={`/empresas/${company.id}`}>
-              <CompanyCard variant="bordered">
-                <CompanyLogo>
-                  {company.logoUrl ? (
-                    <img src={company.logoUrl} alt={company.name} />
+            <Link key={company.id} to={`/empresas/${company.id}`} style={{ textDecoration: 'none' }}>
+              <CompanyCard>
+                <CoverWrapper>
+                  {company.coverUrl ? (
+                    <CoverImage src={company.coverUrl} alt={company.name} />
                   ) : (
-                    <UtensilsCrossed size={24} color="#ccc" />
+                    <CoverFallback>
+                      <UtensilsCrossed size={40} color="#ccc" />
+                    </CoverFallback>
                   )}
-                </CompanyLogo>
-                <CompanyInfo>
+                  <LogoOverlay>
+                    {company.logoUrl ? (
+                      <img src={company.logoUrl} alt={company.name} />
+                    ) : (
+                      <UtensilsCrossed size={20} color="#ccc" />
+                    )}
+                  </LogoOverlay>
+                  {company.alreadyUsed && (
+                    <UsedTag>
+                      <CheckCircle size={12} />
+                      Utilizado
+                    </UsedTag>
+                  )}
+                </CoverWrapper>
+                <CardBody>
                   <CompanyName>{company.name}</CompanyName>
                   {company.benefitDescription && (
-                    <CompanyBenefit>{company.benefitDescription}</CompanyBenefit>
+                    <BenefitRow>
+                      <Tag size={14} />
+                      {company.benefitDescription}
+                    </BenefitRow>
                   )}
                   {company.address && (
-                    <CompanyMeta>
+                    <AddressRow>
                       <MapPin size={12} />
                       {company.address}
-                    </CompanyMeta>
+                    </AddressRow>
                   )}
-                  {company.alreadyUsed && (
-                    <UsedBadge>
-                      <CheckCircle size={12} />
-                      Já utilizado
-                    </UsedBadge>
-                  )}
-                </CompanyInfo>
+                </CardBody>
               </CompanyCard>
             </Link>
           ))}

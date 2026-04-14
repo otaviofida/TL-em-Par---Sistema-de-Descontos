@@ -1,6 +1,6 @@
 # Planning — TL EM PAR
 
-> Última atualização: 14 de abril de 2026
+> Última atualização: 14 de abril de 2026 (emails + InstallPrompt)
 
 ---
 
@@ -110,6 +110,8 @@ Domínio `tlempar.com.br` ativado em 14/04/2026 via Cloudflare.
 | 2.2.4 | Auditoria — log de ações do admin (`AuditLog`, `GET /admin/audit-logs`) | ✅ |
 | 2.2.5 | Relatórios PDF para admin (`pdfkit`, `GET /admin/reports/metrics/pdf`, botão exportar) | ✅ |
 | 2.2.6 | Filtros avançados no histórico de validações (busca, categoria, data) | ✅ |
+| 2.2.7 | Email templates com logo e dark theme (layout table-based, header com logo, footer) | ✅ |
+| 2.2.8 | InstallPrompt compacto — card 280px no canto inferior direito, fundo branco sutil | ✅ |
 
 ---
 
