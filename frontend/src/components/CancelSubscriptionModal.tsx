@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { X, Star, AlertTriangle } from 'lucide-react';
-import { Button } from '../../components/ui';
-import { api } from '../../lib/api';
-import { useAuthStore } from '../../stores/authStore';
+import { Button } from './ui';
+import { api } from '../lib/api';
+import { useAuthStore } from '../stores/authStore';
 import toast from 'react-hot-toast';
-import { getErrorMessage } from '../../utils/errorMessages';
-import { fadeIn, scaleIn } from '../../styles/animations';
+import { getErrorMessage } from '../utils/errorMessages';
+import { fadeIn, scaleIn } from '../styles/animations';
 
 /* ── Overlay/Modal ──────────────────────────────────── */
 
