@@ -1,6 +1,13 @@
 import { webPush } from '../../../config/webpush.js';
 import { PushSubscriptionRepository } from '../repositories/push.repository.js';
 import { env } from '../../../config/env.js';
+import dns from 'dns';
+
+// Forçar IPv4 — Apple Push via IPv6 dá ENETUNREACH no Docker
+dns.setDefaultResultOrder('ipv4first');
+
+const PUSH_OPTIONS = { timeout: 30000 };
+const MAX_RETRIES = 3;
 
 export class PushService {
   constructor(
@@ -9,6 +16,26 @@ export class PushService {
 
   getVapidPublicKey() {
     return env.VAPID_PUBLIC_KEY;
+  }
+
+  private async sendWithRetry(
+    sub: { endpoint: string; keys: { p256dh: string; auth: string } },
+    body: string,
+  ): Promise<void> {
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        await webPush.sendNotification(sub, body, PUSH_OPTIONS);
+        return;
+      } catch (err: any) {
+        const isTimeout = err.code === 'ETIMEDOUT' || err.code === 'ENETUNREACH' || err.code === 'ECONNRESET';
+        if (isTimeout && attempt < MAX_RETRIES) {
+          console.log(`[PUSH] Tentativa ${attempt}/${MAX_RETRIES} falhou (${err.code}), retentando...`);
+          await new Promise(r => setTimeout(r, 1000 * attempt));
+          continue;
+        }
+        throw err;
+      }
+    }
   }
 
   async subscribe(userId: string, subscription: { endpoint: string; keys: { p256dh: string; auth: string } }) {
@@ -32,12 +59,13 @@ export class PushService {
 
     for (const sub of subscriptions) {
       try {
-        await webPush.sendNotification(
+        await this.sendWithRetry(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
           body,
         );
         sent++;
       } catch (err: any) {
+        console.error(`[PUSH] Falha definitiva para ${sub.endpoint.slice(0, 60)}:`, err.code || err.statusCode);
         if (err.statusCode === 410 || err.statusCode === 404) {
           await this.pushRepo.deleteById(sub.id);
         }
@@ -56,15 +84,13 @@ export class PushService {
 
     for (const sub of subscriptions) {
       try {
-        await webPush.sendNotification(
+        await this.sendWithRetry(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
           body,
         );
         sent++;
       } catch (err: any) {
-        console.error(`[PUSH] Falha ao enviar para ${sub.endpoint.slice(0, 60)}...:`);
-        console.error(`[PUSH] statusCode=${err.statusCode}, message=${err.message}, body=${err.body}`);
-        console.error(`[PUSH] Full error:`, JSON.stringify(err, Object.getOwnPropertyNames(err)));
+        console.error(`[PUSH] Falha definitiva para ${sub.endpoint.slice(0, 60)}:`, err.code || err.statusCode);
         if (err.statusCode === 410 || err.statusCode === 404) {
           await this.pushRepo.deleteById(sub.id);
         }
