@@ -474,7 +474,7 @@ export function AdminMarketingPage() {
       </FilterTabs>
 
       {!pushes?.length ? (
-        <EmptyState icon={<Bell size={40} />} title="Nenhum push encontrado" description="Agende seu primeiro push notification!" />
+        <EmptyState icon={<Bell size={40} />} title="Nenhum push encontrado" message="Agende seu primeiro push notification!" />
       ) : (
         <Table>
           {pushes.map((push) => (
@@ -528,7 +528,8 @@ export function AdminMarketingPage() {
       {/* Modal Create/Edit */}
       {modalOpen && (
         <Overlay onClick={closeModal}>
-          <ModalCard onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()}>
+          <ModalCard>
             <ModalHeader>
               <ModalTitle>{editingPush ? 'Editar Push' : 'Agendar Push Notification'}</ModalTitle>
               <CloseBtn onClick={closeModal}><X size={20} /></CloseBtn>
@@ -584,6 +585,7 @@ export function AdminMarketingPage() {
               </Button>
             </ButtonRow>
           </ModalCard>
+          </div>
         </Overlay>
       )}
     </>
