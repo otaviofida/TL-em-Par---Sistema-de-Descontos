@@ -353,7 +353,7 @@ export function DashboardPage() {
         </Link>
       </QuickLinksGrid>
 
-      {/* ── Coluna direita: Perfil ── */}}
+      {/* ── Coluna direita: Perfil ── */}
       <RightColumn>
         <ProfileCard>
           <AvatarCircle>
