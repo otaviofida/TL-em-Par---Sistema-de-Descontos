@@ -198,13 +198,13 @@ const CoverWrapper = styled.div`
   width: 100%;
   height: 140px;
   background: ${({ theme }) => theme.colors.surfaceAlt};
-  overflow: hidden;
 `;
 
 const CoverImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 `;
 
 const CoverFallback = styled.div`
@@ -230,6 +230,7 @@ const LogoOverlay = styled.div`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  z-index: 2;
 
   img { width: 100%; height: 100%; object-fit: cover; }
 `;
