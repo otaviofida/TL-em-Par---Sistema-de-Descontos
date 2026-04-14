@@ -83,7 +83,7 @@ export class AuthController {
 
   async verifyEmail(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await authService.verifyEmail(req.params.token);
+      const result = await authService.verifyEmail(req.params.token as string);
       return sendSuccess(res, result);
     } catch (err) {
       next(err);
