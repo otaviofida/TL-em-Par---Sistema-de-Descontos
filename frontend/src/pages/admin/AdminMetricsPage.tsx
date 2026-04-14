@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import {
   Users, DollarSign, Calendar,
-  Activity, ArrowUpRight, ArrowDownRight,
+  Activity, ArrowUpRight, ArrowDownRight, Download,
 } from 'lucide-react';
 
 import { fadeInUp, fadeIn } from '../../styles/animations';
@@ -77,6 +77,24 @@ const PresetButton = styled.button<{ $active?: boolean }>`
   cursor: pointer;
   transition: all 0.2s;
   &:hover { border-color: ${({ theme }) => theme.colors.primary}; }
+`;
+
+const ExportButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  padding: 0.4rem 0.85rem;
+  border-radius: ${({ theme }) => theme.radii.full};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  border: 1.5px solid ${({ theme }) => theme.colors.success};
+  background: ${({ theme }) => theme.colors.success};
+  color: ${({ theme }) => theme.colors.white};
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover { opacity: 0.85; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 `;
 
 /* ---- Hero Stats Row ---- */
@@ -383,6 +401,28 @@ export function AdminMetricsPage() {
     }
   };
 
+  const [exporting, setExporting] = useState(false);
+  const handleExportPdf = async () => {
+    if (!isValidRange) return;
+    setExporting(true);
+    try {
+      const response = await api.get('/admin/reports/metrics/pdf', {
+        params: { startDate, endDate },
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `relatorio-metricas-${startDate}-${endDate}.pdf`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      // silently fail
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const PIE_COLORS = [theme.colors.primary, theme.colors.primaryLight, theme.colors.secondary, theme.colors.secondaryLight];
 
   const genderTotal = metrics?.genderDistribution.reduce((acc, g) => acc + g.count, 0) ?? 0;
@@ -413,6 +453,10 @@ export function AdminMetricsPage() {
             <DateInput type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
           </>
         )}
+        <ExportButton onClick={handleExportPdf} disabled={!isValidRange || exporting || !metrics}>
+          <Download size={14} />
+          {exporting ? 'Exportando...' : 'Exportar PDF'}
+        </ExportButton>
       </FilterBar>
 
       {!isValidRange && preset === 'custom' ? (

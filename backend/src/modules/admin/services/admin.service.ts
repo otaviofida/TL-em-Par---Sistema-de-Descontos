@@ -85,6 +85,10 @@ export class AdminService {
     await this.adminRepo.deleteUser(id);
   }
 
+  async restoreUser(id: string) {
+    await this.adminRepo.restoreUser(id);
+  }
+
   async getSubscriptions(pagination: PaginationParams, filters: { status?: string; userId?: string }) {
     const { skip, take } = getPrismaSkipTake(pagination);
     const { data, total } = await this.subscriptionRepo.findAll({
@@ -106,6 +110,7 @@ export class AdminService {
     editionId?: string;
     startDate?: string;
     endDate?: string;
+    search?: string;
   }) {
     const { skip, take } = getPrismaSkipTake(pagination);
     const { data, total } = await this.benefitRepo.findAllRedemptions({
@@ -116,6 +121,7 @@ export class AdminService {
       editionId: filters.editionId,
       startDate: filters.startDate ? new Date(filters.startDate) : undefined,
       endDate: filters.endDate ? new Date(filters.endDate) : undefined,
+      search: filters.search,
     });
 
     return {

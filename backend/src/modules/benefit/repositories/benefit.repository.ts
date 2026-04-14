@@ -25,6 +25,10 @@ export class BenefitRepository {
     skip: number;
     take: number;
     editionId?: string;
+    search?: string;
+    category?: string;
+    startDate?: Date;
+    endDate?: Date;
   }) {
     const where: Prisma.BenefitRedemptionWhereInput = {
       userId: params.userId,
@@ -32,6 +36,17 @@ export class BenefitRepository {
 
     if (params.editionId) {
       where.editionId = params.editionId;
+    }
+    if (params.search) {
+      where.company = { name: { contains: params.search, mode: 'insensitive' } };
+    }
+    if (params.category) {
+      where.company = { ...where.company as any, category: params.category };
+    }
+    if (params.startDate || params.endDate) {
+      where.redeemedAt = {};
+      if (params.startDate) where.redeemedAt.gte = params.startDate;
+      if (params.endDate) where.redeemedAt.lte = params.endDate;
     }
 
     const [data, total] = await Promise.all([
@@ -59,12 +74,16 @@ export class BenefitRepository {
     editionId?: string;
     startDate?: Date;
     endDate?: Date;
+    search?: string;
   }) {
     const where: Prisma.BenefitRedemptionWhereInput = {};
 
     if (params.userId) where.userId = params.userId;
     if (params.companyId) where.companyId = params.companyId;
     if (params.editionId) where.editionId = params.editionId;
+    if (params.search) {
+      where.company = { name: { contains: params.search, mode: 'insensitive' } };
+    }
     if (params.startDate || params.endDate) {
       where.redeemedAt = {};
       if (params.startDate) where.redeemedAt.gte = params.startDate;

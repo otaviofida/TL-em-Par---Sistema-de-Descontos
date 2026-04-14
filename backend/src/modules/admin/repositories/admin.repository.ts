@@ -17,10 +17,10 @@ export class AdminRepository {
       currentEdition,
       topCompanies,
     ] = await Promise.all([
-      prisma.user.count({ where: { role: 'USER' } }),
-      prisma.subscription.count({ where: { status: 'ACTIVE' } }),
-      prisma.company.count(),
-      prisma.company.count({ where: { status: 'ACTIVE' } }),
+      prisma.user.count({ where: { role: 'USER', deletedAt: null } }),
+      prisma.subscription.count({ where: { status: 'ACTIVE', user: { deletedAt: null } } }),
+      prisma.company.count({ where: { deletedAt: null } }),
+      prisma.company.count({ where: { status: 'ACTIVE', deletedAt: null } }),
       prisma.benefitRedemption.count(),
       prisma.benefitRedemption.count({
         where: { redeemedAt: { gte: startOfMonth, lte: endOfMonth } },
@@ -30,7 +30,7 @@ export class AdminRepository {
         include: { _count: { select: { benefitRedemptions: true } } },
       }),
       prisma.company.findMany({
-        where: { status: 'ACTIVE' },
+        where: { status: 'ACTIVE', deletedAt: null },
         select: {
           id: true,
           name: true,
@@ -71,7 +71,7 @@ export class AdminRepository {
     search?: string;
     subscriptionStatus?: string;
   }) {
-    const where: any = { role: 'USER' };
+    const where: any = { role: 'USER', deletedAt: null };
 
     if (params.search) {
       where.OR = [
@@ -130,7 +130,11 @@ export class AdminRepository {
   }
 
   async deleteUser(id: string) {
-    return prisma.user.delete({ where: { id } });
+    return prisma.user.update({ where: { id }, data: { deletedAt: new Date() } });
+  }
+
+  async restoreUser(id: string) {
+    return prisma.user.update({ where: { id }, data: { deletedAt: null } });
   }
 
   async getMetrics(startDate: Date, endDate: Date) {
@@ -172,6 +176,7 @@ export class AdminRepository {
       prisma.user.findMany({
         where: {
           role: 'USER',
+          deletedAt: null,
           birthDate: { not: null },
           subscription: { status: 'ACTIVE' },
         },
@@ -182,6 +187,7 @@ export class AdminRepository {
         by: ['gender'],
         where: {
           role: 'USER',
+          deletedAt: null,
           subscription: { status: 'ACTIVE' },
         },
         _count: true,

@@ -1,14 +1,15 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Loading, EmptyState } from '../../components/ui';
 import { formatDateTime } from '../../utils/format';
-import { UtensilsCrossed, CheckCircle, Award, TrendingUp } from 'lucide-react';
+import { UtensilsCrossed, CheckCircle, Award, TrendingUp, Search, Filter } from 'lucide-react';
 import { parseISO, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { BenefitRedemption, ApiResponse } from '../../types';
 import { fadeInUp, fadeIn } from '../../styles/animations';
+import { COMPANY_CATEGORIES } from '../../constants/categories';
 
 /* ── Layout ─────────────────────────────────────────── */
 
@@ -189,6 +190,74 @@ const LogoWrapper = styled.div`
   flex-shrink: 0;
 `;
 
+/* ── Filters ─────────────────────────────────────────── */
+
+const FiltersBar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+  animation: ${fadeInUp} 0.4s ease-out 0.04s both;
+`;
+
+const SearchInput = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: 0.45rem 0.75rem;
+  flex: 1;
+  min-width: 180px;
+
+  input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: ${({ theme }) => theme.fontSizes.sm};
+    color: ${({ theme }) => theme.colors.text};
+    width: 100%;
+    &::placeholder { color: ${({ theme }) => theme.colors.textLight}; }
+  }
+`;
+
+const FilterSelect = styled.select`
+  padding: 0.45rem 0.6rem;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  outline: none;
+  cursor: pointer;
+  &:focus { border-color: ${({ theme }) => theme.colors.primary}; }
+`;
+
+const FilterDateInput = styled.input`
+  padding: 0.45rem 0.6rem;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  outline: none;
+  &:focus { border-color: ${({ theme }) => theme.colors.primary}; }
+`;
+
+const ClearFilters = styled.button`
+  padding: 0.45rem 0.75rem;
+  border-radius: ${({ theme }) => theme.radii.lg};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: transparent;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  cursor: pointer;
+  &:hover { border-color: ${({ theme }) => theme.colors.error}; color: ${({ theme }) => theme.colors.error}; }
+`;
+
 /* ── helpers ─────────────────────────────────────────── */
 
 function groupByMonth(items: BenefitRedemption[]): { label: string; items: BenefitRedemption[] }[] {
@@ -219,12 +288,22 @@ function uniqueCompanies(items: BenefitRedemption[]): number {
 /* ── Component ──────────────────────────────────────── */
 
 export function HistoryPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [category, setCategory] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const hasFilters = searchTerm || category || startDate || endDate;
+
   const { data, isLoading } = useQuery({
-    queryKey: ['benefit-history'],
+    queryKey: ['benefit-history', searchTerm, category, startDate, endDate],
     queryFn: async () => {
-      const { data } = await api.get<ApiResponse<BenefitRedemption[]>>('/benefits/history', {
-        params: { limit: '100' },
-      });
+      const params: Record<string, string> = { limit: '100' };
+      if (searchTerm) params.search = searchTerm;
+      if (category) params.category = category;
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      const { data } = await api.get<ApiResponse<BenefitRedemption[]>>('/benefits/history', { params });
       return data.data;
     },
   });
@@ -243,6 +322,30 @@ export function HistoryPage() {
   return (
     <>
       <PageTitle>Meu <span>histórico</span></PageTitle>
+
+      <FiltersBar>
+        <SearchInput>
+          <Search size={16} color="#999" />
+          <input
+            placeholder="Buscar restaurante..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </SearchInput>
+        <FilterSelect value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="">Todas categorias</option>
+          {COMPANY_CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
+        </FilterSelect>
+        <FilterDateInput type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} title="Data início" />
+        <FilterDateInput type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} title="Data fim" />
+        {hasFilters && (
+          <ClearFilters onClick={() => { setSearchTerm(''); setCategory(''); setStartDate(''); setEndDate(''); }}>
+            Limpar
+          </ClearFilters>
+        )}
+      </FiltersBar>
 
       {isLoading ? (
         <Loading />

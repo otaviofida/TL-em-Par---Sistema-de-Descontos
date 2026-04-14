@@ -3,12 +3,12 @@ import { Prisma } from '../../../generated/prisma/index.js';
 
 export class AuthRepository {
   async findUserByEmail(email: string) {
-    return prisma.user.findUnique({ where: { email }, include: { subscription: true } });
+    return prisma.user.findFirst({ where: { email, deletedAt: null }, include: { subscription: true } });
   }
 
   async findUserById(id: string) {
     return prisma.user.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       include: { subscription: true },
     });
   }

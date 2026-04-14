@@ -13,6 +13,7 @@
 | PostgreSQL | ✅ Healthy | Migrations aplicadas, seed rodou |
 | Backend API | ✅ Rodando | Health check OK, login funcional |
 | Frontend SPA | ✅ Rodando | HTML carregando via Nginx |
+| PWA | ✅ Instalável | manifest.json, Service Worker, prompt de instalação, tela offline |
 | HTTP | ✅ Funcionando | `http://66.253.112.233` |
 | SSL/HTTPS | ❌ Pendente | Domínio sem DNS público (ver seção abaixo) |
 | Stripe | ⚠️ Modo teste | Chaves de teste configuradas |
@@ -85,24 +86,22 @@ docker compose restart nginx
 
 ## Próximos Passos — Priorizado
 
-### Fase 2.0 — PWA (Progressive Web App)
+### Fase 2.0 — PWA (Progressive Web App) ✅ Concluída
 
-Transformar o frontend em PWA para experiência nativa no celular (instalável, splash screen, ícone na home).
+Frontend transformado em PWA instalável no celular. Implementação manual (sem vite-plugin-pwa — incompatível com Vite 8).
 
-| Tarefa | Descrição | Complexidade |
-|--------|-----------|-------------|
-| 2.0.1 | Instalar `vite-plugin-pwa` no frontend | Baixa |
-| 2.0.2 | Criar `manifest.json` (nome, ícones, cores, orientação) | Baixa |
-| 2.0.3 | Gerar ícones PWA (192x192, 512x512, maskable) a partir do logo | Baixa |
-| 2.0.4 | Configurar Service Worker (precache de assets estáticos) | Média |
-| 2.0.5 | Splash screen nativa (configurar via manifest) | Baixa |
-| 2.0.6 | Prompt de instalação customizado ("Adicionar à tela inicial") | Média |
-| 2.0.7 | Estratégia de cache: NetworkFirst para API, CacheFirst para assets | Média |
-| 2.0.8 | Tela offline básica (fallback quando sem conexão) | Média |
-| 2.0.9 | Meta tags para iOS (apple-touch-icon, apple-mobile-web-app-capable) | Baixa |
-| 2.0.10 | Testar instalação no Android e iOS | Baixa |
-
-**Resultado esperado:** Usuário abre `http://66.253.112.233` no celular → prompt "Adicionar à tela inicial" → ícone no home screen → abre em tela cheia sem barra do navegador.
+| Tarefa | Descrição | Status |
+|--------|-----------|--------|
+| 2.0.1 | ~~Instalar `vite-plugin-pwa`~~ — Incompatível com Vite 8, implementado manualmente | ✅ |
+| 2.0.2 | `manifest.json` (nome, ícones, cores, orientação, start_url: `/login`) | ✅ |
+| 2.0.3 | Ícones PWA (192x192, 512x512, maskable) gerados a partir do logo.png | ✅ |
+| 2.0.4 | Service Worker (`sw.js`) com precache de assets essenciais | ✅ |
+| 2.0.5 | Splash screen nativa via manifest (background_color + ícone) | ✅ |
+| 2.0.6 | Prompt de instalação customizado (`InstallPrompt.tsx`) | ✅ |
+| 2.0.7 | Cache: NetworkFirst (API), CacheFirst (assets), fallback offline (HTML) | ✅ |
+| 2.0.8 | Tela offline (`offline.html`) com botão "Tentar novamente" | ✅ |
+| 2.0.9 | Meta tags iOS (apple-touch-icon, apple-mobile-web-app-capable) | ✅ |
+| 2.0.10 | Deploy na VPS e testes | ✅ |
 
 ---
 
@@ -182,7 +181,7 @@ Transformar o frontend em PWA para experiência nativa no celular (instalável, 
 ## Ordem de Execução Recomendada
 
 ```
-1. PWA (2.0)               ← Valor imediato para usuários mobile
+1. PWA (2.0)               ✅ Concluído
 2. Domínio + SSL (2.1.4)   ← Quando domínio estiver pronto
 3. Email transacional (2.1.1) ← Desbloqueia forgot-password
 4. Upload S3 (2.1.3)       ← Antes de ter muitos dados

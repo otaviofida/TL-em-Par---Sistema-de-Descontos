@@ -47,11 +47,13 @@ model User {
   role      Role      @default(USER)
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
 
   subscription        Subscription?
   benefitRedemptions  BenefitRedemption[]
   refreshTokens       RefreshToken[]
   passwordResetTokens PasswordResetToken[]
+  auditLogs           AuditLog[]
 
   @@map("users")
 }
@@ -102,6 +104,7 @@ model Company {
   status             CompanyStatus @default(ACTIVE)
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
+  deletedAt          DateTime?     @map("deleted_at")
 
   editions           CompanyEdition[]
   benefitRedemptions BenefitRedemption[]
@@ -117,6 +120,7 @@ model Edition {
   status    EditionStatus @default(DRAFT)
   createdAt DateTime      @default(now()) @map("created_at")
   updatedAt DateTime      @updatedAt @map("updated_at")
+  deletedAt DateTime?     @map("deleted_at")
 
   companies          CompanyEdition[]
   benefitRedemptions BenefitRedemption[]
@@ -163,4 +167,22 @@ model PasswordResetToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  action     String
+  entity     String
+  entityId   String?  @map("entity_id")
+  details    String?
+  ipAddress  String?  @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

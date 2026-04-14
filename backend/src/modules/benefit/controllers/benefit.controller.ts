@@ -18,8 +18,14 @@ export class BenefitController {
   async history(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPaginationParams(req.query as any);
-      const { editionId } = req.query as any;
-      const result = await benefitService.getUserHistory(req.userId!, pagination, editionId);
+      const { editionId, search, category, startDate, endDate } = req.query as Record<string, string>;
+      const result = await benefitService.getUserHistory(req.userId!, pagination, {
+        editionId,
+        search,
+        category,
+        startDate,
+        endDate,
+      });
       return sendSuccess(res, result.data, 200, result.meta);
     } catch (err) {
       next(err);

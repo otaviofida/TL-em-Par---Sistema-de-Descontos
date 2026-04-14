@@ -3,7 +3,7 @@ import { Prisma } from '../../../generated/prisma/index.js';
 
 export class EditionRepository {
   async findById(id: string) {
-    return prisma.edition.findUnique({ where: { id } });
+    return prisma.edition.findUnique({ where: { id, deletedAt: null } });
   }
 
   async findActive() {
@@ -11,6 +11,7 @@ export class EditionRepository {
     return prisma.edition.findFirst({
       where: {
         status: 'ACTIVE',
+        deletedAt: null,
         startDate: { lte: now },
         endDate: { gte: now },
       },
@@ -18,14 +19,16 @@ export class EditionRepository {
   }
 
   async findAll(params: { skip: number; take: number }) {
+    const where = { deletedAt: null as null };
     const [data, total] = await Promise.all([
       prisma.edition.findMany({
+        where,
         skip: params.skip,
         take: params.take,
         orderBy: { startDate: 'desc' },
         include: { _count: { select: { companies: true, benefitRedemptions: true } } },
       }),
-      prisma.edition.count(),
+      prisma.edition.count({ where }),
     ]);
     return { data, total };
   }
@@ -65,8 +68,16 @@ export class EditionRepository {
 
   async deactivateAllEditions() {
     return prisma.edition.updateMany({
-      where: { status: 'ACTIVE' },
+      where: { status: 'ACTIVE', deletedAt: null },
       data: { status: 'FINISHED' },
     });
+  }
+
+  async softDelete(id: string) {
+    return prisma.edition.update({ where: { id }, data: { deletedAt: new Date() } });
+  }
+
+  async restore(id: string) {
+    return prisma.edition.update({ where: { id }, data: { deletedAt: null } });
   }
 }

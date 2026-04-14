@@ -21,6 +21,7 @@ router.get('/metrics', controller.metrics);
 router.get('/users', controller.listUsers);
 router.get('/users/:id', controller.getUser);
 router.delete('/users/:id', controller.deleteUser);
+router.patch('/users/:id/restore', controller.restoreUser);
 
 // Subscriptions
 router.get('/subscriptions', controller.listSubscriptions);
@@ -39,5 +40,11 @@ router.get('/companies/:id/qr-token', controller.getCompanyQrToken);
 // Uploads
 router.post('/upload/logo', uploadLogo.single('logo'), controller.uploadLogo);
 router.post('/upload/cover', uploadCover.single('cover'), controller.uploadCover);
+
+// Audit Logs
+router.get('/audit-logs', controller.listAuditLogs);
+
+// Reports (PDF export)
+router.get('/reports/metrics/pdf', controller.exportMetricsPdf);
 
 export { router as adminRoutes };

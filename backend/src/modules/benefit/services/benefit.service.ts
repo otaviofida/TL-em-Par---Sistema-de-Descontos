@@ -82,13 +82,21 @@ export class BenefitService {
     };
   }
 
-  async getUserHistory(userId: string, pagination: PaginationParams, editionId?: string) {
+  async getUserHistory(
+    userId: string,
+    pagination: PaginationParams,
+    filters: { editionId?: string; search?: string; category?: string; startDate?: string; endDate?: string },
+  ) {
     const { skip, take } = getPrismaSkipTake(pagination);
     const { data, total } = await this.benefitRepo.findUserHistory({
       userId,
       skip,
       take,
-      editionId,
+      editionId: filters.editionId,
+      search: filters.search,
+      category: filters.category,
+      startDate: filters.startDate ? new Date(filters.startDate) : undefined,
+      endDate: filters.endDate ? new Date(filters.endDate) : undefined,
     });
 
     const formatted = data.map((r) => ({

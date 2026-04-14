@@ -3,11 +3,11 @@ import { Prisma, CompanyStatus } from '../../../generated/prisma/index.js';
 
 export class CompanyRepository {
   async findById(id: string) {
-    return prisma.company.findUnique({ where: { id } });
+    return prisma.company.findUnique({ where: { id, deletedAt: null } });
   }
 
   async findByQrToken(qrToken: string) {
-    return prisma.company.findUnique({ where: { qrToken } });
+    return prisma.company.findUnique({ where: { qrToken, deletedAt: null } });
   }
 
   async create(data: Prisma.CompanyCreateInput) {
@@ -25,7 +25,7 @@ export class CompanyRepository {
     status?: CompanyStatus;
     editionId?: string;
   }) {
-    const where: Prisma.CompanyWhereInput = {};
+    const where: Prisma.CompanyWhereInput = { deletedAt: null };
 
     if (params.search) {
       where.name = { contains: params.search, mode: 'insensitive' };
@@ -60,6 +60,7 @@ export class CompanyRepository {
   }) {
     const where: Prisma.CompanyWhereInput = {
       status: 'ACTIVE',
+      deletedAt: null,
       editions: { some: { editionId: params.editionId } },
     };
 
@@ -96,7 +97,7 @@ export class CompanyRepository {
 
   async findByIdWithUsage(companyId: string, userId: string, editionId: string) {
     return prisma.company.findUnique({
-      where: { id: companyId },
+      where: { id: companyId, deletedAt: null },
       include: {
         benefitRedemptions: {
           where: { userId, editionId },
@@ -104,5 +105,13 @@ export class CompanyRepository {
         },
       },
     });
+  }
+
+  async softDelete(id: string) {
+    return prisma.company.update({ where: { id }, data: { deletedAt: new Date() } });
+  }
+
+  async restore(id: string) {
+    return prisma.company.update({ where: { id }, data: { deletedAt: null } });
   }
 }
