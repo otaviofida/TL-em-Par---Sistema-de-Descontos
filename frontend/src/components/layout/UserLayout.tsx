@@ -242,6 +242,46 @@ const MobileMenuButton = styled.button`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) { display: flex; }
 `;
 
+const PullIndicator = styled.div<{ $distance: number; $refreshing: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 0;
+  overflow: visible;
+  transition: ${({ $refreshing }) => ($refreshing ? 'none' : 'transform 0.2s ease')};
+  transform: translateY(${({ $distance, $refreshing }) => ($refreshing ? 48 : $distance) - 32}px);
+  pointer-events: none;
+  z-index: 10;
+  position: relative;
+`;
+
+const PullSpinner = styled.div<{ $distance: number; $refreshing: boolean }>`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.surface};
+  border: 2px solid ${({ theme }) => theme.colors.border};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  opacity: ${({ $distance, $refreshing }) => ($refreshing ? 1 : Math.min($distance / 48, 1))};
+  transition: opacity 0.15s;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    color: ${({ theme }) => theme.colors.primary};
+    transform: rotate(${({ $distance }) => $distance * 4}deg);
+    animation: ${({ $refreshing }) => ($refreshing ? 'ptr-spin 0.7s linear infinite' : 'none')};
+  }
+
+  @keyframes ptr-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+`;
+
 const Main = styled.main`
   width: 100%;
   flex: 1;
@@ -530,6 +570,67 @@ export function UserLayout() {
   const bellRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   usePushSubscription();
+
+  // Pull-to-refresh
+  const mainRef = useRef<HTMLElement>(null);
+  const touchStartY = useRef(0);
+  const isPullingRef = useRef(false);
+  const pullDistRef = useRef(0);
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+
+    const THRESHOLD = 64;
+    const MAX = 80;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (el.scrollTop === 0) {
+        touchStartY.current = e.touches[0].clientY;
+        isPullingRef.current = true;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isPullingRef.current) return;
+      const delta = e.touches[0].clientY - touchStartY.current;
+      if (delta > 0) {
+        e.preventDefault();
+        const dist = Math.min(delta * 0.5, MAX);
+        pullDistRef.current = dist;
+        setPullDistance(dist);
+      } else {
+        isPullingRef.current = false;
+        pullDistRef.current = 0;
+        setPullDistance(0);
+      }
+    };
+
+    const onTouchEnd = async () => {
+      if (!isPullingRef.current) return;
+      isPullingRef.current = false;
+      if (pullDistRef.current >= THRESHOLD) {
+        setIsRefreshing(true);
+        setPullDistance(MAX);
+        await queryClient.invalidateQueries();
+        setTimeout(() => { setIsRefreshing(false); setPullDistance(0); }, 800);
+      } else {
+        setPullDistance(0);
+        pullDistRef.current = 0;
+      }
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd);
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [queryClient]);
   const [showSplash, setShowSplash] = useState(() => {
     if (sessionStorage.getItem('show_splash') === 'true') {
       sessionStorage.removeItem('show_splash');
@@ -771,7 +872,14 @@ export function UserLayout() {
             </a>
           </PastDueBanner>
         )}
-        <Main>
+        <Main ref={mainRef}>
+          <PullIndicator $distance={pullDistance} $refreshing={isRefreshing}>
+            <PullSpinner $distance={pullDistance} $refreshing={isRefreshing}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+            </PullSpinner>
+          </PullIndicator>
           <Outlet />
         </Main>
       </Content>
