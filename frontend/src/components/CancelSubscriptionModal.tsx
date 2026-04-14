@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { X, Star, AlertTriangle } from 'lucide-react';
 import { Button } from './ui';
@@ -227,7 +228,7 @@ export function CancelSubscriptionModal({ onClose }: CancelModalProps) {
     }
   };
 
-  return (
+  return createPortal(
     <Overlay onClick={onClose}>
       <Modal onClick={(e) => e.stopPropagation()}>
         <Header>
@@ -311,6 +312,7 @@ export function CancelSubscriptionModal({ onClose }: CancelModalProps) {
           </Button>
         </Footer>
       </Modal>
-    </Overlay>
+    </Overlay>,
+    document.body,
   );
 }
