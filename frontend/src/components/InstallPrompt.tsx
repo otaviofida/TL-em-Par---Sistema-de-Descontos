@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -37,7 +38,7 @@ const Banner = styled.div`
   @media (max-width: 480px) {
     width: calc(100% - 32px);
     right: 16px;
-    bottom: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 `;
 
@@ -135,7 +136,7 @@ export function InstallPrompt() {
 
   if (!show) return null;
 
-  return (
+  return createPortal(
     <Banner>
       <Icon src="/icons/icon-192x192.png" alt="TL em Par" />
       <TextWrap>
@@ -146,6 +147,7 @@ export function InstallPrompt() {
         <InstallBtn onClick={handleInstall}>Instalar</InstallBtn>
         <CloseBtn onClick={handleDismiss} aria-label="Fechar">×</CloseBtn>
       </Actions>
-    </Banner>
+    </Banner>,
+    document.body
   );
 }
