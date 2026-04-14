@@ -40,7 +40,7 @@ services:
       FRONTEND_URL: https://srv19774812.stayx.cloud
       API_URL: https://srv19774812.stayx.cloud
       STRIPE_SUCCESS_URL: https://srv19774812.stayx.cloud/assinatura/sucesso
-      STRIPE_CANCEL_URL: https://srv19774812.stayx.cloud/assinatura/cancelado
+      STRIPE_CANCEL_URL: https://srv19774812.stayx.cloudayx.cloud/assinatura/cancelado
     volumes:
       - uploads:/app/uploads
     expose:
