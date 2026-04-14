@@ -104,8 +104,8 @@ Domínio `tlempar.com.br` ativado em 14/04/2026 via Cloudflare.
 
 | Tarefa | Descrição | Status |
 |--------|-----------|--------|
-| 2.2.1 | Confirmação de email no cadastro | ⏳ Depende de 2.1.1 (email transacional) |
-| 2.2.2 | Notificações por email (nova edição, assinatura expirando) | ⏳ Depende de 2.1.1 (email transacional) |
+| 2.2.1 | Confirmação de email no cadastro (verificação + boas-vindas) | ✅ |
+| 2.2.2 | Notificações por email (nova edição para assinantes, cancelamento de assinatura) | ✅ |
 | 2.2.3 | Soft delete para empresas/edições/usuários (`deletedAt`, filtros em queries, restore endpoint) | ✅ |
 | 2.2.4 | Auditoria — log de ações do admin (`AuditLog`, `GET /admin/audit-logs`) | ✅ |
 | 2.2.5 | Relatórios PDF para admin (`pdfkit`, `GET /admin/reports/metrics/pdf`, botão exportar) | ✅ |
