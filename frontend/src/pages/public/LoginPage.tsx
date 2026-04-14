@@ -119,6 +119,9 @@ export function LoginPage() {
           </Button>
         </Form>
         <FooterText>
+          <Link to="/esqueci-senha">Esqueceu a senha?</Link>
+        </FooterText>
+        <FooterText>
           Não tem conta? <Link to="/cadastro">Criar conta</Link>
         </FooterText>
         <BackLink to="/">← Voltar à tela inicial</BackLink>

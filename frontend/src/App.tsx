@@ -12,6 +12,8 @@ import { LoginPage } from './pages/public/LoginPage';
 import { RegisterPage } from './pages/public/RegisterPage';
 import { SubscriptionSuccessPage } from './pages/public/SubscriptionSuccessPage';
 import { SubscriptionCancelledPage } from './pages/public/SubscriptionCancelledPage';
+import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/public/ResetPasswordPage';
 
 // Subscriber
 import { DashboardPage } from './pages/subscriber/DashboardPage';
@@ -45,6 +47,8 @@ export function App() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
+          <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
+          <Route path="/redefinir-senha/:token" element={<ResetPasswordPage />} />
         </Route>
       </Route>
 

@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 import { env } from '../../../config/env.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
-import { RegisterInput, LoginInput, UpdateProfileInput } from '../schemas/auth.schema.js';
-import { UnauthorizedError, ConflictError, NotFoundError } from '../../../shared/errors/index.js';
+import { RegisterInput, LoginInput, UpdateProfileInput, ForgotPasswordInput, ResetPasswordInput } from '../schemas/auth.schema.js';
+import { UnauthorizedError, ConflictError, NotFoundError, AppError } from '../../../shared/errors/index.js';
 import { JwtPayload } from '../../../shared/types/auth.js';
 import { Role } from '../../../generated/prisma/index.js';
 
@@ -106,6 +107,62 @@ export class AuthService {
 
     const updated = await this.authRepo.updateUser(userId, { avatarUrl });
     return { id: updated.id, avatarUrl: updated.avatarUrl };
+  }
+
+  async forgotPassword(data: ForgotPasswordInput) {
+    const user = await this.authRepo.findUserByEmail(data.email);
+
+    // Sempre retorna sucesso para não revelar se o email existe (segurança)
+    if (!user) {
+      return { message: 'Se o email estiver cadastrado, você receberá um link para redefinir a senha.' };
+    }
+
+    // Limpa tokens antigos/usados
+    await this.authRepo.deleteExpiredPasswordResetTokens(user.id);
+
+    // Gera token com validade de 1 hora
+    const token = uuidv4();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1);
+
+    await this.authRepo.createPasswordResetToken(user.id, token, expiresAt);
+
+    // TODO: Integrar serviço de email (Resend/SendGrid/Nodemailer)
+    // Por enquanto, loga o link no console (apenas em desenvolvimento)
+    const resetLink = `${env.FRONTEND_URL}/redefinir-senha/${token}`;
+    if (env.NODE_ENV === 'development') {
+      console.log(`\n🔑 [PASSWORD RESET] Link para ${user.email}: ${resetLink}\n`);
+    }
+
+    return { message: 'Se o email estiver cadastrado, você receberá um link para redefinir a senha.' };
+  }
+
+  async resetPassword(data: ResetPasswordInput) {
+    const resetToken = await this.authRepo.findPasswordResetToken(data.token);
+
+    if (!resetToken) {
+      throw new AppError('Token inválido ou expirado.', 400, 'INVALID_RESET_TOKEN');
+    }
+
+    if (resetToken.used) {
+      throw new AppError('Este link já foi utilizado.', 400, 'TOKEN_ALREADY_USED');
+    }
+
+    if (resetToken.expiresAt <= new Date()) {
+      throw new AppError('Token expirado. Solicite um novo link.', 400, 'TOKEN_EXPIRED');
+    }
+
+    // Atualiza a senha
+    const hashedPassword = await bcrypt.hash(data.password, 12);
+    await this.authRepo.updateUser(resetToken.userId, { password: hashedPassword });
+
+    // Marca token como usado
+    await this.authRepo.markPasswordResetTokenUsed(resetToken.id);
+
+    // Invalida todas as sessões (refresh tokens)
+    await this.authRepo.deleteUserRefreshTokens(resetToken.userId);
+
+    return { message: 'Senha redefinida com sucesso.' };
   }
 
   private async generateTokens(userId: string, role: Role) {

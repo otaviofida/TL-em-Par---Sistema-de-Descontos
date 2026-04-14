@@ -18,8 +18,13 @@ const app = express();
 
 // Security
 app.use(helmet());
+
+const allowedOrigins = env.FRONTEND_URL
+  ? env.FRONTEND_URL.split(',').map((o) => o.trim())
+  : ['http://localhost:5173'];
+
 app.use(cors({
-  origin: [env.FRONTEND_URL, 'http://192.168.0.43:5173', 'https://192.168.0.43:5173'],
+  origin: allowedOrigins,
   credentials: true,
 }));
 

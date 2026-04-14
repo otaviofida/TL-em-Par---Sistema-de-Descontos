@@ -17,6 +17,9 @@ export const ERROR_MESSAGES: Record<string, string> = {
   USER_NOT_FOUND: 'Usuário não encontrado.',
   COMPANY_NOT_FOUND: 'Empresa não encontrada.',
   EDITION_NOT_FOUND: 'Edição não encontrada.',
+  INVALID_RESET_TOKEN: 'Link inválido ou expirado. Solicite um novo.',
+  TOKEN_ALREADY_USED: 'Este link já foi utilizado. Solicite um novo.',
+  TOKEN_EXPIRED: 'Link expirado. Solicite um novo.',
 };
 
 export function getErrorMessage(error: unknown): string {

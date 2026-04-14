@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs cat:*)",
+      "Bash(du -sh \"/Users/otaviofida/Desktop/TL em par\"/*)",
+      "Bash(du -sh \"/Users/otaviofida/Desktop/TL em par/backend\"/*)",
+      "Bash(du -sh \"/Users/otaviofida/Desktop/TL em par/frontend\"/*)",
+      "Bash(npm --version)"
+    ]
+  }
+}

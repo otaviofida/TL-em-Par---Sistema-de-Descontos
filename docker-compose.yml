@@ -1,0 +1,101 @@
+services:
+  # ============ PostgreSQL ============
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tlempar
+      POSTGRES_USER: ${DB_USER:-tlempar}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-tlempar}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============ Backend API ============
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-tlempar}:${DB_PASSWORD}@db:5432/tlempar?schema=public
+      PORT: 3333
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET no .env}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Defina JWT_REFRESH_SECRET no .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:?Defina STRIPE_SECRET_KEY no .env}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:?Defina STRIPE_WEBHOOK_SECRET no .env}
+      STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:?Defina STRIPE_PRICE_ID no .env}
+      FRONTEND_URL: https://tlempar.com.br
+      API_URL: https://tlempar.com.br
+      STRIPE_SUCCESS_URL: https://tlempar.com.br/assinatura/sucesso
+      STRIPE_CANCEL_URL: https://tlempar.com.br/assinatura/cancelado
+    volumes:
+      - uploads:/app/uploads
+    expose:
+      - "3333"
+
+  # ============ Frontend (Nginx SPA) ============
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+        VITE_STRIPE_PRICE_ID: ${STRIPE_PRICE_ID}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    expose:
+      - "80"
+
+  # ============ Nginx Reverse Proxy + SSL ============
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot-etc:/etc/letsencrypt:ro
+      - certbot-var:/var/lib/letsencrypt
+      - webroot:/var/www/certbot
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============ Certbot (SSL) ============
+  certbot:
+    image: certbot/certbot
+    depends_on:
+      - nginx
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - webroot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 12h & wait $${!}; certbot renew --webroot -w /var/www/certbot; done'"
+
+volumes:
+  pgdata:
+  uploads:
+  certbot-etc:
+  certbot-var:
+  webroot:

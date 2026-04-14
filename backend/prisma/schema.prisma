@@ -48,9 +48,10 @@ model User {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
 
-  subscription       Subscription?
-  benefitRedemptions BenefitRedemption[]
-  refreshTokens      RefreshToken[]
+  subscription        Subscription?
+  benefitRedemptions  BenefitRedemption[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
 }
@@ -147,7 +148,11 @@ model BenefitRedemption {
   company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   edition Edition @relation(fields: [editionId], references: [id], onDelete: Cascade)
 
-  model PasswordResetToken {
+  @@unique([userId, companyId, editionId])
+  @@map("benefit_redemptions")
+}
+
+model PasswordResetToken {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
   token     String   @unique
@@ -157,9 +162,5 @@ model BenefitRedemption {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, companyId, editionId])
-  @@map("benefit_redemptions")
   @@map("password_reset_tokens")
-}
-
 }

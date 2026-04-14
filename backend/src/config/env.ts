@@ -16,6 +16,7 @@ export const env = {
   STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID!,
 
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
+  API_URL: process.env.API_URL || 'http://localhost:3333',
   STRIPE_SUCCESS_URL: process.env.STRIPE_SUCCESS_URL || 'http://localhost:5173/assinatura/sucesso',
   STRIPE_CANCEL_URL: process.env.STRIPE_CANCEL_URL || 'http://localhost:5173/assinatura/cancelado',
 } as const;

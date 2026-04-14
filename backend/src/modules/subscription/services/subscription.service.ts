@@ -156,8 +156,8 @@ export class SubscriptionService {
         status: 'ACTIVE',
         ...period,
       });
-    } catch {
-      // Subscription might not exist yet (first invoice before checkout.completed)
+    } catch (error) {
+      console.warn(`[WEBHOOK] invoice.paid — subscription ${subscriptionId} not found yet (may arrive before checkout.completed):`, error);
     }
   }
 
@@ -169,8 +169,8 @@ export class SubscriptionService {
       await this.subscriptionRepo.updateByStripeSubscriptionId(subscriptionId, {
         status: 'PAST_DUE',
       });
-    } catch {
-      // Subscription might not exist
+    } catch (error) {
+      console.error(`[WEBHOOK] invoice.payment_failed — failed to update subscription ${subscriptionId}:`, error);
     }
   }
 
@@ -180,8 +180,8 @@ export class SubscriptionService {
         status: 'CANCELED',
         cancelAtPeriodEnd: false,
       });
-    } catch {
-      // Subscription might not exist
+    } catch (error) {
+      console.error(`[WEBHOOK] customer.subscription.deleted — failed to cancel subscription ${subscription.id}:`, error);
     }
   }
 }
