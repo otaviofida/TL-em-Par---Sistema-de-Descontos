@@ -15,8 +15,10 @@
 | Frontend SPA | ✅ Rodando | HTML carregando via Nginx |
 | PWA | ✅ Instalável | manifest.json, Service Worker, prompt de instalação, tela offline |
 | HTTP | ✅ Funcionando | `http://66.253.112.233` |
-| SSL/HTTPS | ❌ Pendente | Domínio sem DNS público (ver seção abaixo) |
-| Stripe | ⚠️ Modo teste | Chaves de teste configuradas |
+| SSL/HTTPS | ⏳ Propagando | Domínio `tlempar.com.br` em propagação DNS |
+| Stripe | ✅ Conta real (modo teste) | Chaves da conta real configuradas, produto R$29,90/mês |
+| Resend | ⚠️ Sandbox | API key configurada, mas emails só para o dono da conta até verificar domínio |
+| Cloudinary | ✅ Configurado | Uploads de imagens via Cloudinary (cloud: dokexngyo) |
 
 ### Credenciais de Teste (Produção)
 
@@ -29,7 +31,7 @@
 
 ## Pendências do Deploy (Domínio)
 
-O domínio temporário `srv19774812.stayx.cloud` **não resolve no DNS público** (NXDOMAIN), impossibilitando SSL. Quando o domínio `tlempar.com.br` estiver disponível:
+O domínio `tlempar.com.br` está em **propagação DNS**. Quando estiver resolvendo para `66.253.112.233`, executar os passos abaixo:
 
 ### 1. Configurar DNS
 - Apontar registro **A** de `tlempar.com.br` → `66.253.112.233`
@@ -105,15 +107,37 @@ Frontend transformado em PWA instalável no celular. Implementação manual (sem
 
 ---
 
-### Fase 2.1 — Correções Pré-Produção (Parcialmente concluída)
+### Fase 2.1 — Correções Pré-Produção ✅ Concluída
 
 | Tarefa | Descrição | Status |
 |--------|-----------|--------|
-| 2.1.1 | **Email transacional** — Integração Resend para forgot-password com template HTML | ✅ |
-| 2.1.2 | **Trocar senhas padrão** — Seed agora usa env vars (ADMIN_PASSWORD / TEST_USER_PASSWORD) | ✅ |
-| 2.1.3 | **Upload Cloudinary** — Uploads híbridos (Cloudinary quando configurado, local como fallback) | ✅ |
-| 2.1.4 | **HTTPS obrigatório** — Configurar domínio + SSL | ⏳ Aguardando domínio |
-| 2.1.5 | **Stripe modo live** — Migrar chaves de teste para produção | ⏳ Aguardando decisão de lançamento |
+| 2.1.1 | **Email transacional** — Resend integrado, template HTML, fallback console.log | ✅ |
+| 2.1.2 | **Trocar senhas padrão** — Seed usa env vars (`ADMIN_PASSWORD` / `TEST_USER_PASSWORD`) | ✅ |
+| 2.1.3 | **Upload Cloudinary** — Híbrido (Cloudinary quando configurado, local como fallback) | ✅ |
+| 2.1.4 | **Stripe conta real** — Conta criada, produto R$29,90/mês, chaves teste configuradas na VPS | ✅ |
+| 2.1.5 | **Preço atualizado** — `MONTHLY_PRICE` alterado de R$39,90 para R$29,90 | ✅ |
+
+> **Serviços configurados na VPS (.env):** Resend (sandbox), Cloudinary (ativo), Stripe (conta real, modo teste)
+
+---
+
+### Fase 2.1.5 — Ativação de Domínio (PRÓXIMA — aguardando propagação DNS)
+
+Quando o domínio `tlempar.com.br` propagar, executar **nesta ordem**:
+
+| # | Tarefa | Onde |
+|---|--------|------|
+| 1 | Verificar propagação DNS (`dig tlempar.com.br`) | Local |
+| 2 | Atualizar `FRONTEND_URL`, `API_URL`, `STRIPE_*_URL` no `docker-compose.yml` | Código |
+| 3 | Atualizar `server_name` no Nginx para `tlempar.com.br` | VPS |
+| 4 | Emitir certificado SSL via Certbot | VPS |
+| 5 | Ativar config SSL do Nginx | VPS |
+| 6 | Rebuild frontend + backend (URLs mudam em build-time) | VPS |
+| 7 | Configurar webhook no Stripe: `https://tlempar.com.br/api/subscriptions/webhook` | Stripe Dashboard |
+| 8 | Atualizar `STRIPE_WEBHOOK_SECRET` (whsec_) no `.env` da VPS | VPS |
+| 9 | Verificar domínio no Resend (registros DNS) → desbloqueia emails para qualquer destinatário | Resend Dashboard |
+| 10 | Atualizar `EMAIL_FROM` para `noreply@tlempar.com.br` | VPS .env |
+| 11 | Testes: SSL, login, forgot-password (email real), checkout Stripe, upload Cloudinary | VPS |
 
 ---
 
@@ -161,8 +185,9 @@ Frontend transformado em PWA instalável no celular. Implementação manual (sem
 
 | Feature | Backend | Frontend | Pendência |
 |---------|---------|----------|-----------|
-| Recuperação de senha | ✅ Completo (`/auth/forgot-password`, `/auth/reset-password`) | ✅ Páginas prontas (`/esqueci-senha`, `/redefinir-senha/:token`) | ⚠️ **Não envia email** — token só aparece no `console.log` em dev. Precisa integrar serviço de email (Resend/SendGrid) |
-| Uploads de imagens | ✅ Multer (local) | ✅ Upload funcional | ⚠️ **Armazenamento local** — volumes Docker persistem, mas S3/Cloudinary é recomendado para escala |
+| Recuperação de senha | ✅ Resend integrado | ✅ Páginas prontas | ⚠️ **Resend em sandbox** — só envia para o email do dono da conta até verificar domínio no Resend |
+| Uploads de imagens | ✅ Cloudinary + fallback local | ✅ Upload funcional | ✅ Resolvido — Cloudinary configurado na VPS |
+| Stripe webhook | ✅ Endpoint pronto | ✅ Checkout funcional | ⚠️ **Webhook não configurado** — precisa de domínio HTTPS para criar no Stripe Dashboard |
 
 ---
 
@@ -170,8 +195,8 @@ Frontend transformado em PWA instalável no celular. Implementação manual (sem
 
 | Problema | Impacto | Solução |
 |----------|---------|---------|
-| `MONTHLY_PRICE = 39.90` hardcoded em `admin.repository.ts` | Métricas de receita ficam fixas | Ler preço real do Stripe ou config |
-| UUID para password reset tokens | Aceitável para MVP | Trocar por crypto.randomBytes para mais entropia |
+| ~~`MONTHLY_PRICE = 39.90` hardcoded~~ | ~~Métricas fixas~~ | ✅ Corrigido para R$29,90 |
+| ~~UUID para password reset tokens~~ | ~~Aceitável para MVP~~ | ✅ Trocado por `crypto.randomBytes(32)` |
 | localStorage para JWT | Padrão SPA, vulnerável a XSS | Migrar para httpOnly cookies quando tiver domínio próprio |
 | Sem rate limiting por IP no Nginx | DDos básico | Adicionar `limit_req_zone` no nginx.conf |
 | Certbot container rodando loop vazio | Gasta recursos | Parar/remover até ter domínio com SSL |
@@ -181,12 +206,10 @@ Frontend transformado em PWA instalável no celular. Implementação manual (sem
 ## Ordem de Execução Recomendada
 
 ```
-1. PWA (2.0)               ✅ Concluído
-2. Melhorias (2.2)          ✅ Concluído (soft delete, auditoria, PDF, filtros)
-3. Domínio + SSL (2.1.4)   ← Quando domínio estiver pronto
-4. Email transacional (2.1.1) ← Desbloqueia forgot-password + 2.2.1/2.2.2
-5. Upload S3 (2.1.3)       ← Antes de ter muitos dados
-6. Stripe live (2.1.5)     ← Quando for lançar de verdade
-7. Testes + Sentry (2.3)   ← Estabilidade pós-lançamento
-8. Crescimento (3.0)        ← Quando tiver base de usuários
+1. PWA (2.0)                  ✅ Concluído
+2. Melhorias (2.2)             ✅ Concluído (soft delete, auditoria, PDF, filtros)
+3. Correções pré-prod (2.1)    ✅ Concluído (Resend, Cloudinary, Stripe conta real, senhas)
+4. Ativação domínio (2.1.5)    ← PRÓXIMO — DNS propagando
+5. Testes + Sentry (2.3)       ← Estabilidade pós-lançamento
+6. Crescimento (3.0)            ← Quando tiver base de usuários
 ```
