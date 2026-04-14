@@ -1,6 +1,6 @@
 # Planning — TL EM PAR
 
-> Última atualização: 14 de abril de 2026 (avaliações + notificações + correções mobile)
+> Última atualização: 14 de abril de 2026 (fase 2.4 avaliações concluída)
 
 ---
 
@@ -139,22 +139,22 @@ Domínio `tlempar.com.br` ativado em 14/04/2026 via Cloudflare.
 
 ---
 
-### Fase 2.4 — Avaliações de Restaurantes
+### Fase 2.4 — Avaliações de Restaurantes ✅ Concluída
 
 Sistema de avaliações com estrelas e comentários. Só quem já visitou pode avaliar. Nota média exibida nos cards.
 
-| Tarefa | Descrição | Prioridade |
-|--------|-----------|-----------|
-| 2.4.1 | **Modelo `Review`** — Prisma schema (userId, companyId, rating 1-5, comment, createdAt). Constraint: 1 review por usuário por empresa por edição | Alta |
-| 2.4.2 | **Migration** — Criar tabela `Review` + índice único (userId + companyId + editionId) | Alta |
-| 2.4.3 | **API CRUD** — `POST /reviews`, `GET /companies/:id/reviews`, `DELETE /reviews/:id` (admin). Validar que usuário já resgatou benefício naquele restaurante | Alta |
-| 2.4.4 | **Nota média no card** — Query para calcular `avgRating` + `reviewCount` por empresa. Retornar no `GET /companies` e `GET /companies/:id` | Alta |
-| 2.4.5 | **Frontend — Estrelas no card** — Exibir ⭐ nota média + quantidade de avaliações no `CompaniesPage` e `CompanyDetailPage` | Alta |
-| 2.4.6 | **Frontend — Seção de avaliações** — Lista de reviews na `CompanyDetailPage` (nome, estrelas, comentário, data) | Alta |
-| 2.4.7 | **Frontend — Formulário de avaliação** — Modal/seção para avaliar (estrelas clicáveis + textarea). Só aparece se já resgatou e ainda não avaliou | Alta |
-| 2.4.8 | **Email pós-resgate** — Enviar email X horas após resgatar pedindo para avaliar (link direto para página do restaurante) | Média |
-| 2.4.9 | **Admin — visualizar avaliações** — Listagem de reviews no admin com filtro por empresa e opção de remover | Média |
-| 2.4.10 | Deploy e testes | Alta |
+| Tarefa | Descrição | Status |
+|--------|-----------|--------|
+| 2.4.1 | **Modelo `Review`** — Prisma schema (userId, companyId, rating 1-5, comment, createdAt). Constraint unique (userId + companyId + editionId) | ✅ |
+| 2.4.2 | **Migration** — Tabela `reviews` + índice companyId + unique constraint | ✅ |
+| 2.4.3 | **API CRUD** — `POST /reviews`, `GET /reviews/company/:id`, `GET /reviews/company/:id/stats`, `GET /reviews/admin`, `DELETE /reviews/admin/:id`. Validação: só avalia se resgatou benefício | ✅ |
+| 2.4.4 | **Nota média no card** — `avgRating` + `reviewCount` enriquecidos via `ReviewRepository.getCompanyStatsMany()` no `listForSubscriber` e `getDetailForSubscriber` | ✅ |
+| 2.4.5 | **Frontend — Estrelas no card** — Componente `StarRating` reutilizável. Estrelas + contagem nos cards do `CompaniesPage` | ✅ |
+| 2.4.6 | **Frontend — Seção de avaliações** — Lista de reviews na `CompanyDetailPage` (avatar, nome, estrelas, comentário, data) | ✅ |
+| 2.4.7 | **Frontend — Formulário de avaliação** — Seção inline com estrelas clicáveis + textarea. Só aparece se resgatou e ainda não avaliou | ✅ |
+| 2.4.8 | **Email pós-resgate** — Enviar email X horas após resgatar pedindo para avaliar (link direto para página do restaurante) | ⏳ Movido p/ 2.5.6 |
+| 2.4.9 | **Admin — visualizar avaliações** — Página `AdminReviewsPage` com listagem + remoção. Nav item "Avaliações" no sidebar admin | ✅ |
+| 2.4.10 | Deploy e testes — Migration aplicada, backend + frontend rebuilt, health/login/stats OK | ✅ |
 
 ---
 
@@ -222,8 +222,8 @@ Sistema de notificações dentro do app + tratamento de falha de pagamento.
 2. Melhorias (2.2)             ✅ Concluído (soft delete, auditoria, PDF, filtros, cancelamento, mobile fixes)
 3. Correções pré-prod (2.1)    ✅ Concluído (Resend, Cloudinary, Stripe conta real, senhas)
 4. Ativação domínio (2.1.5)    ✅ Concluído (HTTPS, webhook, Resend domínio, testes OK)
-5. Avaliações (2.4)             ← PRÓXIMO — Estrelas, comentários, email pós-resgate
-6. Notificações + Cobrança (2.5) ← Notificações in-app, falha de pagamento, bloqueio PAST_DUE
+5. Avaliações (2.4)             ✅ Concluído (modelo, API, estrelas, formulário, admin, deploy)
+6. Notificações + Cobrança (2.5) ← PRÓXIMO — Notificações in-app, falha de pagamento, bloqueio PAST_DUE
 7. Testes + Sentry (2.3)       ← Estabilidade pós-lançamento
 8. Crescimento (3.0)            ← Quando tiver base de usuários
 ```
