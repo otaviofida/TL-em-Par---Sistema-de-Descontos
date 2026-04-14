@@ -62,7 +62,9 @@ export class PushService {
         );
         sent++;
       } catch (err: any) {
-        console.error(`[PUSH] Falha ao enviar para ${sub.endpoint.slice(0, 60)}...:`, err.statusCode, err.body || err.message);
+        console.error(`[PUSH] Falha ao enviar para ${sub.endpoint.slice(0, 60)}...:`);
+        console.error(`[PUSH] statusCode=${err.statusCode}, message=${err.message}, body=${err.body}`);
+        console.error(`[PUSH] Full error:`, JSON.stringify(err, Object.getOwnPropertyNames(err)));
         if (err.statusCode === 410 || err.statusCode === 404) {
           await this.pushRepo.deleteById(sub.id);
         }
