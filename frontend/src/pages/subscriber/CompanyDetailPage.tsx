@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
-import { Card, Button, Loading, Badge } from '../../components/ui';
+import { Card, Button, Loading } from '../../components/ui';
 import { MapPin, Phone, Instagram, ArrowLeft, CheckCircle, UtensilsCrossed } from 'lucide-react';
 import type { Company, ApiResponse } from '../../types';
 import { fadeInUp, fadeIn } from '../../styles/animations';

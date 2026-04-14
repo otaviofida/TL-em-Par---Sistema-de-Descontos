@@ -46,7 +46,8 @@ const variants = {
   `,
 };
 
-const sizes = {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _sizes = {
   sm: css`
     padding: 0.5rem 1rem;
     font-size: ${({ theme }) => theme.fontSizes.sm};

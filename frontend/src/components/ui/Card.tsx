@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 type CardVariant = 'default' | 'elevated' | 'bordered';
 

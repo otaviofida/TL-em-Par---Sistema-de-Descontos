@@ -39,7 +39,7 @@ const Spinner = styled(Loader)`
 export function SubscriptionSuccessPage() {
   const [searchParams] = useSearchParams();
   const [verifying, setVerifying] = useState(true);
-  const [verified, setVerified] = useState(false);
+  const [, setVerified] = useState(false);
   const [error, setError] = useState(false);
   const loadUser = useAuthStore((s) => s.loadUser);
 

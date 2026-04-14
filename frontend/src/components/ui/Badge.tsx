@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
 
 type BadgeVariant = 'success' | 'error' | 'warning' | 'info' | 'neutral';

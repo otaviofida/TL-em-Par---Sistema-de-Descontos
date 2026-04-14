@@ -9,7 +9,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import {
-  Users, UserMinus, TrendingUp, DollarSign, Calendar,
+  Users, DollarSign, Calendar,
   Activity, ArrowUpRight, ArrowDownRight,
 } from 'lucide-react';
 
