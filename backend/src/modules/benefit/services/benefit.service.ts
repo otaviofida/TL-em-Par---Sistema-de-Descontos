@@ -5,12 +5,18 @@ import { AppError, ConflictError, ForbiddenError, NotFoundError } from '../../..
 import { PaginationParams, getPrismaSkipTake } from '../../../shared/helpers/pagination.js';
 import { prisma } from '../../../config/prisma.js';
 import { NotificationService } from '../../notification/services/notification.service.js';
+import { AuthRepository } from '../../auth/repositories/auth.repository.js';
+import { sendEmail, reviewRequestEmailHtml } from '../../../config/email.js';
+import { env } from '../../../config/env.js';
+
+const REVIEW_REQUEST_DELAY_MS = 2 * 60 * 60 * 1000; // 2 horas
 
 export class BenefitService {
   constructor(
     private benefitRepo = new BenefitRepository(),
     private companyRepo = new CompanyRepository(),
     private editionRepo = new EditionRepository(),
+    private authRepo = new AuthRepository(),
   ) {}
 
   /**
@@ -82,6 +88,9 @@ export class BenefitService {
       data: { companyId: company.id, companyName: company.name },
     }).catch(err => console.error('[NOTIFICATION] Erro ao criar notificação de resgate:', err));
 
+    // Agenda pedido de avaliação 2h depois
+    this.scheduleReviewRequest(userId, company.id, company.name);
+
     return {
       redemptionId: redemption.id,
       company: redemption.company,
@@ -120,5 +129,38 @@ export class BenefitService {
       data: formatted,
       meta: { page: pagination.page, limit: pagination.limit, total, totalPages: Math.ceil(total / pagination.limit) },
     };
+  }
+
+  private scheduleReviewRequest(userId: string, companyId: string, companyName: string) {
+    setTimeout(async () => {
+      try {
+        // Verifica se o usuário já avaliou antes de enviar
+        const existingReview = await prisma.review.findFirst({
+          where: { userId, companyId },
+        });
+        if (existingReview) return;
+
+        // Notificação in-app
+        await NotificationService.notify(userId, {
+          type: 'REVIEW_REQUEST',
+          title: 'Como foi sua experiência?',
+          message: `Avalie o ${companyName} e ajude outros assinantes!`,
+          data: { companyId, companyName },
+        });
+
+        // Email
+        const user = await this.authRepo.findUserById(userId);
+        if (user) {
+          const reviewLink = `${env.FRONTEND_URL}/empresas/${companyId}`;
+          sendEmail({
+            to: user.email,
+            subject: `⭐ Como foi no ${companyName}? Deixe sua avaliação!`,
+            html: reviewRequestEmailHtml(user.name, companyName, reviewLink),
+          });
+        }
+      } catch (err) {
+        console.error('[REVIEW_REQUEST] Erro ao enviar pedido de avaliação:', err);
+      }
+    }, REVIEW_REQUEST_DELAY_MS);
   }
 }

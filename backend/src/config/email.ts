@@ -208,3 +208,19 @@ export function paymentFailedEmailHtml(name: string, portalLink: string): string
     ${emailButton(portalLink, '💳 Atualizar Pagamento')}
   `);
 }
+
+export function reviewRequestEmailHtml(name: string, companyName: string, reviewLink: string): string {
+  return emailLayout(`
+    <div style="text-align: center; margin-bottom: 20px;">
+      <p style="font-size: 48px; margin: 0;">⭐</p>
+    </div>
+    <h2 style="font-size: 20px; color: #ffffff; margin: 0 0 16px;">Como foi sua experiência?</h2>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Olá, ${name}! Você usou seu benefício no <strong style="color: #ffffff;">${companyName}</strong> recentemente.
+    </p>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Conte para nós como foi! Sua avaliação ajuda outros assinantes e os restaurantes parceiros.
+    </p>
+    ${emailButton(reviewLink, '⭐ Avaliar Restaurante')}
+  `);
+}

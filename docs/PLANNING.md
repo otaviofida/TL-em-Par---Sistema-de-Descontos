@@ -1,6 +1,6 @@
 # Planning — TL EM PAR
 
-> Última atualização: 14 de abril de 2026 (fase 2.4 avaliações concluída)
+> Última atualização: 14 de abril de 2026 (fase 2.5 notificações + cobrança concluída)
 
 ---
 
@@ -223,7 +223,7 @@ Sistema de notificações dentro do app + tratamento de falha de pagamento.
 3. Correções pré-prod (2.1)    ✅ Concluído (Resend, Cloudinary, Stripe conta real, senhas)
 4. Ativação domínio (2.1.5)    ✅ Concluído (HTTPS, webhook, Resend domínio, testes OK)
 5. Avaliações (2.4)             ✅ Concluído (modelo, API, estrelas, formulário, admin, deploy)
-6. Notificações + Cobrança (2.5) ← PRÓXIMO — Notificações in-app, falha de pagamento, bloqueio PAST_DUE
-7. Testes + Sentry (2.3)       ← Estabilidade pós-lançamento
+6. Notificações + Cobrança (2.5) ✅ Concluído (notificações in-app, dropdown, webhooks, PAST_DUE, email templates)
+7. Testes + Sentry (2.3)       ← PRÓXIMO — Estabilidade pós-lançamento
 8. Crescimento (3.0)            ← Quando tiver base de usuários
 ```
