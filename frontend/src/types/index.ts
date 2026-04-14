@@ -69,6 +69,8 @@ export interface Company {
   qrToken?: string;
   alreadyUsed?: boolean;
   usedAt?: string | null;
+  avgRating?: number;
+  reviewCount?: number;
 }
 
 // Edition
@@ -99,6 +101,21 @@ export interface BenefitValidationResult {
   benefit: string;
   redeemedAt: string;
   edition: { id: string; name: string };
+}
+
+// Review
+export interface Review {
+  id: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  user: { id: string; name: string; avatarUrl?: string };
+  company?: { id: string; name: string; logoUrl?: string };
+}
+
+export interface ReviewStats {
+  avgRating: number;
+  reviewCount: number;
 }
 
 // Admin Dashboard

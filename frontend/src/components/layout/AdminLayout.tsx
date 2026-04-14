@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import {
   House, Hamburger, CalendarRange, Users, CreditCard,
-  ClipboardList, LogOut, Menu, User as UserIcon, BarChart3,
+  ClipboardList, LogOut, Menu, User as UserIcon, BarChart3, Star,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react'; 
 import ImageIllustration from '../../assets/admin-illustration.png';  
@@ -268,6 +268,7 @@ const adminNav = [
   { to: '/admin/assinaturas', label: 'Assinaturas', icon: CreditCard },
   { to: '/admin/metricas', label: 'Métricas', icon: BarChart3 },
   { to: '/admin/validacoes', label: 'Validações', icon: ClipboardList },
+  { to: '/admin/avaliacoes', label: 'Avaliações', icon: Star },
 ];
 
 export function AdminLayout() {

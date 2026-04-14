@@ -2,6 +2,7 @@ import { CompanyRepository } from '../repositories/company.repository.js';
 import { CreateCompanyInput, UpdateCompanyInput, UpdateCompanyStatusInput } from '../schemas/company.schema.js';
 import { NotFoundError, AppError } from '../../../shared/errors/index.js';
 import { EditionRepository } from '../../edition/repositories/edition.repository.js';
+import { ReviewRepository } from '../../review/repositories/review.repository.js';
 import { PaginationParams, PaginatedResult } from '../../../shared/helpers/pagination.js';
 import { getPrismaSkipTake } from '../../../shared/helpers/pagination.js';
 
@@ -9,6 +10,7 @@ export class CompanyService {
   constructor(
     private companyRepo = new CompanyRepository(),
     private editionRepo = new EditionRepository(),
+    private reviewRepo = new ReviewRepository(),
   ) {}
 
   async create(data: CreateCompanyInput) {
@@ -105,8 +107,16 @@ export class CompanyService {
       userId,
     });
 
+    // Enriquecer com avgRating/reviewCount
+    const companyIds = data.map((c: any) => c.id);
+    const statsMap = await this.reviewRepo.getCompanyStatsMany(companyIds);
+    const enriched = data.map((c: any) => {
+      const stats = statsMap.get(c.id) || { avgRating: 0, reviewCount: 0 };
+      return { ...c, avgRating: stats.avgRating, reviewCount: stats.reviewCount };
+    });
+
     return {
-      data,
+      data: enriched,
       meta: { page: pagination.page, limit: pagination.limit, total, totalPages: Math.ceil(total / pagination.limit) },
     };
   }
@@ -131,10 +141,13 @@ export class CompanyService {
     }
 
     const { benefitRedemptions, qrToken: _, ...companyData } = company;
+    const reviewStats = await this.reviewRepo.getCompanyStats(companyId);
     return {
       ...companyData,
       alreadyUsed: benefitRedemptions.length > 0,
       usedAt: benefitRedemptions.length > 0 ? benefitRedemptions[0].redeemedAt : null,
+      avgRating: reviewStats.avgRating,
+      reviewCount: reviewStats.reviewCount,
     };
   }
 }

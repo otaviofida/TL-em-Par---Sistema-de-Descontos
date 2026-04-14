@@ -52,6 +52,7 @@ model User {
 
   subscription            Subscription?
   benefitRedemptions      BenefitRedemption[]
+  reviews                 Review[]
   refreshTokens           RefreshToken[]
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
@@ -111,6 +112,7 @@ model Company {
 
   editions           CompanyEdition[]
   benefitRedemptions BenefitRedemption[]
+  reviews            Review[]
 
   @@map("companies")
 }
@@ -127,6 +129,7 @@ model Edition {
 
   companies          CompanyEdition[]
   benefitRedemptions BenefitRedemption[]
+  reviews            Review[]
 
   @@map("editions")
 }
@@ -215,4 +218,22 @@ model CancellationFeedback {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("cancellation_feedbacks")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  companyId String   @map("company_id")
+  editionId String   @map("edition_id")
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  edition Edition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId, editionId])
+  @@index([companyId])
+  @@map("reviews")
 }

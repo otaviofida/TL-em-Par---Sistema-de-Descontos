@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Loading, EmptyState } from '../../components/ui';
+import { StarRating } from '../../components/ui';
 import { Link } from 'react-router-dom';
 import { MapPin, CheckCircle, UtensilsCrossed, Search, Tag } from 'lucide-react';
 import { useState } from 'react';
@@ -262,6 +263,9 @@ export function CompaniesPage() {
                 </CoverWrapper>
                 <CardBody>
                   <CompanyName>{company.name}</CompanyName>
+                  {(company.avgRating ?? 0) > 0 && (
+                    <StarRating value={company.avgRating!} size={14} count={company.reviewCount} showCount />
+                  )}
                   {company.benefitDescription && (
                     <BenefitRow>
                       <Tag size={14} />

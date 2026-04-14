@@ -13,6 +13,7 @@ import { editionRoutes } from './modules/edition/routes/edition.routes.js';
 import { benefitRoutes } from './modules/benefit/routes/benefit.routes.js';
 import { subscriptionRoutes } from './modules/subscription/routes/subscription.routes.js';
 import { adminRoutes } from './modules/admin/routes/admin.routes.js';
+import { reviewRoutes } from './modules/review/routes/review.routes.js';
 
 const app = express();
 
@@ -83,6 +84,7 @@ app.use('/api/admin/editions', editionRoutes);
 app.use('/api/benefits', benefitRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
