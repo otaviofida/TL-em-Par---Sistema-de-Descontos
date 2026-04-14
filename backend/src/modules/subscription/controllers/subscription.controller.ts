@@ -44,6 +44,15 @@ export class SubscriptionController {
     }
   }
 
+  async portal(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await subscriptionService.createPortalSession(req.userId!);
+      return sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async webhook(req: Request, res: Response, next: NextFunction) {
     const signature = req.headers['stripe-signature'] as string;
 

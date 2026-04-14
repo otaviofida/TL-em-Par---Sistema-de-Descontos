@@ -129,3 +129,14 @@ export interface DashboardStats {
   currentEdition: { id: string; name: string; redemptionCount: number } | null;
   topCompanies: { id: string; name: string; logoUrl: string | null; redemptionCount: number }[];
 }
+
+// Notification
+export interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  data?: string;
+  createdAt: string;
+}

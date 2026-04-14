@@ -191,3 +191,20 @@ export function subscriptionExpiringEmailHtml(name: string, expirationDate: stri
     ${emailButton(renewLink, '🔄 Renovar Assinatura')}
   `);
 }
+
+export function paymentFailedEmailHtml(name: string, portalLink: string): string {
+  return emailLayout(`
+    <div style="text-align: center; margin-bottom: 20px;">
+      <p style="font-size: 48px; margin: 0;">⚠️</p>
+    </div>
+    <h2 style="font-size: 20px; color: #ffffff; margin: 0 0 16px;">Problema com seu pagamento</h2>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Olá, ${name}! Não foi possível processar a cobrança da sua assinatura do TL EM PAR.
+    </p>
+    <p style="color: #b0b0b0; line-height: 1.7; font-size: 15px; margin: 0 0 8px;">
+      Seu acesso aos benefícios ficará <strong style="color: #ef4444;">suspenso</strong> até que o pagamento seja regularizado.
+      Atualize sua forma de pagamento para continuar aproveitando.
+    </p>
+    ${emailButton(portalLink, '💳 Atualizar Pagamento')}
+  `);
+}

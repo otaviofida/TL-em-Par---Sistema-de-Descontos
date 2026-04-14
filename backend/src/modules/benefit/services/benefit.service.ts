@@ -4,6 +4,7 @@ import { EditionRepository } from '../../edition/repositories/edition.repository
 import { AppError, ConflictError, ForbiddenError, NotFoundError } from '../../../shared/errors/index.js';
 import { PaginationParams, getPrismaSkipTake } from '../../../shared/helpers/pagination.js';
 import { prisma } from '../../../config/prisma.js';
+import { NotificationService } from '../../notification/services/notification.service.js';
 
 export class BenefitService {
   constructor(
@@ -72,6 +73,14 @@ export class BenefitService {
       companyId: company.id,
       editionId: activeEdition.id,
     });
+
+    // Notificação automática de resgate
+    NotificationService.notify(userId, {
+      type: 'BENEFIT_REDEEMED',
+      title: 'Benefício utilizado!',
+      message: `Você usou seu benefício no ${company.name}. Aproveite!`,
+      data: { companyId: company.id, companyName: company.name },
+    }).catch(err => console.error('[NOTIFICATION] Erro ao criar notificação de resgate:', err));
 
     return {
       redemptionId: redemption.id,

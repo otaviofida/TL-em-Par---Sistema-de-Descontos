@@ -3,8 +3,9 @@ import { env } from '../../../config/env.js';
 import { SubscriptionRepository } from '../repositories/subscription.repository.js';
 import { AuthRepository } from '../../auth/repositories/auth.repository.js';
 import { NotFoundError, AppError } from '../../../shared/errors/index.js';
-import { sendEmail, subscriptionExpiringEmailHtml, welcomeEmailHtml } from '../../../config/email.js';
+import { sendEmail, subscriptionExpiringEmailHtml, welcomeEmailHtml, paymentFailedEmailHtml } from '../../../config/email.js';
 import { CancelWithFeedbackInput } from '../schemas/subscription.schema.js';
+import { NotificationService } from '../../notification/services/notification.service.js';
 import Stripe from 'stripe';
 
 function getSubscriptionPeriod(sub: any) {
@@ -186,10 +187,23 @@ export class SubscriptionService {
     const period = getSubscriptionPeriod(stripeSubscription);
 
     try {
+      // Verifica se estava PAST_DUE antes de atualizar
+      const existingSub = await this.subscriptionRepo.findByStripeSubscriptionId(subscriptionId);
+      const wasOverdue = existingSub?.status === 'PAST_DUE';
+
       await this.subscriptionRepo.updateByStripeSubscriptionId(subscriptionId, {
         status: 'ACTIVE',
         ...period,
       });
+
+      // Notifica recuperação de pagamento
+      if (wasOverdue && existingSub) {
+        await NotificationService.notify(existingSub.userId, {
+          type: 'PAYMENT_RECOVERED',
+          title: 'Pagamento regularizado!',
+          message: 'Seu pagamento foi confirmado e sua assinatura está ativa novamente. Aproveite todos os benefícios!',
+        });
+      }
     } catch (error) {
       console.warn(`[WEBHOOK] invoice.paid — subscription ${subscriptionId} not found yet (may arrive before checkout.completed):`, error);
     }
@@ -200,12 +214,52 @@ export class SubscriptionService {
     if (!subscriptionId) return;
 
     try {
+      const subscription = await this.subscriptionRepo.findByStripeSubscriptionId(subscriptionId);
+
       await this.subscriptionRepo.updateByStripeSubscriptionId(subscriptionId, {
         status: 'PAST_DUE',
       });
+
+      if (subscription) {
+        // Cria notificação in-app
+        await NotificationService.notify(subscription.userId, {
+          type: 'PAYMENT_FAILED',
+          title: 'Problema no pagamento',
+          message: 'Não conseguimos processar seu pagamento. Atualize seu método de pagamento para continuar aproveitando os benefícios.',
+        });
+
+        // Envia email de alerta
+        const user = await this.authRepo.findUserById(subscription.userId);
+        if (user && subscription.stripeCustomerId) {
+          const portalSession = await stripe.billingPortal.sessions.create({
+            customer: subscription.stripeCustomerId,
+            return_url: `${env.FRONTEND_URL}/assinatura`,
+          });
+
+          sendEmail({
+            to: user.email,
+            subject: '⚠️ Problema no seu pagamento — TL EM PAR',
+            html: paymentFailedEmailHtml(user.name, portalSession.url),
+          });
+        }
+      }
     } catch (error) {
       console.error(`[WEBHOOK] invoice.payment_failed — failed to update subscription ${subscriptionId}:`, error);
     }
+  }
+
+  async createPortalSession(userId: string) {
+    const subscription = await this.subscriptionRepo.findByUserId(userId);
+    if (!subscription?.stripeCustomerId) {
+      throw new NotFoundError('Assinatura não encontrada.');
+    }
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: subscription.stripeCustomerId,
+      return_url: `${env.FRONTEND_URL}/assinatura`,
+    });
+
+    return { url: session.url };
   }
 
   async handleSubscriptionDeleted(subscription: Stripe.Subscription) {

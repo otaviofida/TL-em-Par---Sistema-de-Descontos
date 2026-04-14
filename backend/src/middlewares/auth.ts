@@ -49,8 +49,12 @@ export async function requireActiveSubscription(req: Request, _res: Response, ne
     const { prisma } = await import('../config/prisma.js');
     const subscription = await prisma.subscription.findUnique({ where: { userId: req.userId! } });
 
-    if (!subscription || subscription.status !== 'ACTIVE') {
+    if (!subscription || (subscription.status !== 'ACTIVE' && subscription.status !== 'PAST_DUE')) {
       throw new ForbiddenError('Você precisa de uma assinatura ativa.', 'SUBSCRIPTION_REQUIRED');
+    }
+
+    if (subscription.status === 'PAST_DUE') {
+      throw new ForbiddenError('Seu pagamento está pendente. Atualize seu método de pagamento para continuar.', 'SUBSCRIPTION_PAST_DUE');
     }
 
     next();

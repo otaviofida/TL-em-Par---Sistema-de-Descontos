@@ -3,9 +3,11 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import {
   Home, UtensilsCrossed, QrCode, History,
-  LogOut, Menu, User as UserIcon,
+  LogOut, Menu, User as UserIcon, Bell, AlertTriangle,
 } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/api';
 import ImageIllustration from '../../assets/admin-illustration.png';
 import { fadeIn } from '../../styles/animations';
 import { VideoSplash } from '../VideoSplash';
@@ -341,11 +343,66 @@ const Tooltip = styled.div<{ $x: number; $y: number; $visible: boolean }>`
   }
 `;
 
+const BellButton = styled.button`
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.colors.white};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.colors.dark};
+  transition: all 0.2s;
+  cursor: pointer;
+
+  &:hover { color: ${({ theme }) => theme.colors.primary}; }
+`;
+
+const BadgeCount = styled.span`
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: ${({ theme }) => theme.colors.error};
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+`;
+
+const PastDueBanner = styled.div`
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+
+  a {
+    color: #fff;
+    text-decoration: underline;
+    font-weight: 700;
+    &:hover { opacity: 0.85; }
+  }
+`;
+
 const userNav = [
   { to: '/painel', label: 'Início', icon: Home },
   { to: '/empresas', label: 'Restaurantes Parceiros', icon: UtensilsCrossed },
   { to: '/validar', label: 'Validar QR Code', icon: QrCode },
   { to: '/historico', label: 'Meu histórico', icon: History },
+  { to: '/notificacoes', label: 'Notificações', icon: Bell },
   { to: '/perfil', label: 'Meu perfil', icon: UserIcon },
 ];
 
@@ -379,6 +436,26 @@ export function UserLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isPastDue = user?.subscription?.status === 'PAST_DUE';
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ['notifications-unread'],
+    queryFn: async () => {
+      const res = await api.get('/notifications/unread-count');
+      return res.data.data.count as number;
+    },
+    refetchInterval: 30000,
+  });
+
+  const handlePortalRedirect = async () => {
+    try {
+      const res = await api.post('/subscriptions/portal');
+      window.location.href = res.data.data.url;
+    } catch {
+      // fallback
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -478,6 +555,10 @@ export function UserLayout() {
           </TopBarLeft>
           <TopBarRight>
             <TopBarDate>{formatDate()}</TopBarDate>
+            <BellButton onClick={() => navigate('/notificacoes')}>
+              <Bell size={18} />
+              {(unreadCount ?? 0) > 0 && <BadgeCount>{unreadCount! > 99 ? '99+' : unreadCount}</BadgeCount>}
+            </BellButton>
             <AvatarWrapper ref={dropdownRef}>
               <AvatarButton onClick={() => setDropdownOpen((v) => !v)}>
                 {user?.avatarUrl ? (
@@ -500,6 +581,15 @@ export function UserLayout() {
             </AvatarWrapper>
           </TopBarRight>
         </TopBar>
+        {isPastDue && (
+          <PastDueBanner>
+            <AlertTriangle size={18} />
+            Seu pagamento está pendente. Seus benefícios estão suspensos.{' '}
+            <a href="#" onClick={(e) => { e.preventDefault(); handlePortalRedirect(); }}>
+              Atualizar pagamento
+            </a>
+          </PastDueBanner>
+        )}
         <Main>
           <Outlet />
         </Main>

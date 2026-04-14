@@ -24,7 +24,8 @@ export function SubscriptionRoute() {
 
   if (isLoading || !user) return <Loading />;
 
-  const hasActiveSubscription = user.subscription?.status === 'ACTIVE';
+  const subStatus = user.subscription?.status;
+  const hasActiveSubscription = subStatus === 'ACTIVE' || subStatus === 'PAST_DUE';
   const isCheckoutPage = location.pathname === '/assinar';
 
   if (!hasActiveSubscription && !isCheckoutPage) {
