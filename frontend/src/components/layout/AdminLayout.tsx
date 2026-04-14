@@ -6,7 +6,6 @@ import {
   ClipboardList, LogOut, Menu, User as UserIcon, BarChart3, Star, Megaphone,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react'; 
-import ImageIllustration from '../../assets/admin-illustration.png';  
 import { fadeIn } from '../../styles/animations';
 import { VideoSplash } from '../VideoSplash';
 import splashVideo from '../../assets/splash-video.mp4';
@@ -253,13 +252,6 @@ const Overlay = styled.div<{ $open: boolean }>`
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) { display: none; }
 `;
 
-const Image = styled.img`
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-`
-
 const adminNav = [
   { to: '/admin', label: 'Dashboard', icon: House },
   { to: '/admin/empresas', label: 'Empresas', icon: Hamburger },
@@ -358,7 +350,6 @@ export function AdminLayout() {
               {label}
             </NavLink>
           ))}
-          <Image src={ImageIllustration} alt="Admin Illustration"/>
         </NavSection>
         <SidebarFooter>
           <LogoutButton onClick={handleLogout}>
