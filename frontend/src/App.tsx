@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { InstallPrompt } from './components/InstallPrompt';
 import { AuthLayout } from './components/layout/AuthLayout';
@@ -44,9 +44,7 @@ export function App() {
     <Routes>
       {/* Public routes (redirect to /painel if already authenticated) */}
       <Route element={<PublicOnlyRoute />}>
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
-        </Route>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
