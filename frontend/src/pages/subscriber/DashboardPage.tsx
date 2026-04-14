@@ -29,11 +29,15 @@ const LeftColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    order: 1;
+  }
 `;
 
 const RightColumn = styled.div`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    order: -1;
+    order: 3;
   }
 `;
 
@@ -108,11 +112,13 @@ const QuickLinksGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  grid-column: 1 / -1;
+  order: -1;
   animation: ${fadeInUp} 0.45s ease-out 0.15s both;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
+    order: 2;
   }
 `;
 
@@ -304,7 +310,19 @@ export function DashboardPage() {
   const redemptionCount = historyMeta?.total ?? 0;
 
   return (
-    <>
+    <PageGrid>
+      {/* ── Coluna esquerda: Banner ── */}
+      <LeftColumn>
+        <Banner>
+          <BannerInner>
+            <BannerTitle>Bem vindo, <strong>{user?.name?.split(' ')[0] || 'Usuário'}</strong></BannerTitle>
+            <BannerText>Explore todos nossos restaurantes parceiros e curta cada experiência.</BannerText>
+            <BannerLink to="/empresas">Ver parceiros</BannerLink>
+          </BannerInner>
+        </Banner>
+      </LeftColumn>
+
+      {/* ── Quick Links (entre banner e perfil no mobile) ── */}
       <QuickLinksGrid>
         <Link to="/empresas">
           <QuickLink>
@@ -335,19 +353,7 @@ export function DashboardPage() {
         </Link>
       </QuickLinksGrid>
 
-      <PageGrid>
-        {/* ── Coluna esquerda: Banner ── */}
-        <LeftColumn>
-          <Banner>
-            <BannerInner>
-              <BannerTitle>Bem vindo, <strong>{user?.name?.split(' ')[0] || 'Usuário'}</strong></BannerTitle>
-              <BannerText>Explore todos nossos restaurantes parceiros e curta cada experiência.</BannerText>
-              <BannerLink to="/empresas">Ver parceiros</BannerLink>
-            </BannerInner>
-          </Banner>
-        </LeftColumn>
-
-      {/* ── Coluna direita: Perfil ── */}
+      {/* ── Coluna direita: Perfil ── */}}
       <RightColumn>
         <ProfileCard>
           <AvatarCircle>
@@ -403,6 +409,5 @@ export function DashboardPage() {
         </ProfileCard>
       </RightColumn>
     </PageGrid>
-    </>
   );
 }
