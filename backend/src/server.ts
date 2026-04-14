@@ -1,3 +1,7 @@
+import dns from 'dns';
+// Forçar IPv4 globalmente — Apple Push (api.push.apple.com) dá ETIMEDOUT via IPv6 no Docker
+dns.setDefaultResultOrder('ipv4first');
+
 import { app } from './app.js';
 import { env } from './config/env.js';
 import cron from 'node-cron';

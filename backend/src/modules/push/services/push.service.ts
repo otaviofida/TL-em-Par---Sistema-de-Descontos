@@ -1,10 +1,6 @@
 import { webPush } from '../../../config/webpush.js';
 import { PushSubscriptionRepository } from '../repositories/push.repository.js';
 import { env } from '../../../config/env.js';
-import dns from 'dns';
-
-// Forçar IPv4 — Apple Push via IPv6 dá ENETUNREACH no Docker
-dns.setDefaultResultOrder('ipv4first');
 
 const PUSH_OPTIONS = { timeout: 30000 };
 const MAX_RETRIES = 3;
