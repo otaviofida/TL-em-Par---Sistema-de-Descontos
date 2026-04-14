@@ -1,6 +1,6 @@
 # Planning — TL EM PAR
 
-> Última atualização: 14 de abril de 2026 (emails + InstallPrompt)
+> Última atualização: 14 de abril de 2026 (avaliações + notificações + correções mobile)
 
 ---
 
@@ -112,6 +112,17 @@ Domínio `tlempar.com.br` ativado em 14/04/2026 via Cloudflare.
 | 2.2.6 | Filtros avançados no histórico de validações (busca, categoria, data) | ✅ |
 | 2.2.7 | Email templates com logo e dark theme (layout table-based, header com logo, footer) | ✅ |
 | 2.2.8 | InstallPrompt compacto — card 280px no canto inferior direito, fundo branco sutil | ✅ |
+| 2.2.9 | Cancelamento de assinatura com modal de feedback + badge "Cancelando" | ✅ |
+| 2.2.10 | Fluxo de email reestruturado (verificação → pagamento pendente, checkout → boas-vindas) | ✅ |
+| 2.2.11 | Quick links movidos pro topo do dashboard do assinante | ✅ |
+| 2.2.12 | Home (`/`) redirecionando para `/login` (landing page pendente) | ✅ |
+| 2.2.13 | InstallPrompt com suporte iOS Safari (detecção + instrução manual) | ✅ |
+| 2.2.14 | Bottom nav bar fixo no mobile (Home, Restaurantes, QR Code, Minha Conta) | ✅ |
+| 2.2.15 | Phone/CPF retornados no login/register + reset do form no perfil | ✅ |
+| 2.2.16 | Telefone e Instagram clicáveis nos cards de restaurantes (subscriber + admin) | ✅ |
+| 2.2.17 | Stripe reconfigurado com chaves corretas (novo produto, preço, webhook) | ✅ |
+| 2.2.18 | Trust proxy para rate-limiter atrás do Nginx | ✅ |
+| 2.2.19 | CancelSubscriptionModal renderizado via `createPortal` (fix z-index) | ✅ |
 
 ---
 
@@ -125,6 +136,46 @@ Domínio `tlempar.com.br` ativado em 14/04/2026 via Cloudflare.
 | 2.3.4 | Health check mais completo (checar DB, Stripe, disco) | Baixa |
 | 2.3.5 | CI/CD com GitHub Actions (build + test + deploy automático) | Média |
 | 2.3.6 | Documentação Swagger/OpenAPI automática | Baixa |
+
+---
+
+### Fase 2.4 — Avaliações de Restaurantes
+
+Sistema de avaliações com estrelas e comentários. Só quem já visitou pode avaliar. Nota média exibida nos cards.
+
+| Tarefa | Descrição | Prioridade |
+|--------|-----------|-----------|
+| 2.4.1 | **Modelo `Review`** — Prisma schema (userId, companyId, rating 1-5, comment, createdAt). Constraint: 1 review por usuário por empresa por edição | Alta |
+| 2.4.2 | **Migration** — Criar tabela `Review` + índice único (userId + companyId + editionId) | Alta |
+| 2.4.3 | **API CRUD** — `POST /reviews`, `GET /companies/:id/reviews`, `DELETE /reviews/:id` (admin). Validar que usuário já resgatou benefício naquele restaurante | Alta |
+| 2.4.4 | **Nota média no card** — Query para calcular `avgRating` + `reviewCount` por empresa. Retornar no `GET /companies` e `GET /companies/:id` | Alta |
+| 2.4.5 | **Frontend — Estrelas no card** — Exibir ⭐ nota média + quantidade de avaliações no `CompaniesPage` e `CompanyDetailPage` | Alta |
+| 2.4.6 | **Frontend — Seção de avaliações** — Lista de reviews na `CompanyDetailPage` (nome, estrelas, comentário, data) | Alta |
+| 2.4.7 | **Frontend — Formulário de avaliação** — Modal/seção para avaliar (estrelas clicáveis + textarea). Só aparece se já resgatou e ainda não avaliou | Alta |
+| 2.4.8 | **Email pós-resgate** — Enviar email X horas após resgatar pedindo para avaliar (link direto para página do restaurante) | Média |
+| 2.4.9 | **Admin — visualizar avaliações** — Listagem de reviews no admin com filtro por empresa e opção de remover | Média |
+| 2.4.10 | Deploy e testes | Alta |
+
+---
+
+### Fase 2.5 — Notificações In-App e Gestão de Cobrança
+
+Sistema de notificações dentro do app + tratamento de falha de pagamento.
+
+| Tarefa | Descrição | Prioridade |
+|--------|-----------|-----------|
+| 2.5.1 | **Modelo `Notification`** — Prisma schema (userId, type, title, message, read, data JSON, createdAt) | Alta |
+| 2.5.2 | **Migration** — Criar tabela `Notification` | Alta |
+| 2.5.3 | **API de notificações** — `GET /notifications` (paginado), `PATCH /notifications/:id/read`, `PATCH /notifications/read-all`, `GET /notifications/unread-count` | Alta |
+| 2.5.4 | **Frontend — Ícone de sino** — Badge com contador de não-lidas no TopBar/BottomNav. Dropdown ou página com lista de notificações | Alta |
+| 2.5.5 | **Notificação: resgate de benefício** — Criar notificação automática quando assinante resgata benefício ("Você usou seu benefício no Restaurante X!") | Alta |
+| 2.5.6 | **Notificação: pedido de avaliação** — Criar notificação + email X horas após resgate pedindo para avaliar o restaurante | Média |
+| 2.5.7 | **Webhook `invoice.payment_failed`** — Tratar falha de cobrança do Stripe. Atualizar subscription status para `PAST_DUE` | Alta |
+| 2.5.8 | **Bloqueio de acesso PAST_DUE** — Assinante com `PAST_DUE` não pode acessar benefícios. Tela informando que precisa regularizar pagamento | Alta |
+| 2.5.9 | **Notificação + email: falha de cobrança** — Notificar assinante que o pagamento falhou com link para atualizar forma de pagamento (Stripe Customer Portal) | Alta |
+| 2.5.10 | **Webhook `invoice.payment_succeeded`** — Reativar acesso quando pagamento for regularizado (PAST_DUE → ACTIVE) | Alta |
+| 2.5.11 | **Frontend — Tela de pagamento pendente** — Banner/modal ao entrar no app com links para regularizar | Média |
+| 2.5.12 | Deploy e testes | Alta |
 
 ---
 
@@ -168,9 +219,11 @@ Domínio `tlempar.com.br` ativado em 14/04/2026 via Cloudflare.
 
 ```
 1. PWA (2.0)                  ✅ Concluído
-2. Melhorias (2.2)             ✅ Concluído (soft delete, auditoria, PDF, filtros)
+2. Melhorias (2.2)             ✅ Concluído (soft delete, auditoria, PDF, filtros, cancelamento, mobile fixes)
 3. Correções pré-prod (2.1)    ✅ Concluído (Resend, Cloudinary, Stripe conta real, senhas)
 4. Ativação domínio (2.1.5)    ✅ Concluído (HTTPS, webhook, Resend domínio, testes OK)
-5. Testes + Sentry (2.3)       ← PRÓXIMO — Estabilidade pós-lançamento
-6. Crescimento (3.0)            ← Quando tiver base de usuários
+5. Avaliações (2.4)             ← PRÓXIMO — Estrelas, comentários, email pós-resgate
+6. Notificações + Cobrança (2.5) ← Notificações in-app, falha de pagamento, bloqueio PAST_DUE
+7. Testes + Sentry (2.3)       ← Estabilidade pós-lançamento
+8. Crescimento (3.0)            ← Quando tiver base de usuários
 ```
