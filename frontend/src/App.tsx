@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 
+import { InstallPrompt } from './components/InstallPrompt';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { PublicLayout } from './components/layout/PublicLayout';
 import { UserLayout } from './components/layout/UserLayout';
@@ -38,6 +39,8 @@ import { AdminMetricsPage } from './pages/admin/AdminMetricsPage';
 
 export function App() {
   return (
+    <>
+    <InstallPrompt />
     <Routes>
       {/* Public routes (redirect to /painel if already authenticated) */}
       <Route element={<PublicOnlyRoute />}>
@@ -89,5 +92,6 @@ export function App() {
         </Route>
       </Route>
     </Routes>
+    </>
   );
 }
