@@ -53,6 +53,14 @@ export const GlobalStyles = createGlobalStyle`
     line-height: 1.2;
   }
 
+  /* Modo scan nativo — torna background transparente para câmera ML Kit */
+  body.qr-scan-active,
+  body.qr-scan-active ion-app,
+  body.qr-scan-active #root {
+    background: transparent !important;
+    --background: transparent !important;
+  }
+
   /* Scrollbar personalizada */
   ::-webkit-scrollbar {
     width: 6px;

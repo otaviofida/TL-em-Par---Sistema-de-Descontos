@@ -6,6 +6,8 @@ import { getErrorMessage, getErrorCode } from '../../utils/errorMessages';
 import { CheckCircle, XCircle, AlertTriangle, Camera, RotateCcw, QrCode, Smartphone } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useRef } from 'react';
+import { isNative } from '../../utils/platform';
+import { openNativeQRScanner } from '../../components/NativeQRScanner';
 import type { BenefitValidationResult } from '../../types';
 
 import imgValidation from '../../assets/img-qrcode-validation.png';
@@ -274,11 +276,6 @@ export function ValidateBenefitPage() {
     }
   }, [stopScanner]);
 
-  const startScanner = useCallback(() => {
-    setCameraError('');
-    setStatus('scanning');
-  }, []);
-
   const resetScanner = useCallback(() => {
     setResult(null);
     setErrorMessage('');
@@ -286,6 +283,19 @@ export function ValidateBenefitPage() {
     processingRef.current = false;
     setStatus('idle');
   }, []);
+
+  const startScanner = useCallback(() => {
+    setCameraError('');
+    if (isNative) {
+      setStatus('scanning');
+      openNativeQRScanner({
+        onScan: handleScan,
+        onClose: resetScanner,
+      });
+    } else {
+      setStatus('scanning');
+    }
+  }, [handleScan, resetScanner]);
 
   useEffect(() => {
     if (status !== 'scanning') return;
@@ -328,8 +338,7 @@ export function ValidateBenefitPage() {
 
   return (
     <Container>
-
-      {!isMobile ? (
+      {!isMobile && !isNative ? (
         <DesktopMessage>
           <DesktopIcon>
             <Smartphone size={36} />
@@ -361,7 +370,7 @@ export function ValidateBenefitPage() {
         </IdleState>
       )}
 
-      {status === 'scanning' && (
+      {status === 'scanning' && !isNative && (
         <ScannerWrapper>
           <div id="qr-reader" />
           <ScannerOverlay>

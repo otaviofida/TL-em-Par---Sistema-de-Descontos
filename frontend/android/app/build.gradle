@@ -45,6 +45,9 @@ dependencies {
     implementation platform("com.google.firebase:firebase-bom:34.12.0")
     implementation "com.google.firebase:firebase-analytics"
     implementation "com.google.firebase:firebase-messaging"
+
+    // ML Kit — QR Code / Barcode scanning nativo
+    implementation "com.google.mlkit:barcode-scanning:17.3.0"
 }
 
 apply from: 'capacitor.build.gradle'
