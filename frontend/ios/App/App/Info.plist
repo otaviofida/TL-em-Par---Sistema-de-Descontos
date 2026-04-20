@@ -47,5 +47,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Usado para escanear o QR Code no balcão do restaurante e validar seu benefício.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Para receber alertas sobre novos restaurantes parceiros e benefícios exclusivos.</string>
 </dict>
 </plist>
