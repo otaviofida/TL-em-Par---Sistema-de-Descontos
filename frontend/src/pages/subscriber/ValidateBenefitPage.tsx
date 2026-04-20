@@ -6,7 +6,7 @@ import { getErrorMessage, getErrorCode } from '../../utils/errorMessages';
 import { CheckCircle, XCircle, AlertTriangle, Camera, RotateCcw, QrCode, Smartphone } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useRef } from 'react';
-import { isNative } from '../../utils/platform';
+import { isNative, isAndroid } from '../../utils/platform';
 import { openNativeQRScanner } from '../../components/NativeQRScanner';
 import type { BenefitValidationResult } from '../../types';
 
@@ -286,7 +286,8 @@ export function ValidateBenefitPage() {
 
   const startScanner = useCallback(() => {
     setCameraError('');
-    if (isNative) {
+    if (isAndroid) {
+      // Android: ML Kit nativo via Google Play Services
       setStatus('scanning');
       openNativeQRScanner({
         onScan: handleScan,
@@ -301,6 +302,7 @@ export function ValidateBenefitPage() {
         },
       });
     } else {
+      // iOS nativo e web: scanner html5-qrcode no WebView
       setStatus('scanning');
     }
   }, [handleScan, resetScanner]);
@@ -378,7 +380,7 @@ export function ValidateBenefitPage() {
         </IdleState>
       )}
 
-      {status === 'scanning' && !isNative && (
+      {status === 'scanning' && !isAndroid && (
         <ScannerWrapper>
           <div id="qr-reader" />
           <ScannerOverlay>

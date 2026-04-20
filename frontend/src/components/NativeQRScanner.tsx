@@ -1,5 +1,6 @@
 import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { isAndroid } from '../utils/platform';
 
 interface NativeQRScannerProps {
   onScan: (token: string) => void;
@@ -28,14 +29,15 @@ export async function openNativeQRScanner({ onScan, onClose, onPermissionDenied,
       }
     }
 
-    // 2. Verifica se o módulo ML Kit está instalado no Google Play Services
-    const { available } = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
-    if (!available) {
-      onModuleInstalling?.();
-      await BarcodeScanner.installGoogleBarcodeScannerModule();
-      // Módulo instalado em background — usuário precisa tentar novamente
-      onClose();
-      return;
+    // 2. Módulo ML Kit — apenas Android (Google Play Services)
+    if (isAndroid) {
+      const { available } = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+      if (!available) {
+        onModuleInstalling?.();
+        await BarcodeScanner.installGoogleBarcodeScannerModule();
+        onClose();
+        return;
+      }
     }
 
     // 3. Abre o scanner nativo
