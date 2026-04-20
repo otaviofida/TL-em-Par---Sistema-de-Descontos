@@ -1,6 +1,8 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { Loading } from '../ui/Loading';
+import { PaywallScreen } from '../PaywallScreen';
+import { isNative } from '../../utils/platform';
 import { useEffect } from 'react';
 
 export function PrivateRoute() {
@@ -19,7 +21,7 @@ export function PrivateRoute() {
 }
 
 export function SubscriptionRoute() {
-  const { user, isLoading } = useAuthStore();
+  const { user, isLoading, loadUser } = useAuthStore();
   const location = useLocation();
 
   if (isLoading || !user) return <Loading />;
@@ -28,8 +30,10 @@ export function SubscriptionRoute() {
   const hasActiveSubscription = subStatus === 'ACTIVE' || subStatus === 'PAST_DUE';
   const isCheckoutPage = location.pathname === '/assinar';
 
-  if (!hasActiveSubscription && !isCheckoutPage) {
-    return <Navigate to="/assinar" replace />;
+  if (!hasActiveSubscription) {
+    // No app nativo: exibe paywall (sem preços). Na web: redireciona para checkout.
+    if (isNative) return <PaywallScreen onRefresh={() => loadUser()} />;
+    if (!isCheckoutPage) return <Navigate to="/assinar" replace />;
   }
 
   if (hasActiveSubscription && isCheckoutPage) {

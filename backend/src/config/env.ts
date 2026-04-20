@@ -33,4 +33,8 @@ export const env = {
   VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY || '',
   VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY || '',
   VAPID_SUBJECT: process.env.VAPID_SUBJECT || 'mailto:contato@tlempar.com.br',
+
+  // Firebase Admin (FCM para Android/iOS)
+  // Valor: JSON string do service account do Firebase Console
+  FIREBASE_SERVICE_ACCOUNT_JSON: process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '',
 } as const;

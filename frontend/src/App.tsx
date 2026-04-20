@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { InstallPrompt } from './components/InstallPrompt';
+import { useMobilePush } from './hooks/useMobilePush';
 import { AuthLayout } from './components/layout/AuthLayout';
 import { PublicLayout } from './components/layout/PublicLayout';
 import { UserLayout } from './components/layout/UserLayout';
@@ -40,6 +41,8 @@ import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
 import { AdminMarketingPage } from './pages/admin/AdminMarketingPage';
 
 export function App() {
+  useMobilePush();
+
   return (
     <>
     <InstallPrompt />

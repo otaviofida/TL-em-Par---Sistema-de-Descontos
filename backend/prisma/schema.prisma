@@ -261,9 +261,11 @@ model Notification {
 model PushSubscription {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
-  endpoint  String   @unique
-  p256dh    String
-  auth      String
+  platform  String   @default("web") // web | android | ios
+  endpoint  String?  @unique         // web push VAPID endpoint
+  p256dh    String?                  // web push key
+  auth      String?                  // web push auth
+  fcmToken  String?  @unique @map("fcm_token") // FCM/APNs token
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

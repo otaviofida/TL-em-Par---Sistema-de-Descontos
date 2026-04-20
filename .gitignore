@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Frontend build
+frontend/dist/
+
+# Backend build
+backend/dist/
+
+# Env files (nunca commitar segredos)
+.env
+.env.local
+backend/.env
+frontend/.env
+frontend/.env.mobile
+
+# Capacitor — node_modules dentro dos projetos nativos
+frontend/android/.gradle/
+frontend/android/app/build/
+frontend/android/build/
+frontend/ios/App/Pods/
+frontend/ios/App/App.xcworkspace/xcuserdata/
+frontend/ios/DerivedData/
+
+# Uploads locais
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Prisma generated client (regenerado no deploy)
+backend/src/generated/
+
+# Claude
+.claude/

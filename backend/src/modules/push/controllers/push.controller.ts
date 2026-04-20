@@ -25,6 +25,17 @@ export class PushController {
     }
   }
 
+  async registerDevice(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).userId;
+      const { fcmToken, platform } = req.body as { fcmToken: string; platform: 'android' | 'ios' };
+      await pushService.registerDevice(userId, fcmToken, platform);
+      return sendSuccess(res, { message: 'Dispositivo registrado' }, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async unsubscribe(req: Request, res: Response, next: NextFunction) {
     try {
       const { endpoint } = req.body;

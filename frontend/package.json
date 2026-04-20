@@ -6,10 +6,25 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:mobile": "tsc -b && vite build --mode mobile",
+    "mobile:sync": "npm run build:mobile && npx cap sync",
+    "mobile:android": "npm run mobile:sync && npx cap open android",
+    "mobile:ios": "npm run mobile:sync && npx cap open ios",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/browser": "^8.0.3",
+    "@capacitor/camera": "^8.1.0",
+    "@capacitor/core": "^8.3.1",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.3.1",
+    "@capacitor/network": "^8.0.1",
+    "@capacitor/push-notifications": "^8.0.3",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
     "@tanstack/react-query": "^5.90.21",
     "axios": "^1.13.6",
     "date-fns": "^4.1.0",
@@ -26,6 +41,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.3.1",
     "@eslint/js": "^9.39.4",
     "@types/node": "^24.12.0",
     "@types/react": "^19.2.14",
