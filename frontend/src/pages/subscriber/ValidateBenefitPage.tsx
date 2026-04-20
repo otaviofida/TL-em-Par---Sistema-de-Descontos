@@ -7,7 +7,7 @@ import { CheckCircle, XCircle, AlertTriangle, Camera, RotateCcw, QrCode, Smartph
 import { Html5Qrcode } from 'html5-qrcode';
 import { useEffect, useRef } from 'react';
 import { isNative, isAndroid } from '../../utils/platform';
-import { openNativeQRScanner } from '../../components/NativeQRScanner';
+import { openNativeQRScanner, stopNativeScanner } from '../../components/NativeQRScanner';
 import type { BenefitValidationResult } from '../../types';
 
 import imgValidation from '../../assets/img-qrcode-validation.png';
@@ -277,6 +277,7 @@ export function ValidateBenefitPage() {
   }, [stopScanner]);
 
   const resetScanner = useCallback(() => {
+    if (isNative && !isAndroid) stopNativeScanner();
     setResult(null);
     setErrorMessage('');
     setCameraError('');
