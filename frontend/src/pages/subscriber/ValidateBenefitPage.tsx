@@ -302,14 +302,25 @@ export function ValidateBenefitPage() {
           setStatus('idle');
         },
       });
+    } else if (isNative) {
+      // iOS nativo: startScan() com câmera nativa por trás do WebView
+      setStatus('scanning');
+      openNativeQRScanner({
+        onScan: handleScan,
+        onClose: resetScanner,
+        onPermissionDenied: () => {
+          setCameraError('Permissão de câmera negada. Acesse Ajustes → TL em Par → Câmera e ative.');
+          setStatus('idle');
+        },
+      });
     } else {
-      // iOS nativo e web: scanner html5-qrcode no WebView
+      // Browser web: html5-qrcode
       setStatus('scanning');
     }
   }, [handleScan, resetScanner]);
 
   useEffect(() => {
-    if (status !== 'scanning') return;
+    if (status !== 'scanning' || isNative) return;
 
     let cancelled = false;
 
@@ -381,7 +392,7 @@ export function ValidateBenefitPage() {
         </IdleState>
       )}
 
-      {status === 'scanning' && !isAndroid && (
+      {status === 'scanning' && !isNative && (
         <ScannerWrapper>
           <div id="qr-reader" />
           <ScannerOverlay>
