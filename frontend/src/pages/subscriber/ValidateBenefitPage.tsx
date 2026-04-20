@@ -291,6 +291,14 @@ export function ValidateBenefitPage() {
       openNativeQRScanner({
         onScan: handleScan,
         onClose: resetScanner,
+        onPermissionDenied: () => {
+          setCameraError('Permissão de câmera negada. Acesse Configurações → Aplicativos → TL em Par → Permissões e ative a Câmera.');
+          setStatus('idle');
+        },
+        onModuleInstalling: () => {
+          setCameraError('Instalando componente de leitura QR... Aguarde alguns segundos e tente novamente.');
+          setStatus('idle');
+        },
       });
     } else {
       setStatus('scanning');

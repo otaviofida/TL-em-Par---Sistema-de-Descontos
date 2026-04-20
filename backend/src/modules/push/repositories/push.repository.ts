@@ -15,11 +15,18 @@ export class PushSubscriptionRepository {
   }
 
   async upsertDevice(data: { userId: string; fcmToken: string; platform: 'android' | 'ios' }) {
-    const result = await prisma.pushSubscription.upsert({
+    // Índice parcial (WHERE fcm_token IS NOT NULL) não suporta ON CONFLICT do Prisma
+    // — usar find + create/update manual
+    const existing = await prisma.pushSubscription.findFirst({
       where: { fcmToken: data.fcmToken },
-      update: { userId: data.userId, platform: data.platform },
-      create: data,
     });
+
+    const result = existing
+      ? await prisma.pushSubscription.update({
+          where: { id: existing.id },
+          data: { userId: data.userId, platform: data.platform },
+        })
+      : await prisma.pushSubscription.create({ data });
 
     await this.trimOldSubs(data.userId);
     return result;

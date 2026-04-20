@@ -4,12 +4,41 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 interface NativeQRScannerProps {
   onScan: (token: string) => void;
   onClose: () => void;
+  onPermissionDenied?: () => void;
+  onModuleInstalling?: () => void;
 }
 
-// Abre o scanner nativo ML Kit e retorna o resultado via onScan.
-// Usa scan() — UI nativa pronta, sem overlay WebView customizado.
-export async function openNativeQRScanner({ onScan, onClose }: NativeQRScannerProps) {
+export async function openNativeQRScanner({ onScan, onClose, onPermissionDenied, onModuleInstalling }: NativeQRScannerProps) {
   try {
+    // 1. Verifica permissão de câmera
+    const { camera } = await BarcodeScanner.checkPermissions();
+
+    if (camera === 'denied') {
+      onPermissionDenied?.();
+      onClose();
+      return;
+    }
+
+    if (camera !== 'granted') {
+      const { camera: granted } = await BarcodeScanner.requestPermissions();
+      if (granted !== 'granted') {
+        onPermissionDenied?.();
+        onClose();
+        return;
+      }
+    }
+
+    // 2. Verifica se o módulo ML Kit está instalado no Google Play Services
+    const { available } = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
+    if (!available) {
+      onModuleInstalling?.();
+      await BarcodeScanner.installGoogleBarcodeScannerModule();
+      // Módulo instalado em background — usuário precisa tentar novamente
+      onClose();
+      return;
+    }
+
+    // 3. Abre o scanner nativo
     const { barcodes } = await BarcodeScanner.scan({
       formats: [BarcodeFormat.QrCode],
     });
@@ -21,8 +50,7 @@ export async function openNativeQRScanner({ onScan, onClose }: NativeQRScannerPr
     } else {
       onClose();
     }
-  } catch (err: any) {
-    // Usuário cancelou ou erro de câmera
+  } catch {
     onClose();
   }
 }
