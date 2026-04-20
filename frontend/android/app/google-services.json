@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "494454418403",
+    "project_id": "tl-em-par",
+    "storage_bucket": "tl-em-par.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:494454418403:android:4ca6def8c298a1e1e78ed6",
+        "android_client_info": {
+          "package_name": "br.com.tlempar.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAi9O57LP-2YR6PnRZJioJZytmMCmb8eaU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
