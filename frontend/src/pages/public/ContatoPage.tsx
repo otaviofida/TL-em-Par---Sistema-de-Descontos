@@ -302,7 +302,7 @@ export function ContatoPage() {
             </ContactCard>
 
             <ContactCard href="mailto:contato@tlempar.com.br">
-              <ContactIcon $color={({ theme }: any) => theme?.colors?.secondary ?? '#bc7f59'} style={{ background: '#bc7f59' }}>
+              <ContactIcon $color="#bc7f59">
                 <Mail size={22} />
               </ContactIcon>
               <ContactInfo>
