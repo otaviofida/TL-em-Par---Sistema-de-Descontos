@@ -19,8 +19,12 @@ export class CompanyService {
   ) {}
 
   async listPublic(category?: string) {
+    const activeEdition = await this.editionRepo.findActive();
+    const editionFilter = activeEdition
+      ? { editions: { some: { editionId: activeEdition.id } } }
+      : {};
     return prisma.company.findMany({
-      where: { status: 'ACTIVE', deletedAt: null, ...(category ? { category } : {}) },
+      where: { status: 'ACTIVE', deletedAt: null, ...editionFilter, ...(category ? { category } : {}) },
       select: { id: true, name: true, logoUrl: true, coverUrl: true, benefitDescription: true, category: true },
       orderBy: { name: 'asc' },
     });
