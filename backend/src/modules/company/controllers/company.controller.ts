@@ -9,7 +9,8 @@ export class CompanyController {
   // --- Public ---
   async listPublic(req: Request, res: Response, next: NextFunction) {
     try {
-      const companies = await companyService.listPublic();
+      const category = req.query.category as string | undefined;
+      const companies = await companyService.listPublic(category);
       return sendSuccess(res, companies);
     } catch (err) {
       next(err);

@@ -1032,7 +1032,7 @@ export function HomePage() {
                   Quero assinar agora
                   <ArrowRight size={16} />
                 </HeroSubscribeBtn>
-                <HeroOutlineBtn as={Link as any} to="/restaurantes">
+                <HeroOutlineBtn as={Link as any} to="/parceiros">
                   Ver parceiros
                 </HeroOutlineBtn>
               </HeroButtons>
@@ -1339,7 +1339,7 @@ export function HomePage() {
             <FooterColTitle>Institucional</FooterColTitle>
             <FooterLink to="/">Home</FooterLink>
             <FooterLink to="/sobre">Sobre nós</FooterLink>
-            <FooterLink to="/restaurantes">Parceiros</FooterLink>
+            <FooterLink to="/parceiros">Parceiros</FooterLink>
             <FooterLink to="/contato">Contato</FooterLink>
           </FooterCol>
 

@@ -18,10 +18,10 @@ export class CompanyService {
     private pushService = new PushService(),
   ) {}
 
-  async listPublic() {
+  async listPublic(category?: string) {
     return prisma.company.findMany({
-      where: { status: 'ACTIVE' },
-      select: { id: true, name: true, logoUrl: true, category: true },
+      where: { status: 'ACTIVE', ...(category ? { category } : {}) },
+      select: { id: true, name: true, logoUrl: true, coverUrl: true, benefitDescription: true, category: true },
       orderBy: { name: 'asc' },
     });
   }

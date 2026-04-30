@@ -10,6 +10,8 @@ import { PublicOnlyRoute, PrivateRoute, AdminRoute, SubscriptionRoute } from './
 
 // Public
 import { HomePage } from './pages/public/HomePage';
+import { ParceirosPage } from './pages/public/ParceirosPage';
+import { ContatoPage } from './pages/public/ContatoPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { RegisterPage } from './pages/public/RegisterPage';
 import { SubscriptionSuccessPage } from './pages/public/SubscriptionSuccessPage';
@@ -50,6 +52,8 @@ export function App() {
       {/* Home page — acessível por todos */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/parceiros" element={<ParceirosPage />} />
+        <Route path="/contato" element={<ContatoPage />} />
       </Route>
 
       {/* Public routes (redirect to /painel if already authenticated) */}
