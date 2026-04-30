@@ -12,6 +12,7 @@ import { PublicOnlyRoute, PrivateRoute, AdminRoute, SubscriptionRoute } from './
 import { HomePage } from './pages/public/HomePage';
 import { ParceirosPage } from './pages/public/ParceirosPage';
 import { ContatoPage } from './pages/public/ContatoPage';
+import { PrivacidadePage } from './pages/public/PrivacidadePage';
 import { LoginPage } from './pages/public/LoginPage';
 import { RegisterPage } from './pages/public/RegisterPage';
 import { SubscriptionSuccessPage } from './pages/public/SubscriptionSuccessPage';
@@ -54,6 +55,7 @@ export function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/parceiros" element={<ParceirosPage />} />
         <Route path="/contato" element={<ContatoPage />} />
+        <Route path="/privacidade" element={<PrivacidadePage />} />
       </Route>
 
       {/* Public routes (redirect to /painel if already authenticated) */}

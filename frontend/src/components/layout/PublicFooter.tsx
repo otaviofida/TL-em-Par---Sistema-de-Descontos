@@ -131,7 +131,7 @@ export function PublicFooter() {
         <FooterCol>
           <FooterColTitle>Políticas</FooterColTitle>
           <FooterExternalLink href="#">Termos de Uso</FooterExternalLink>
-          <FooterExternalLink href="#">Política de Privacidade</FooterExternalLink>
+          <FooterLink to="/privacidade">Política de Privacidade</FooterLink>
           <FooterExternalLink href="#">Formas de Pagamento</FooterExternalLink>
         </FooterCol>
 
