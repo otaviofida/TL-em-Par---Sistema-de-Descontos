@@ -20,7 +20,7 @@ export class CompanyService {
 
   async listPublic(category?: string) {
     return prisma.company.findMany({
-      where: { status: 'ACTIVE', ...(category ? { category } : {}) },
+      where: { status: 'ACTIVE', deletedAt: null, ...(category ? { category } : {}) },
       select: { id: true, name: true, logoUrl: true, coverUrl: true, benefitDescription: true, category: true },
       orderBy: { name: 'asc' },
     });
