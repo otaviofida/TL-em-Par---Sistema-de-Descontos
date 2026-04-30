@@ -975,7 +975,7 @@ export function HomePage() {
   const FAQ_ITEMS = [
     {
       q: 'Como funciona a assinatura?',
-      a: 'A assinatura é mensal e dá acesso a todos os restaurantes parceiros da TL em Par. Após o pagamento, seu benefício é ativado imediatamente e você pode começar a usar as promoções do tipo compre 1 e leve outro.',
+      a: 'A assinatura é mensal e dá acesso a todos os parceiros da TL em Par. Após o pagamento, seu benefício é ativado imediatamente e você pode começar a usar as promoções do tipo compre 1 e leve outro.',
     },
     {
       q: 'Posso usar mais de uma vez no mesmo restaurante?',
@@ -987,7 +987,7 @@ export function HomePage() {
     },
     {
       q: 'Quais cidades participam?',
-      a: 'Por enquanto a TL em Par opera em Três Lagoas, MS, com dezenas de restaurantes parceiros espalhados pela cidade. Estamos expandindo — fique de olho nas novidades!',
+      a: 'Por enquanto a TL em Par opera em Três Lagoas, MS, com dezenas de parceiros espalhados pela cidade. Estamos expandindo — fique de olho nas novidades!',
     },
     {
       q: 'Posso cancelar quando quiser?',
@@ -1023,7 +1023,7 @@ export function HomePage() {
               </HeroTitle>
               <HeroSubtitle>
                 Com a sua assinatura mensal, você desbloqueia ofertas exclusivas do tipo
-                compre 1 e leve outro em restaurantes parceiros da cidade. Escolha onde
+                compre 1 e leve outro em parceiros da cidade. Escolha onde
                 quer ir, valide pelo celular e aproveite seu benefício de forma simples
                 e rápida.
               </HeroSubtitle>
@@ -1033,7 +1033,7 @@ export function HomePage() {
                   <ArrowRight size={16} />
                 </HeroSubscribeBtn>
                 <HeroOutlineBtn as={Link as any} to="/restaurantes">
-                  Ver restaurantes parceiros
+                  Ver parceiros
                 </HeroOutlineBtn>
               </HeroButtons>
             </HeroContent>
@@ -1184,7 +1184,7 @@ export function HomePage() {
                 <StepText>
                   Após o cadastro, o usuário realiza a assinatura mensal da plataforma. Com a
                   assinatura ativa, ele passa a ter acesso aos descontos exclusivos oferecidos
-                  pelos restaurantes parceiros participantes.
+                  pelos parceiros participantes.
                 </StepText>
               </StepContent>
             </StepRow>
@@ -1339,7 +1339,7 @@ export function HomePage() {
             <FooterColTitle>Institucional</FooterColTitle>
             <FooterLink to="/">Home</FooterLink>
             <FooterLink to="/sobre">Sobre nós</FooterLink>
-            <FooterLink to="/restaurantes">Restaurantes Parceiros</FooterLink>
+            <FooterLink to="/restaurantes">Parceiros</FooterLink>
             <FooterLink to="/contato">Contato</FooterLink>
           </FooterCol>
 
