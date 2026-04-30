@@ -277,7 +277,7 @@ export function AdminDashboardPage() {
     <Right>
       {stats.topCompanies.length > 0 && (
         <>
-          <SectionTitle>Top restaurantes</SectionTitle>
+          <SectionTitle>Top parceiros</SectionTitle>
           <TopList>
             {stats.topCompanies.map((company, i) => (
               <TopItem key={company.id} $rank={i}>

@@ -12,4 +12,5 @@ export const COMPANY_CATEGORIES = [
   { value: 'pastel', label: 'Pastel' },
   { value: 'italiana', label: 'Italiana' },
   { value: 'padaria', label: 'Padaria' },
+  { value: 'servicos', label: 'Serviços' },
 ] as const;

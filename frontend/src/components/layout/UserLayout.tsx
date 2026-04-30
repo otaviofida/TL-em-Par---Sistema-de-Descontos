@@ -548,7 +548,7 @@ const PastDueBanner = styled.div`
 
 const userNav = [
   { to: '/painel', label: 'Início', icon: Home },
-  { to: '/empresas', label: 'Restaurantes Parceiros', icon: UtensilsCrossed },
+  { to: '/empresas', label: 'Parceiros', icon: UtensilsCrossed },
   { to: '/validar', label: 'Validar QR Code', icon: QrCode },
   { to: '/historico', label: 'Meu histórico', icon: History },
   { to: '/perfil', label: 'Meu perfil', icon: UserIcon },
@@ -556,7 +556,7 @@ const userNav = [
 
 const bottomNav = [
   { to: '/painel', label: 'Início', icon: Home },
-  { to: '/empresas', label: 'Restaurantes', icon: UtensilsCrossed },
+  { to: '/empresas', label: 'Parceiros', icon: UtensilsCrossed },
   { to: '/validar', label: 'QR Code', icon: QrCode },
   { to: '/perfil', label: 'Minha Conta', icon: UserIcon },
 ];

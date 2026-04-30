@@ -316,7 +316,7 @@ export function DashboardPage() {
         <Banner>
           <BannerInner>
             <BannerTitle>Bem vindo, <strong>{user?.name?.split(' ')[0] || 'Usuário'}</strong></BannerTitle>
-            <BannerText>Explore todos nossos restaurantes parceiros e curta cada experiência.</BannerText>
+            <BannerText>Explore todos nossos parceiros e curta cada experiência.</BannerText>
             <BannerLink to="/empresas">Ver parceiros</BannerLink>
           </BannerInner>
         </Banner>
@@ -328,7 +328,7 @@ export function DashboardPage() {
           <QuickLink>
             <QuickIcon $bg="#FFF3D6"><UtensilsCrossed size={20} color="#feb621" /></QuickIcon>
             <QuickContent>
-              <QuickTitle>Restaurantes</QuickTitle>
+              <QuickTitle>Parceiros</QuickTitle>
               <QuickDesc>Veja os parceiros</QuickDesc>
             </QuickContent>
           </QuickLink>
