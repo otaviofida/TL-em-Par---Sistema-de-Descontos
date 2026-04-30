@@ -848,7 +848,7 @@ const FooterWrapper = styled.footer`
 
 const FooterMain = styled.div`
   display: grid;
-  grid-template-columns: 220px 1fr 1fr 1fr 200px;
+  grid-template-columns: 280px 1fr 1fr 1fr 160px;
   align-items: flex-end;
   max-width: 1600px;
   margin: 0 auto;
@@ -866,7 +866,7 @@ const FooterCol = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  align-self: center;
+  align-self: flex-start;
 `;
 
 const FooterColTitle = styled.h4`
