@@ -200,7 +200,7 @@ export function CompaniesPage() {
 
   return (
     <>
-      <PageTitle>Restaurantes <span>parceiros</span></PageTitle>
+      <PageTitle>Nossos <span>Parceiros</span></PageTitle>
 
       <SearchBar>
         <Search size={18} color="#999" />
