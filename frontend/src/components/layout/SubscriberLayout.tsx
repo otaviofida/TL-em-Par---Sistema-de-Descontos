@@ -15,6 +15,7 @@ const HeaderWrapper = styled.header`
   position: sticky;
   top: 0;
   z-index: 100;
+  padding-top: var(--safe-area-top);
 `;
 
 const Header = styled.div`
@@ -100,9 +101,11 @@ const Main = styled.main`
   width: 100%;
   margin: 0 auto;
   padding: 1.5rem;
+  padding-bottom: calc(1.5rem + var(--safe-area-bottom));
 
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
     padding: 2rem;
+    padding-bottom: calc(2rem + var(--safe-area-bottom));
   }
 `;
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { Share } from 'lucide-react';
+import { isNative } from '../utils/platform';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -119,6 +120,7 @@ export function InstallPrompt() {
   const [iosPrompt, setIosPrompt] = useState(false);
 
   useEffect(() => {
+    if (isNative) return;
     // Não mostrar se já instalado ou já dispensado
     if (isInStandaloneMode()) return;
     const dismissed = sessionStorage.getItem('pwa-install-dismissed');

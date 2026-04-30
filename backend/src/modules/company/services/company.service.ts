@@ -18,6 +18,14 @@ export class CompanyService {
     private pushService = new PushService(),
   ) {}
 
+  async listPublic() {
+    return prisma.company.findMany({
+      where: { status: 'ACTIVE' },
+      select: { id: true, name: true, logoUrl: true, category: true },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async create(data: CreateCompanyInput) {
     const company = await this.companyRepo.create({
       name: data.name,

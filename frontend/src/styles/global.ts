@@ -61,6 +61,14 @@ export const GlobalStyles = createGlobalStyle`
     --background: transparent !important;
   }
 
+  /* Safe area para notch iOS e barra de navegação Android */
+  :root {
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+  }
+
   /* Scrollbar personalizada */
   ::-webkit-scrollbar {
     width: 6px;

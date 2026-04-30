@@ -47,9 +47,13 @@ export function App() {
     <>
     <InstallPrompt />
     <Routes>
+      {/* Home page — acessível por todos */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<HomePage />} />
+      </Route>
+
       {/* Public routes (redirect to /painel if already authenticated) */}
       <Route element={<PublicOnlyRoute />}>
-        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />

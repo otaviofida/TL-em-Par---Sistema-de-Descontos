@@ -309,10 +309,11 @@ TL em par/
 - [x] `src/utils/platform.ts` — `isNative`, `isIOS`, `isAndroid`
 - [x] `PaywallScreen` criada (Reader App D+C)
 - [x] `RouteGuards.tsx` atualizado: nativo → PaywallScreen, web → redirect /assinar
-- [ ] **Pendente:** Testar em emulador Android e simulador iOS
+- [x] **App rodando no emulador Android (Pixel 8 API 37)**
 - [ ] **Pendente:** Ajustar safe-area (notch iOS, navbar Android) após teste visual
+- [ ] **Pendente:** Testar em dispositivo físico real
 
-### ✅ Fase 2 — Push Notifications Nativas (CÓDIGO CONCLUÍDO — aguarda Firebase)
+### ✅ Fase 2 — Push Notifications Nativas (CONCLUÍDA)
 - [x] `firebase-admin` instalado no backend
 - [x] `src/config/firebase.ts` — inicialização condicional via `FIREBASE_SERVICE_ACCOUNT_JSON`
 - [x] Migration SQL: `platform`, `fcm_token` adicionados; `endpoint/p256dh/auth` tornados opcionais
@@ -321,34 +322,67 @@ TL em par/
 - [x] `push.controller.ts` + `push.routes.ts` — nova rota `POST /push/register-device`
 - [x] `src/hooks/useMobilePush.ts` — pede permissão, registra token FCM via Capacitor
 - [x] `App.tsx` — `useMobilePush()` integrado
-- [ ] **Pendente (você):** Criar projeto Firebase Console → baixar service account JSON
-- [ ] **Pendente (você):** Configurar APNs key no Apple Developer Portal
+- [x] `FIREBASE_SERVICE_ACCOUNT_JSON` configurado no VPS (projeto `tl-em-par`)
+- [x] `google-services.json` adicionado ao projeto Android (`br.com.tlempar.app`)
+- [x] Firebase BOM 34.12.0 + firebase-messaging no `app/build.gradle`
+- [ ] **Pendente:** Configurar APNs key (Apple Developer Portal → Firebase Console) para iOS
 - [ ] **Pendente:** Testar push em dispositivo físico
 
-### Fase 3 — QR Scanner Nativo
-- [ ] Criar componente `NativeQRScanner` com `@capacitor/camera`
-- [ ] Detecção de plataforma: nativo usa câmera Capacitor, web mantém html5-qrcode
-- [ ] `@capacitor/haptics` para feedback tátil ao scanear com sucesso
-- [ ] Testar scan em ambiente real com QR codes dos restaurantes
+### ✅ Fase 3 — QR Scanner Nativo (CONCLUÍDA)
+- [x] Componente `NativeQRScanner.tsx` com `@capacitor-mlkit/barcode-scanning` (ML Kit)
+- [x] `ValidateBenefitPage.tsx` atualizado: nativo usa ML Kit, web mantém html5-qrcode
+- [x] `@capacitor/haptics` — feedback tátil ao scanear com sucesso
+- [x] Desktop bloqueado com mensagem "use o celular"
+- [x] CORS do backend corrigido para aceitar origens Capacitor (`https://localhost`, `capacitor://localhost`)
+- [x] APK atualizado e funcionando no emulador Android (Pixel 8)
 
-### Fase 4 — Polimento Mobile
-- [ ] Adaptar `ProfilePage`: botão "Gerenciar assinatura" abre browser externo no nativo
-- [ ] Auditar todas as telas — garantir que nenhuma exibe valores em R$ no nativo
-- [ ] Ajustar safe-area / padding para notch iOS e barra de navegação Android
-- [ ] Criar conta de teste Apple (assinante ACTIVE) para revisores da App Store
+### ✅ Fase 4 — Polimento Mobile (CONCLUÍDA)
+- [x] `ProfilePage` — botão "Gerenciar assinatura" abre `tlempar.com.br/perfil` no browser externo no nativo
+- [x] Auditoria de preços — nenhuma tela do assinante exibe R$ no nativo
+- [x] Safe-area — `viewport-fit=cover`, CSS vars `--safe-area-top/bottom`, aplicadas no `SubscriberLayout` e `AuthLayout`
+- [ ] **Pendente:** Criar conta de teste (reviewer@tlempar.com.br, assinante ACTIVE) antes de submeter à Apple
 
-### Fase 5 — Assets e Loja
-- [ ] Ícone do app 1024×1024px (sem transparência, sem arredondamento)
-- [ ] Splash screen (amarelo → logo)
-- [ ] Screenshots iPhone 6.9" e Android phone para as lojas
-- [ ] Textos da loja (descrição, palavras-chave) em pt-BR
-- [ ] Política de privacidade publicada em URL pública
+### ✅ Fase 5 — Assets e Loja (CONCLUÍDA)
+- [x] Ícone 1024×1024px colocado em `frontend/resources/icon.png`
+- [x] Splash screen colocada em `frontend/resources/splash.png`
+- [x] `@capacitor/assets generate` — 97 arquivos gerados (87 Android + 10 iOS)
+- [x] Política de privacidade redigida → `in-planning/store-assets/politica-de-privacidade.md`
+- [x] Descrição das lojas redigida → `in-planning/store-assets/descricao-lojas.md`
+- [ ] **Pendente:** Publicar política em `tlempar.com.br/privacidade`
+- [ ] **Pendente:** Screenshots (tirar do emulador/dispositivo — mín. 2 por plataforma)
+- [ ] **Pendente:** Criar Feature Graphic 1024×500px para Google Play
 
 ### Fase 6 — Submissão
-- [ ] **Android:** Build assinado → Google Play Console → Internal Testing → Production
-- [ ] **iOS:** Archive no Xcode → App Store Connect → TestFlight → Review → App Store
+
+#### Pré-requisitos obrigatórios antes de submeter ⚠️
+- [ ] Conta **Apple Developer Program** ativa ($99/ano) — https://developer.apple.com/programs/
+- [ ] Conta **Google Play Console** ativa ($25 único) — https://play.google.com/console/
+- [ ] Política de privacidade publicada em URL pública (`tlempar.com.br/privacidade`)
+- [ ] Screenshots do app tiradas (mín. 2 por plataforma, do emulador ou device)
+- [ ] Feature Graphic 1024×500px criada para Google Play
+- [ ] Conta de teste `reviewer@tlempar.com.br` criada com assinatura ACTIVE
+- [ ] Senha da conta de teste preenchida nos Review Notes (`in-planning/store-assets/descricao-lojas.md`)
+
+#### Android — Google Play
+- [ ] Gerar keystore de assinatura: `keytool -genkey -v -keystore tlempar.jks -alias tlempar -keyalg RSA -keysize 2048 -validity 10000`
+- [ ] Guardar keystore em local seguro (perda = impossível atualizar o app)
+- [ ] Build release assinado: `cd android && ./gradlew bundleRelease` → gera `.aab`
+- [ ] Criar app no Google Play Console → Internal Testing → upload do `.aab`
+- [ ] Preencher ficha da loja (descrição, screenshots, feature graphic, categoria, política)
+- [ ] Avançar para Production após testes internos
+
+#### iOS — App Store
+- [ ] Configurar APNs Key no Firebase Console (Apple Developer Portal → Keys → APNs)
+- [ ] Abrir `frontend/ios` no Xcode: `npx cap open ios`
+- [ ] Configurar signing: Team → seu Apple ID, Bundle ID `br.com.tlempar.app`
+- [ ] Product → Archive → Distribute App → App Store Connect
+- [ ] Criar app no App Store Connect, preencher ficha
+- [ ] TestFlight — testar antes de submeter para review
+- [ ] Submeter para review com as Review Notes do modelo Reader App
+
+#### Pós-submissão
 - [ ] Monitorar review (Apple: 1–7 dias, Google: 1–3 dias)
-- [ ] Responder eventuais rejeições
+- [ ] Responder eventuais rejeições com referência à Guideline 3.1.3(a) se necessário
 
 ---
 

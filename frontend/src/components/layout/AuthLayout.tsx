@@ -9,6 +9,8 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   background: url(${heroBg}) center / cover no-repeat fixed;
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
 
   @media (max-width: 768px) {
     background-image: url(${heroBgMobile});

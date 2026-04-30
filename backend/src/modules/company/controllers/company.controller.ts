@@ -6,6 +6,16 @@ import { getPaginationParams } from '../../../shared/helpers/pagination.js';
 const companyService = new CompanyService();
 
 export class CompanyController {
+  // --- Public ---
+  async listPublic(req: Request, res: Response, next: NextFunction) {
+    try {
+      const companies = await companyService.listPublic();
+      return sendSuccess(res, companies);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // --- Admin ---
   async create(req: Request, res: Response, next: NextFunction) {
     try {

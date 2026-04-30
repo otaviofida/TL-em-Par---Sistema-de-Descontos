@@ -6,10 +6,12 @@ import { Button, Input, SubscriptionBadge } from '../../components/ui';
 import { getErrorMessage } from '../../utils/errorMessages';
 import toast from 'react-hot-toast';
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Mail, CreditCard, Shield, CalendarDays, User as UserIcon, XCircle } from 'lucide-react';
+import { Camera, Mail, CreditCard, Shield, CalendarDays, User as UserIcon, XCircle, ExternalLink } from 'lucide-react';
 import { formatDateShort } from '../../utils/format';
 import { fadeInUp, fadeInLeft } from '../../styles/animations';
 import { CancelSubscriptionModal } from '../../components/CancelSubscriptionModal';
+import { isNative } from '../../utils/platform';
+import { Browser } from '@capacitor/browser';
 
 /* ── Page ───────────────────────────────────────────── */
 
@@ -438,19 +440,30 @@ export function ProfilePage() {
                 )}
               </SubGrid>
 
-              {sub.status === 'ACTIVE' && !sub.cancelAtPeriodEnd && (
-                <div style={{ marginTop: '1.25rem' }}>
+              <div style={{ marginTop: '1.25rem' }}>
+                {isNative ? (
                   <Button
                     $variant="outline"
                     $size="sm"
-                    onClick={() => setShowCancelModal(true)}
-                    style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                    onClick={() => Browser.open({ url: 'https://tlempar.com.br/perfil' })}
                   >
-                    <XCircle size={16} />
-                    Cancelar assinatura
+                    <ExternalLink size={16} />
+                    Gerenciar assinatura
                   </Button>
-                </div>
-              )}
+                ) : (
+                  sub.status === 'ACTIVE' && !sub.cancelAtPeriodEnd && (
+                    <Button
+                      $variant="outline"
+                      $size="sm"
+                      onClick={() => setShowCancelModal(true)}
+                      style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                    >
+                      <XCircle size={16} />
+                      Cancelar assinatura
+                    </Button>
+                  )
+                )}
+              </div>
             </SectionCard>
           )}
         </MainColumn>

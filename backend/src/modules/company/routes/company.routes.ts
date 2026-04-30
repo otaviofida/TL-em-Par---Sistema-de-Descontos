@@ -7,6 +7,9 @@ import { createCompanySchema, updateCompanySchema, updateCompanyStatusSchema, li
 const router = Router();
 const controller = new CompanyController();
 
+// --- Public routes ---
+router.get('/public', controller.listPublic);
+
 // --- Subscriber routes (RN-ASS-01: requer assinatura ativa) ---
 router.get('/', authenticate, requireActiveSubscription, controller.listForSubscriber);
 router.get('/:id', authenticate, requireActiveSubscription, controller.getDetailForSubscriber);
