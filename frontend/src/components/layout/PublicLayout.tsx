@@ -99,7 +99,7 @@ export function PublicLayout() {
           <NavLinks>
             <Link to="/">Home</Link>
             <Link to="/sobre">Sobre nós</Link>
-            <Link to="/restaurantes">Restaurantes parceiros</Link>
+            <Link to="/restaurantes">Parceiros</Link>
             <Link to="/contato">Contato</Link>
           </NavLinks>
           <NavButtons>

@@ -1195,9 +1195,9 @@ export function HomePage() {
               </StepImageWrap>
               <StepContent>
                 <StepNumber>3</StepNumber>
-                <StepTitle>Explore os restaurantes participantes</StepTitle>
+                <StepTitle>Explore os parceiros participantes</StepTitle>
                 <StepText>
-                  Dentro da plataforma, o assinante pode visualizar quais restaurantes fazem
+                  Dentro da plataforma, o assinante pode visualizar quais parceiros fazem
                   parte da TL em Par, conferir as promoções disponíveis e escolher em qual
                   local deseja utilizar o benefício.
                 </StepText>
@@ -1210,7 +1210,7 @@ export function HomePage() {
               </StepImageWrap>
               <StepContent>
                 <StepNumber>4</StepNumber>
-                <StepTitle>Vá até o restaurante escolhido</StepTitle>
+                <StepTitle>Vá até o parceiro escolhido</StepTitle>
                 <StepText>
                   Depois de selecionar a opção desejada, basta ir presencialmente até o
                   estabelecimento participante. O benefício é válido diretamente no local,
