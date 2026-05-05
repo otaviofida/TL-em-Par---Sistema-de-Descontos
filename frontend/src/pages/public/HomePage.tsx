@@ -29,6 +29,10 @@ interface PublicCompany { id: string; name: string; logoUrl?: string | null; cat
 const HeroOuter = styled.div`
   padding: 0 1.5rem 2rem;
   background: ${({ theme }) => theme.colors.background};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0 1rem 1.5rem;
+  }
 `;
 
 const HeroWrapper = styled.section`
@@ -41,11 +45,28 @@ const HeroWrapper = styled.section`
   position: relative;
   max-width: 1600px;
   margin: 0 auto;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    min-height: 70vh;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    min-height: 75vh;
+    border-radius: 1rem;
+  }
 `;
 
 const HeroInner = styled.div`
   width: 100%;
   padding: 5rem 3rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 3rem 2rem;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 2rem 1.5rem;
+  }
 `;
 
 const HeroContent = styled.div`
@@ -149,6 +170,10 @@ const HeroOutlineBtn = styled.button`
 const VantagensOuter = styled.section`
   background: ${({ theme }) => theme.colors.background};
   padding: 5rem 1.5rem 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 3rem 1.5rem 0;
+  }
 `;
 
 const VantagensInner = styled.div`
@@ -162,6 +187,13 @@ const VantagensHeader = styled.div`
   justify-content: space-between;
   margin-bottom: 3rem;
   gap: 2rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
 `;
 
 const VantagensLeft = styled.div`
@@ -197,6 +229,11 @@ const VantagensDesc = styled.p`
   max-width: 260px;
   line-height: 1.6;
   text-align: right;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    text-align: left;
+    max-width: 100%;
+  }
 `;
 
 const VantagensGrid = styled.div`
@@ -220,6 +257,10 @@ const VantagensCard = styled.div<{ $offset?: string }>`
   gap: 0.85rem;
   transition: transform 0.2s;
   &:hover { transform: translateY(-4px); }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-top: 0;
+  }
 `;
 
 const VantagensIcon = styled.div<{ $bg?: string }>`
@@ -301,6 +342,10 @@ const TickerDot = styled.span`
 const ParceirosOuter = styled.section`
   background: ${({ theme }) => theme.colors.background};
   padding: 5rem 1.5rem 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 3rem 1.5rem 0;
+  }
 `;
 
 const ParceirosInner = styled.div`
@@ -315,6 +360,10 @@ const ParceirosHeader = styled.div`
   text-align: center;
   gap: 1rem;
   margin-bottom: 3.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-bottom: 2rem;
+  }
 `;
 
 const ParceirosBadge = styled.span`
@@ -348,6 +397,10 @@ const LogosGrid = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   gap: 2rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: 1.25rem;
+  }
 `;
 
 const LogoItem = styled.div`
@@ -375,6 +428,11 @@ const LogoItem = styled.div`
     transform: translateY(-4px);
     box-shadow: ${({ theme }) => theme.shadows.lg};
     img { filter: grayscale(0%); }
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 90px;
+    height: 90px;
   }
 `;
 
@@ -407,6 +465,11 @@ const LogoSkeleton = styled.div`
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 90px;
+    height: 90px;
+  }
 `;
 
 /* ── Como Funciona ──────────────────────────────────── */
@@ -414,6 +477,10 @@ const LogoSkeleton = styled.div`
 const ComoFuncionaOuter = styled.section`
   background: ${({ theme }) => theme.colors.background};
   padding: 5rem 1.5rem 4rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 3rem 1.5rem 2.5rem;
+  }
 `;
 
 const ComoFuncionaInner = styled.div`
@@ -431,6 +498,17 @@ const ComoFuncionaCard = styled.div`
   position: relative;
   overflow: visible;
   min-height: 260px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 2.5rem 2rem;
+    min-height: 200px;
+    border-radius: 1rem;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 2rem 1.5rem;
+    min-height: 180px;
+  }
 `;
 
 const ComoFuncionaLeft = styled.div`
@@ -479,6 +557,10 @@ const PersonagemWrap = styled.div`
     object-fit: contain;
     display: block;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 /* Steps */
@@ -502,6 +584,7 @@ const StepRow = styled.div<{ $reverse?: boolean }>`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
     direction: ltr;
+    gap: 1rem;
   }
 `;
 
@@ -516,6 +599,10 @@ const StepImageWrap = styled.div`
     object-fit: cover;
     display: block;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    max-height: 220px;
+  }
 `;
 
 const StepContent = styled.div`
@@ -526,6 +613,10 @@ const StepContent = styled.div`
   flex-direction: column;
   justify-content: center;
   gap: 1rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 1.5rem;
+  }
 `;
 
 const StepNumber = styled.span`
@@ -558,6 +649,10 @@ const StepText = styled.p`
 const GaleriaOuter = styled.section`
   background: ${({ theme }) => theme.colors.background};
   padding: 5rem 1.5rem 5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 3rem 1.5rem;
+  }
 `;
 
 const GaleriaInner = styled.div`
@@ -571,6 +666,12 @@ const GaleriaHeader = styled.div`
   justify-content: space-between;
   margin-bottom: 2rem;
   gap: 1rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 `;
 
 const GaleriaLeft = styled.div`
@@ -610,6 +711,19 @@ const BentoGrid = styled.div`
   gap: 0.5rem;
   border-radius: 1.25rem;
   overflow: hidden;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-rows: 180px 180px;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 160px);
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    grid-template-rows: repeat(3, 130px);
+  }
 `;
 
 const BentoImg = styled.div<{ $span?: boolean }>`
@@ -625,6 +739,10 @@ const BentoImg = styled.div<{ $span?: boolean }>`
   }
 
   &:hover img { transform: scale(1.04); }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-row: span 1;
+  }
 `;
 
 /* Video modal */
@@ -683,6 +801,16 @@ const CTABanner = styled.section`
   grid-template-columns: 360px 1fr 300px;
   align-items: center;
   min-height: 420px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-columns: 220px 1fr 180px;
+    min-height: 340px;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
 `;
 
 const CTAImageLeft = styled.div`
@@ -693,6 +821,10 @@ const CTAImageLeft = styled.div`
     height: auto;
     object-fit: contain;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 const CTACenter = styled.div`
@@ -702,6 +834,14 @@ const CTACenter = styled.div`
   text-align: center;
   gap: 1rem;
   padding: 3rem 2rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 3rem 1.5rem;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 2.5rem 1.25rem;
+  }
 `;
 
 const CTABannerTitle = styled.h2`
@@ -744,6 +884,10 @@ const CTAImageRight = styled.div`
     height: auto;
     object-fit: contain;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 /* ── FAQ ─────────────────────────────────────────────── */
@@ -751,6 +895,10 @@ const CTAImageRight = styled.div`
 const FAQOuter = styled.section`
   background: ${({ theme }) => theme.colors.background};
   padding: 5rem 1.5rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 3rem 1.5rem;
+  }
 `;
 
 const FAQInner = styled.div`
@@ -770,6 +918,10 @@ const FAQInner = styled.div`
 const FAQLeft = styled.div`
   position: sticky;
   top: 2rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    position: static;
+  }
 `;
 
 const FAQTitle = styled.h2`
@@ -854,11 +1006,30 @@ const FooterMain = styled.div`
   margin: 0 auto;
   padding: 0 1.5rem;
   min-height: 220px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-columns: 1fr 1fr 1fr;
+    min-height: auto;
+    padding: 2rem 1.5rem 0;
+    align-items: flex-start;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const FooterImgLeft = styled.div`
   align-self: flex-end;
   img { display: block; width: 100%; height: auto; }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    display: none;
+  }
 `;
 
 const FooterCol = styled.div`
@@ -867,6 +1038,14 @@ const FooterCol = styled.div`
   flex-direction: column;
   gap: 0.75rem;
   align-self: flex-start;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    padding: 0 1rem 2rem;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    padding: 0 0 1.5rem;
+  }
 `;
 
 const FooterColTitle = styled.h4`
@@ -914,6 +1093,10 @@ const SocialIcon = styled.a`
 const FooterImgRight = styled.div`
   align-self: flex-end;
   img { display: block; width: 100%; height: auto; }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    display: none;
+  }
 `;
 
 const FooterBottom = styled.div`
@@ -928,6 +1111,13 @@ const FooterBottomInner = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
 `;
 
 const FooterBottomText = styled.span`
