@@ -66,3 +66,15 @@ export function PublicOnlyRoute() {
   }
   return <Outlet />;
 }
+
+export function HomeRoute() {
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+
+  if (!isNative) return <Outlet />;
+
+  if (isLoading) return <Loading />;
+  if (isAuthenticated) {
+    return <Navigate to={user?.role === 'ADMIN' ? '/admin' : '/painel'} replace />;
+  }
+  return <Navigate to="/login" replace />;
+}

@@ -6,13 +6,17 @@ TL EM PAR é um clube de benefícios gastronômicos por assinatura. Originalment
 
 ## Stack
 
-- **Back-end:** Node.js + Express 5 + Prisma 7 (com adapter-pg) + Zod + JWT + Multer
+- **Back-end:** Node.js + Express 5 + Prisma 7 (com adapter-pg) + Zod + JWT + Multer + Firebase Admin
 - **Front-end:** React 19 + Vite 8 + Styled Components + React Query + Zustand + Recharts
-- **Pagamento:** Stripe (recorrência via Checkout Sessions + Webhooks)
+- **Mobile:** Capacitor 8 (iOS + Android) — package `com.tlempar.app`
+- **Pagamento:** Stripe (recorrência via Checkout Sessions + Webhooks) — apenas via browser externo no app
 - **Banco:** PostgreSQL (via @prisma/adapter-pg + pg)
-- **QR Code:** html5-qrcode (scanner mobile-only)
+- **QR Code:** html5-qrcode (web) + @capacitor-mlkit/barcode-scanning (nativo)
+- **Push:** Firebase FCM (Android nativo) + VAPID Web Push (PWA)
+- **Email:** Resend
+- **Imagens:** Cloudinary (com fallback local)
 - **UI/UX:** Fonte Futura (futura-pt via Adobe Typekit), animações CSS custom, toast notifications (react-hot-toast)
-- **Infra futura:** Docker, CI/CD, S3/Cloudinary para uploads
+- **Infra:** Docker Compose (5 serviços: db, backend, frontend, nginx, certbot), VPS Staycloud Ubuntu 24.04
 
 ## Tema Visual
 
@@ -70,39 +74,60 @@ TL EM PAR é um clube de benefícios gastronômicos por assinatura. Originalment
 ```
 TL em par/
 ├── backend/
-│   ├── prisma/              # Schema + migrations
+│   ├── prisma/              # Schema + migrations (16 tabelas)
 │   ├── src/
-│   │   ├── config/          # env, prisma, stripe
+│   │   ├── config/          # env, prisma, stripe, firebase, cloudinary, email, webpush
 │   │   ├── middlewares/     # auth, errorHandler, upload, validate
 │   │   ├── modules/
-│   │   │   ├── admin/       # Dashboard, métricas, CRUD users/companies/editions
-│   │   │   ├── auth/        # Register, login, refresh, me, profile, avatar
+│   │   │   ├── admin/       # Dashboard, métricas, CRUD users/companies/editions, audit, reports
+│   │   │   ├── auth/        # Register, login, refresh, me, profile, avatar, reset password
 │   │   │   ├── benefit/     # Validação QR + histórico
 │   │   │   ├── company/     # Listagem pública de empresas
 │   │   │   ├── edition/     # CRUD edições + vínculo empresas
+│   │   │   ├── marketing/   # Push notifications agendadas
+│   │   │   ├── notification/# Feed de notificações in-app
+│   │   │   ├── push/        # Subscriptions FCM + VAPID
+│   │   │   ├── review/      # Avaliações de restaurantes
 │   │   │   └── subscription/# Stripe checkout, webhook, status, cancel
 │   │   ├── shared/          # Errors, helpers, types
 │   │   └── generated/       # Prisma Client gerado
-│   └── uploads/             # Avatars, logos, covers (local)
+│   └── uploads/             # Avatars, logos, covers (local fallback)
 ├── frontend/
+│   ├── android/             # Projeto Android (Capacitor)
+│   ├── ios/                 # Projeto iOS (Capacitor)
+│   ├── resources/           # icon.png + splash.png (source para assets nativos)
 │   ├── src/
-│   │   ├── assets/          # Imagens, vídeo splash
+│   │   ├── assets/          # Imagens, vídeo splash, mascote
 │   │   ├── components/
-│   │   │   ├── layout/      # AdminLayout, UserLayout, AuthLayout, PublicLayout, RouteGuards
-│   │   │   ├── ui/          # Badge, Button, Card, EmptyState, Input, Loading, Select
+│   │   │   ├── layout/      # AdminLayout, UserLayout, AuthLayout, PublicLayout, PublicFooter, RouteGuards
+│   │   │   ├── ui/          # Badge, Button, Card, EmptyState, Input, Loading, Select, StarRating
+│   │   │   ├── NativeQRScanner.tsx   # ML Kit barcode (Capacitor)
+│   │   │   ├── PaywallScreen.tsx     # Tela para não-assinantes no app nativo
+│   │   │   ├── InstallPrompt.tsx     # PWA install prompt
 │   │   │   └── VideoSplash.tsx
-│   │   ├── constants/       # Categories
+│   │   ├── constants/       # Categories (13 categorias + serviços)
+│   │   ├── hooks/           # useMobilePush, usePushSubscription
 │   │   ├── lib/             # api (Axios), checkout, queryClient
 │   │   ├── pages/
-│   │   │   ├── admin/       # Dashboard, Companies, Editions, Users, Metrics, Subscriptions, Redemptions
-│   │   │   ├── public/      # Home, Login, Register, SubscriptionSuccess/Cancelled
-│   │   │   └── subscriber/  # Dashboard, Companies, CompanyDetail, History, Profile, ValidateBenefit, Checkout
+│   │   │   ├── admin/       # Dashboard, Companies, Editions, Users, Metrics, Subscriptions, Redemptions, Reviews, Marketing
+│   │   │   ├── public/      # Home, Login, Register, SubscriptionSuccess/Cancelled, Parceiros, Contato, Privacidade
+│   │   │   └── subscriber/  # Dashboard, Companies, CompanyDetail, History, Profile, ValidateBenefit, Checkout, Notifications
 │   │   ├── stores/          # authStore (Zustand)
 │   │   ├── styles/          # theme, global, animations
 │   │   ├── types/           # TypeScript interfaces
-│   │   └── utils/           # errorMessages, format
+│   │   └── utils/           # errorMessages, format, platform (isNative/isIOS/isAndroid)
+│   ├── capacitor.config.ts  # appId: com.tlempar.app, splash amarelo, FCM, status bar
 │   └── vite.config.ts       # React plugin, basicSsl (HTTPS), proxy /api + /uploads
-├── docs/                    # API.md, BUSINESS_RULES.md, FRONTEND_INTEGRATION.md, ROADMAP.md
+├── docs/                    # API.md, BUSINESS_RULES.md, FRONTEND_INTEGRATION.md, ROADMAP.md, PLANNING.md
+├── done/                    # Fases mobile concluídas (1-5)
+├── in-progress/             # fase-6-submissao.md
+├── in-planning/
+│   ├── PRD-mobile-app.md
+│   └── store-assets/
+│       ├── screenshots/     # 3 capturas do Xiaomi (login, dashboard, QR)
+│       ├── feature-graphic.png  # 1024×500px gerado
+│       ├── descricao-lojas.md
+│       └── politica-de-privacidade.md
 ├── CONTEXT.md               # Este arquivo
 └── README.md
 ```
@@ -110,39 +135,63 @@ TL em par/
 ## Funcionalidades Implementadas
 
 ### Área Pública
-- Landing page (HomePage)
+- Landing page completa (hero, vantagens, parceiros, como funciona, galeria, CTA, FAQ, footer)
 - Login e Cadastro com animações (scaleIn)
+- Página /parceiros (grid com busca + filtro por categoria)
+- Página /contato (cards de contato + formulário → WhatsApp)
+- Página /privacidade (política LGPD completa — obrigatória para lojas)
+- Recuperação de senha (email Resend + token)
 
 ### Área do Assinante
-- Dashboard (layout 2 colunas: banner + quick links + perfil com stats)
-- Lista de empresas com filtro por categoria (scroll horizontal mobile)
-- Detalhe da empresa
-- Scanner QR Code (mobile-only, html5-qrcode)
+- Dashboard (banner + quick links + perfil com stats)
+- Lista de empresas com filtro por categoria + busca + star ratings
+- Detalhe da empresa + avaliações + formulário de review
+- Scanner QR Code: html5-qrcode (web) + ML Kit nativo (Capacitor)
 - Tela de resultado da validação (sucesso/erro com imagens)
-- Histórico (stat cards + agrupamento por mês)
-- Perfil (sidebar com avatar + formulário + cartão assinatura)
-- Checkout Stripe
+- Histórico (agrupamento por mês)
+- Perfil (avatar + formulário + cartão assinatura + cancelamento com feedback)
+- Checkout Stripe (redirect para browser externo no app nativo)
+- Feed de notificações in-app (badge + paginação)
 
 ### Área Admin
 - Dashboard com métricas resumidas
-- CRUD de empresas (grid cards, filtros de status/categoria, upload logo/cover)
-- CRUD de edições (grid cards, progress bars, vínculo com empresas)
-- Gerenciamento de usuários (listagem + detalhe)
+- CRUD de empresas (upload logo/cover Cloudinary, filtros)
+- CRUD de edições (vínculo com empresas, progress bars)
+- Gerenciamento de usuários (listagem + detalhe + histórico)
 - Gerenciamento de assinaturas
-- Histórico geral de validações
-- Métricas avançadas (gráficos Recharts)
+- Histórico geral de validações (filtros + export PDF)
+- Métricas avançadas (gráficos Recharts: bar, pie, line)
+- Moderação de avaliações
+- Marketing push (agendamento de notificações FCM)
+- Audit logs de ações administrativas
+
+### App Mobile (Capacitor)
+- Android: **publicado no Google Play** (teste fechado, aguardando revisão) — package `com.tlempar.app`
+- iOS: pendente (requer Apple Developer Program)
+- PaywallScreen (Reader App — sem Stripe no app, conforme Guideline 3.1.3a)
+- Push notifications nativas via FCM (Android)
+- QR scanner nativo via ML Kit
+- Safe-area (notch/navbar)
+- Ícone + splash screen nativos gerados
+
+### PWA
+- Service Worker manual (offline fallback)
+- Manifest.json (instalável)
+- InstallPrompt customizado (iOS + Android)
 
 ### Recursos Transversais
 - Video splash screen pós-login (VideoSplash via sessionStorage)
 - Animações de entrada em todas as páginas (fadeIn, fadeInUp, scaleIn, stagger)
-- Dropdown menu animado nos layouts
-- Upload de avatar, logo e cover (Multer, armazenamento local)
+- Upload de avatar, logo e cover (Cloudinary com fallback local)
 - React Query para cache de dados
 - Zustand para estado de autenticação
 - Toast notifications
-- Guards de rota (assinatura, auth, público)
+- Guards de rota (assinatura, auth, público, admin)
 - Rate limiting (global + auth + benefit)
 - Refresh token automático (interceptor Axios)
+- Soft delete + audit logs
+- Email verification (Resend)
+- Cron scheduler para marketing pushes
 
 ## Categorias de Empresas
 
@@ -176,3 +225,115 @@ FRONTEND_URL, STRIPE_SUCCESS_URL, STRIPE_CANCEL_URL
 VITE_API_URL=/api
 VITE_STRIPE_PRICE_ID
 ```
+
+## Status do App Mobile (2026-05-05)
+
+| Plataforma | Versão | Status |
+|------------|--------|--------|
+| Android (Google Play) | 1.1 (versionCode 2) | ✅ Teste fechado Alpha ativo — 14 dias a contar de ~2026-04-30 |
+| iOS (App Store) | 1.1 (Build 4) | 🔄 Reenviado para revisão App Store em 2026-05-05 — aguardando Apple |
+
+### Rejeição Apple (Build 3) e correções aplicadas (Build 4)
+
+Build 3 foi rejeitada em 2026-05-05 com 4 problemas:
+
+**5.1.1 — Exclusão de conta (CORRIGIDO):**
+- Backend: `DELETE /api/auth/account` — cancela assinatura Stripe imediatamente + soft-delete do usuário
+- Frontend: seção "Zona de perigo" no ProfilePage com confirmação em 2 etapas
+- Deploy feito em produção (web) + Build 4 submetida
+
+**2.1.0 — QR Code para demonstração (RESOLVIDO nas Notes):**
+- QR code da empresa "Deliciê | Bolos e Doces" (token: `fa090810-19fc-4f85-a047-950d1cea3fa7`) enviado no campo Anexo do App Review Information
+- Arquivo: `~/Desktop/demo-qrcode-apple.png`
+
+**2.1 — Conta com assinatura expirada (CRIADA):**
+- E-mail: `demo-expired@tlempar.com.br` / Senha: `AppleReview2026!`
+- Subscription status: CANCELED, expirada em 2026-04-01
+- Informado nas Notes do App Review Information
+
+**2.1(b) — Modelo de negócio (EXPLICADO nas Notes):**
+- Assinaturas via Stripe no site (não usa Apple IAP)
+- App é companion de assinatura web (modelo Netflix/Spotify)
+
+### Mudanças na versão 1.1
+- App abre direto na tela de login (não exibe home pública no app nativo)
+- iOS: `NSPhotoLibraryUsageDescription` adicionado ao Info.plist
+- iOS: `ITSAppUsesNonExemptEncryption = false` adicionado ao Info.plist
+- iOS: `GoogleService-Info.plist` adicionado ao projeto (Firebase iOS)
+- Firebase: APNs Key `6D5L7BW87G` configurada (Sandbox & Production)
+- Build 4: exclusão de conta implementada (exigência Apple 5.1.1)
+
+### Pendências — Android
+- [ ] Recrutar 20 testadores (exigência Google para avançar para produção)
+- [ ] Completar 14 dias de teste ativo (prazo ~2026-05-14)
+- [ ] Após 14 dias → solicitar publicação em Produção no Google Play Console
+- [ ] Preencher ficha completa da loja (screenshots, descrição)
+
+### Pendências — iOS
+- [x] TestFlight externo aprovado — testadores instalaram com sucesso
+- [x] Ficha App Store preenchida (descrição, palavras-chave, screenshots, classificação 4+)
+- [x] APNs Key configurada no Firebase
+- [x] Build 3 rejeitada e corrigida — Build 4 reenviada em 2026-05-05
+- [ ] Aguardar aprovação Apple → publicação pública
+
+### Como atualizar o Android
+```bash
+cd "/Users/otaviofida/Desktop/TL em par/frontend"
+source ~/.nvm/nvm.sh && nvm use 22   # Capacitor exige Node ≥ 22
+npm run mobile:sync
+# Incrementar versionCode e versionName em android/app/build.gradle
+export JAVA_HOME=/opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home
+cd android && ./gradlew bundleRelease \
+  -Pandroid.injected.signing.store.file=/Users/otaviofida/Desktop/tlempar.jks \
+  "-Pandroid.injected.signing.store.password=>x_5RMb5Q,@fuCs:iLU~" \
+  -Pandroid.injected.signing.key.alias=tlempar \
+  "-Pandroid.injected.signing.key.password=>x_5RMb5Q,@fuCs:iLU~"
+# AAB gerado em: android/app/build/outputs/bundle/release/app-release.aab
+```
+
+### Como atualizar o iOS
+```bash
+cd "/Users/otaviofida/Desktop/TL em par/frontend"
+source ~/.nvm/nvm.sh && nvm use 22 && npm run mobile:sync
+
+# Archive (incrementar CURRENT_PROJECT_VERSION a cada envio)
+xcodebuild archive \
+  -workspace "ios/App/App.xcodeproj/project.xcworkspace" \
+  -scheme App -configuration Release \
+  -archivePath /tmp/tlempar-vX.xcarchive \
+  -allowProvisioningUpdates \
+  CURRENT_PROJECT_VERSION=X MARKETING_VERSION=1.1
+
+# Export (requer /tmp/ExportOptions.plist com teamID UV9LKYKF5U)
+xcodebuild -exportArchive \
+  -archivePath /tmp/tlempar-vX.xcarchive \
+  -exportPath /tmp/tlempar-exportX \
+  -exportOptionsPlist /tmp/ExportOptions.plist \
+  -allowProvisioningUpdates
+
+# Upload
+xcrun altool --upload-app \
+  -f "/tmp/tlempar-exportX/TL em Par.ipa" \
+  -t ios -u "aplicativotlempar@gmail.com" -p "xuxs-hxeg-ebnf-lkzo"
+```
+
+**Conta de teste para revisores:**
+- E-mail: `reviewer@tlempar.com.br`
+- Senha: `NDXHccECvru5DVjXxddh`
+- Assinatura ACTIVE até 2027-05-01
+
+**Credenciais de build:**
+- Keystore Android: `~/Desktop/tlempar.jks` — alias: `tlempar` — senha: `>x_5RMb5Q,@fuCs:iLU~`
+- Apple ID upload: `aplicativotlempar@gmail.com` — app-specific password: `xuxs-hxeg-ebnf-lkzo`
+- Apple Team ID: `UV9LKYKF5U`
+
+## Infra de Produção
+
+- **URL:** https://tlempar.com.br
+- **Servidor:** VPS Staycloud — IP 66.253.112.233, path `/root/tl-em-par`
+- **SSL:** Cloudflare Flexible
+- **Deploy frontend:** `docker compose build --no-cache frontend && docker compose up -d frontend`
+- **Deploy completo:** `git pull && docker compose build --no-cache && docker compose up -d`
+- **Java (build Android):** `/opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home`
+- **Android SDK:** `~/Library/Android/sdk`
+- **Keystore:** `~/Desktop/tlempar.jks` — alias: `tlempar`

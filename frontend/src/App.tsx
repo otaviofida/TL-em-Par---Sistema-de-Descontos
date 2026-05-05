@@ -6,7 +6,7 @@ import { AuthLayout } from './components/layout/AuthLayout';
 import { PublicLayout } from './components/layout/PublicLayout';
 import { UserLayout } from './components/layout/UserLayout';
 import { AdminLayout } from './components/layout/AdminLayout';
-import { PublicOnlyRoute, PrivateRoute, AdminRoute, SubscriptionRoute } from './components/layout/RouteGuards';
+import { PublicOnlyRoute, PrivateRoute, AdminRoute, SubscriptionRoute, HomeRoute } from './components/layout/RouteGuards';
 
 // Public
 import { HomePage } from './pages/public/HomePage';
@@ -50,9 +50,11 @@ export function App() {
     <>
     <InstallPrompt />
     <Routes>
-      {/* Home page — acessível por todos */}
+      {/* Home page — acessível por todos; no app nativo redireciona para /login */}
       <Route element={<PublicLayout />}>
-        <Route path="/" element={<HomePage />} />
+        <Route element={<HomeRoute />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
         <Route path="/parceiros" element={<ParceirosPage />} />
         <Route path="/contato" element={<ContatoPage />} />
         <Route path="/privacidade" element={<PrivacidadePage />} />

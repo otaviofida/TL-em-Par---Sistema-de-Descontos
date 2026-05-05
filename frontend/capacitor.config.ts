@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'br.com.tlempar.app',
+  appId: 'com.tlempar.app',
   appName: 'TL em Par',
   webDir: 'dist',
   server: {
