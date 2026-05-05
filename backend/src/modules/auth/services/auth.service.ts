@@ -8,6 +8,7 @@ import { RegisterInput, LoginInput, UpdateProfileInput, ForgotPasswordInput, Res
 import { UnauthorizedError, ConflictError, NotFoundError, AppError } from '../../../shared/errors/index.js';
 import { JwtPayload } from '../../../shared/types/auth.js';
 import { Role } from '../../../generated/prisma/index.js';
+import { stripe } from '../../../config/stripe.js';
 
 export class AuthService {
   constructor(private authRepo = new AuthRepository()) {}
@@ -215,6 +216,28 @@ export class AuthService {
 
     await this.sendVerificationEmail(user.id, user.email, user.name);
     return { message: 'Email de verificação reenviado.' };
+  }
+
+  async deleteAccount(userId: string) {
+    const user = await this.authRepo.findUserById(userId);
+    if (!user) {
+      throw new NotFoundError('Usuário não encontrado.');
+    }
+
+    // Cancela assinatura Stripe imediatamente se existir
+    const sub = user.subscription;
+    if (sub?.stripeSubscriptionId) {
+      try {
+        await stripe.subscriptions.cancel(sub.stripeSubscriptionId);
+      } catch {
+        // Ignora erros do Stripe (ex: já cancelada) — prossegue com exclusão
+      }
+    }
+
+    await this.authRepo.deleteUserRefreshTokens(userId);
+    await this.authRepo.softDeleteUser(userId);
+
+    return { message: 'Conta excluída com sucesso.' };
   }
 
   private async sendVerificationEmail(userId: string, email: string, name: string) {

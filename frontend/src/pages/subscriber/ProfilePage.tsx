@@ -6,12 +6,13 @@ import { Button, Input, SubscriptionBadge } from '../../components/ui';
 import { getErrorMessage } from '../../utils/errorMessages';
 import toast from 'react-hot-toast';
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Mail, CreditCard, Shield, CalendarDays, User as UserIcon, XCircle, ExternalLink } from 'lucide-react';
+import { Camera, Mail, CreditCard, Shield, CalendarDays, User as UserIcon, XCircle, ExternalLink, Trash2, AlertTriangle } from 'lucide-react';
 import { formatDateShort } from '../../utils/format';
 import { fadeInUp, fadeInLeft } from '../../styles/animations';
 import { CancelSubscriptionModal } from '../../components/CancelSubscriptionModal';
 import { isNative } from '../../utils/platform';
 import { Browser } from '@capacitor/browser';
+import { useNavigate } from 'react-router-dom';
 
 /* ── Page ───────────────────────────────────────────── */
 
@@ -233,6 +234,42 @@ const SubInfoValue = styled.span`
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
 `;
 
+/* ── Danger zone ────────────────────────────────────── */
+
+const DangerCard = styled.div`
+  background: ${({ theme }) => theme.colors.surface};
+  border: 1px solid #ef444440;
+  border-radius: ${({ theme }) => theme.radii.xl};
+  padding: 1.5rem;
+  animation: ${fadeInUp} 0.4s ease-out 0.3s both;
+`;
+
+const DangerTitle = styled.h3`
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  color: #ef4444;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const DangerDescription = styled.p`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  margin-bottom: 1.25rem;
+`;
+
+const DeleteConfirmBox = styled.div`
+  background: #ef444415;
+  border: 1px solid #ef444440;
+  border-radius: ${({ theme }) => theme.radii.lg};
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.text};
+`;
+
 /* ── Component ──────────────────────────────────────── */
 
 interface ProfileFormData {
@@ -241,10 +278,13 @@ interface ProfileFormData {
 }
 
 export function ProfilePage() {
-  const { user, loadUser } = useAuthStore();
+  const { user, loadUser, logout } = useAuthStore();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
@@ -298,6 +338,18 @@ export function ProfilePage() {
       toast.error(getErrorMessage(err));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeleteLoading(true);
+      await api.delete('/auth/account');
+      logout();
+      navigate('/login');
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      setDeleteLoading(false);
     }
   };
 
@@ -466,6 +518,56 @@ export function ProfilePage() {
               </div>
             </SectionCard>
           )}
+          {/* Zona de perigo */}
+          <DangerCard>
+            <DangerTitle>
+              <AlertTriangle size={18} />
+              Zona de perigo
+            </DangerTitle>
+            <DangerDescription>
+              A exclusão da conta é permanente e irreversível. Todos os seus dados, histórico de benefícios e assinatura serão cancelados imediatamente.
+            </DangerDescription>
+
+            {showDeleteConfirm ? (
+              <>
+                <DeleteConfirmBox>
+                  Tem certeza? Esta ação não pode ser desfeita. Sua conta e todos os dados associados serão excluídos permanentemente.
+                </DeleteConfirmBox>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <Button
+                    type="button"
+                    $variant="outline"
+                    $size="sm"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={deleteLoading}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="button"
+                    $size="sm"
+                    onClick={handleDeleteAccount}
+                    disabled={deleteLoading}
+                    style={{ background: '#ef4444', borderColor: '#ef4444' }}
+                  >
+                    <Trash2 size={16} />
+                    {deleteLoading ? 'Excluindo...' : 'Sim, excluir minha conta'}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <Button
+                type="button"
+                $variant="outline"
+                $size="sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                style={{ color: '#ef4444', borderColor: '#ef4444' }}
+              >
+                <Trash2 size={16} />
+                Excluir minha conta
+              </Button>
+            )}
+          </DangerCard>
         </MainColumn>
       </PageGrid>
 

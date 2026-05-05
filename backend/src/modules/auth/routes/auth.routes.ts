@@ -18,5 +18,6 @@ router.post('/resend-verification', authenticate, controller.resendVerification)
 router.get('/me', authenticate, controller.me);
 router.put('/profile', authenticate, validate(updateProfileSchema), controller.updateProfile);
 router.put('/avatar', authenticate, uploadAvatar.single('avatar'), cloudinaryUpload('avatars', 'avatars'), controller.uploadAvatar);
+router.delete('/account', authenticate, controller.deleteAccount);
 
 export { router as authRoutes };

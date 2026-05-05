@@ -105,4 +105,11 @@ export class AuthRepository {
       },
     });
   }
+
+  async softDeleteUser(userId: string) {
+    return prisma.user.update({
+      where: { id: userId },
+      data: { deletedAt: new Date() },
+    });
+  }
 }
