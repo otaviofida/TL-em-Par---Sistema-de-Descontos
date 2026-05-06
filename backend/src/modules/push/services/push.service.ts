@@ -44,6 +44,14 @@ export class PushService {
       token: fcmToken,
       notification: { title: payload.title, body: payload.message },
       data: payload.url ? { url: payload.url } : undefined,
+      apns: {
+        headers: { 'apns-priority': '10' },
+        payload: { aps: { sound: 'default' } },
+      },
+      android: {
+        priority: 'high',
+        notification: { sound: 'default' },
+      },
     });
   }
 
@@ -64,6 +72,15 @@ export class PushService {
     return this.pushRepo.deleteByEndpoint(endpoint);
   }
 
+  private isTokenExpired(err: any): boolean {
+    const expiredCodes = [
+      'messaging/registration-token-not-registered',
+      'messaging/invalid-registration-token',
+      'messaging/invalid-argument',
+    ];
+    return expiredCodes.includes(err.code) || err.statusCode === 410 || err.statusCode === 404;
+  }
+
   async sendToUser(userId: string, payload: { title: string; message: string; url?: string }) {
     const subscriptions = await this.pushRepo.findByUserId(userId);
     let sent = 0;
@@ -82,7 +99,7 @@ export class PushService {
         sent++;
       } catch (err: any) {
         console.error(`[PUSH] Falha para userId ${userId}:`, err.code || err.statusCode || err.message);
-        if (err.statusCode === 410 || err.statusCode === 404) {
+        if (this.isTokenExpired(err)) {
           await this.pushRepo.deleteById(sub.id);
         }
         failed++;
@@ -110,7 +127,7 @@ export class PushService {
         sent++;
       } catch (err: any) {
         console.error(`[PUSH] Falha geral:`, err.code || err.statusCode || err.message);
-        if (err.statusCode === 410 || err.statusCode === 404) {
+        if (this.isTokenExpired(err)) {
           await this.pushRepo.deleteById(sub.id);
         }
         failed++;
