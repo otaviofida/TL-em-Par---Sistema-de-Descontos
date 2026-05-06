@@ -382,13 +382,12 @@ export function CompanyDetailPage() {
           <SectionTitle><Clock size={18} /> Horário do benefício</SectionTitle>
           <ScheduleGrid>
             {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((name, i) => {
-              const day = company.schedules!.find(s => s.dayOfWeek === i);
+              const day = company.schedules!.find(s => s.dayOfWeek === i && s.isOpen);
+              if (!day) return null;
               return (
-                <ScheduleRow key={i} $open={!!day?.isOpen}>
+                <ScheduleRow key={i} $open>
                   <span>{name}</span>
-                  <ScheduleTime>
-                    {day?.isOpen ? `${day.openTime} – ${day.closeTime}` : 'Fechado'}
-                  </ScheduleTime>
+                  <ScheduleTime>{day.openTime} – {day.closeTime}</ScheduleTime>
                 </ScheduleRow>
               );
             })}
