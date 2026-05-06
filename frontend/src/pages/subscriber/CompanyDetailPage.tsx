@@ -132,21 +132,32 @@ const ScheduleSection = styled.section`
   animation: ${fadeInUp} 0.4s ease-out 0.25s both;
 `;
 
-const ScheduleGrid = styled.div`
+const ScheduleTags = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-top: 0.75rem;
 `;
 
-const ScheduleRow = styled.div<{ $open: boolean }>`
+const ScheduleTag = styled.div`
   display: flex;
-  justify-content: space-between;
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ $open, theme }) => $open ? theme.colors.text : theme.colors.textLight};
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  background: ${({ theme }) => theme.colors.surfaceAlt};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.lg};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  gap: 0.1rem;
 `;
 
-const ScheduleTime = styled.span`
+const TagDay = styled.span`
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+const TagTime = styled.span`
+  color: ${({ theme }) => theme.colors.textSecondary};
   font-variant-numeric: tabular-nums;
 `;
 
@@ -380,18 +391,18 @@ export function CompanyDetailPage() {
       {company.schedules && company.schedules.length > 0 && (
         <ScheduleSection>
           <SectionTitle><Clock size={18} /> Horário do benefício</SectionTitle>
-          <ScheduleGrid>
+          <ScheduleTags>
             {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((name, i) => {
               const day = company.schedules!.find(s => s.dayOfWeek === i && s.isOpen);
               if (!day) return null;
               return (
-                <ScheduleRow key={i} $open>
-                  <span>{name}</span>
-                  <ScheduleTime>{day.openTime} – {day.closeTime}</ScheduleTime>
-                </ScheduleRow>
+                <ScheduleTag key={i}>
+                  <TagDay>{name}</TagDay>
+                  <TagTime>{day.openTime} – {day.closeTime}</TagTime>
+                </ScheduleTag>
               );
             })}
-          </ScheduleGrid>
+          </ScheduleTags>
         </ScheduleSection>
       )}
 
