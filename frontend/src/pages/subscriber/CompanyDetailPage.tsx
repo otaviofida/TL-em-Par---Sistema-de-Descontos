@@ -379,7 +379,7 @@ export function CompanyDetailPage() {
 
       {company.schedules && company.schedules.length > 0 && (
         <ScheduleSection>
-          <SectionTitle><Clock size={18} /> Horários</SectionTitle>
+          <SectionTitle><Clock size={18} /> Horário do benefício</SectionTitle>
           <ScheduleGrid>
             {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((name, i) => {
               const day = company.schedules!.find(s => s.dayOfWeek === i);

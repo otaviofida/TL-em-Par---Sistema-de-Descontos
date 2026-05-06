@@ -608,7 +608,7 @@ export function AdminCompanyFormPage() {
 
       {isEditing && (
         <ScheduleSection variant="bordered">
-          <ScheduleTitle><Clock size={16} /> Horários de funcionamento</ScheduleTitle>
+          <ScheduleTitle><Clock size={16} /> Horário do benefício</ScheduleTitle>
           {schedule.map(day => (
             <DayRow key={day.dayOfWeek}>
               <DayName>{DAY_NAMES[day.dayOfWeek]}</DayName>
