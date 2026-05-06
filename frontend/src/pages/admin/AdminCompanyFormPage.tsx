@@ -9,8 +9,10 @@ import { COMPANY_CATEGORIES } from '../../constants/categories';
 import { getErrorMessage } from '../../utils/errorMessages';
 import toast from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
-import { Printer, Download, Image as ImageIcon, Upload } from 'lucide-react';
+import { Printer, Download, Image as ImageIcon, Upload, Clock } from 'lucide-react';
 import type { Company, ApiResponse } from '../../types';
+
+type ScheduleDay = { dayOfWeek: number; isOpen: boolean; openTime: string; closeTime: string };
 
 const PageTitle = styled.h1`
   font-size: ${({ theme }) => theme.fontSizes['2xl']};
@@ -152,6 +154,62 @@ const QrActions = styled.div`
   gap: 0.75rem;
 `;
 
+const ScheduleSection = styled(Card)`
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+`;
+
+const ScheduleTitle = styled.h3`
+  font-size: ${({ theme }) => theme.fontSizes.base};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const DayRow = styled.div`
+  display: grid;
+  grid-template-columns: 56px 1fr 1fr 1fr;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
+const DayName = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+const ToggleWrapper = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+const ToggleInput = styled.input`
+  accent-color: ${({ theme }) => theme.colors.primary};
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+`;
+
+const TimeInput = styled.input`
+  padding: 0.4rem 0.5rem;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  width: 100%;
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+`;
+
 const PrintableArea = styled.div`
   @media print {
     position: fixed;
@@ -201,6 +259,21 @@ export function AdminCompanyFormPage() {
     enabled: isEditing,
   });
 
+  const DAY_NAMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const [schedule, setSchedule] = useState<ScheduleDay[]>(
+    Array.from({ length: 7 }, (_, i) => ({ dayOfWeek: i, isOpen: false, openTime: '18:00', closeTime: '23:00' })),
+  );
+  const [savingSchedule, setSavingSchedule] = useState(false);
+
+  const { data: scheduleData } = useQuery({
+    queryKey: ['admin-company-schedule', id],
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<ScheduleDay[]>>(`/admin/companies/${id}/schedule`);
+      return data.data;
+    },
+    enabled: isEditing,
+  });
+
   const { data: qrData } = useQuery({
     queryKey: ['admin-company-qr', id],
     queryFn: async () => {
@@ -211,6 +284,30 @@ export function AdminCompanyFormPage() {
   });
 
   const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<CompanyFormData>();
+
+  useEffect(() => {
+    if (scheduleData && scheduleData.length > 0) {
+      setSchedule(prev => prev.map(day => {
+        const found = scheduleData.find((s: ScheduleDay) => s.dayOfWeek === day.dayOfWeek);
+        return found ? { ...found } : day;
+      }));
+    }
+  }, [scheduleData]);
+
+  const handleSaveSchedule = async () => {
+    try {
+      setSavingSchedule(true);
+      await api.put(`/admin/companies/${id}/schedule`, schedule);
+      toast.success('Horários salvos!');
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setSavingSchedule(false);
+    }
+  };
+
+  const updateDay = (dayOfWeek: number, patch: Partial<ScheduleDay>) =>
+    setSchedule(prev => prev.map(d => d.dayOfWeek === dayOfWeek ? { ...d, ...patch } : d));
 
   useEffect(() => {
     if (company) {
@@ -508,6 +605,40 @@ export function AdminCompanyFormPage() {
           </Button>
         </ButtonRow>
       </Form>
+
+      {isEditing && (
+        <ScheduleSection variant="bordered">
+          <ScheduleTitle><Clock size={16} /> Horários de funcionamento</ScheduleTitle>
+          {schedule.map(day => (
+            <DayRow key={day.dayOfWeek}>
+              <DayName>{DAY_NAMES[day.dayOfWeek]}</DayName>
+              <ToggleWrapper>
+                <ToggleInput
+                  type="checkbox"
+                  checked={day.isOpen}
+                  onChange={e => updateDay(day.dayOfWeek, { isOpen: e.target.checked })}
+                />
+                {day.isOpen ? 'Aberto' : 'Fechado'}
+              </ToggleWrapper>
+              <TimeInput
+                type="time"
+                value={day.openTime}
+                disabled={!day.isOpen}
+                onChange={e => updateDay(day.dayOfWeek, { openTime: e.target.value })}
+              />
+              <TimeInput
+                type="time"
+                value={day.closeTime}
+                disabled={!day.isOpen}
+                onChange={e => updateDay(day.dayOfWeek, { closeTime: e.target.value })}
+              />
+            </DayRow>
+          ))}
+          <Button type="button" $size="sm" onClick={handleSaveSchedule} disabled={savingSchedule}>
+            {savingSchedule ? 'Salvando...' : 'Salvar horários'}
+          </Button>
+        </ScheduleSection>
+      )}
       </Left>
 
       <Right>
