@@ -268,7 +268,7 @@ export function ValidateBenefitPage() {
       setResult(data.data);
       setStatus('success');
     } catch (err) {
-      const code = getErrorCode(err);
+      const code = getErrorCode(err) ?? '';
       setErrorCode(code);
       setErrorMessage(getErrorMessage(err));
       setErrorType(code === 'BENEFIT_ALREADY_USED' || code === 'OUTSIDE_OPERATING_HOURS' ? 'warning' : 'error');
