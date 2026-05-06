@@ -51,6 +51,14 @@ export interface SubscriptionInfo {
   cancelAtPeriodEnd?: boolean;
 }
 
+// Company Schedule
+export interface CompanySchedule {
+  dayOfWeek: number;
+  isOpen: boolean;
+  openTime: string;
+  closeTime: string;
+}
+
 // Company
 export interface Company {
   id: string;
@@ -71,6 +79,7 @@ export interface Company {
   usedAt?: string | null;
   avgRating?: number;
   reviewCount?: number;
+  schedules?: CompanySchedule[];
 }
 
 // Edition

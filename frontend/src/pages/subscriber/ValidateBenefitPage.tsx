@@ -238,6 +238,7 @@ export function ValidateBenefitPage() {
   const [status, setStatus] = useState<ScanStatus>('idle');
   const [result, setResult] = useState<BenefitValidationResult | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [errorCode, setErrorCode] = useState('');
   const [errorType, setErrorType] = useState<'error' | 'warning'>('error');
   const [cameraError, setCameraError] = useState('');
   const scannerRef = useRef<Html5Qrcode | null>(null);
@@ -268,8 +269,9 @@ export function ValidateBenefitPage() {
       setStatus('success');
     } catch (err) {
       const code = getErrorCode(err);
+      setErrorCode(code);
       setErrorMessage(getErrorMessage(err));
-      setErrorType(code === 'BENEFIT_ALREADY_USED' ? 'warning' : 'error');
+      setErrorType(code === 'BENEFIT_ALREADY_USED' || code === 'OUTSIDE_OPERATING_HOURS' ? 'warning' : 'error');
       setStatus('error');
     } finally {
       processingRef.current = false;
@@ -417,7 +419,7 @@ export function ValidateBenefitPage() {
               {errorType === 'warning' ? <AlertTriangle size={48} /> : <XCircle size={48} />}
             </ResultIcon>
             <ResultTitle>
-              {errorType === 'warning' ? 'Já utilizado' : 'Ops!'}
+              {errorCode === 'BENEFIT_ALREADY_USED' ? 'Já utilizado' : errorCode === 'OUTSIDE_OPERATING_HOURS' ? 'Fora do horário' : 'Ops!'}
             </ResultTitle>
             <ResultMessage>{errorMessage}</ResultMessage>
           </ResultCard>

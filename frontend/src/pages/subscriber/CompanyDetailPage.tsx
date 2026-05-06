@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Card, Button, Loading } from '../../components/ui';
 import { StarRating } from '../../components/ui';
-import { MapPin, Phone, Instagram, ArrowLeft, CheckCircle, UtensilsCrossed, MessageSquare } from 'lucide-react';
+import { MapPin, Phone, Instagram, ArrowLeft, CheckCircle, UtensilsCrossed, MessageSquare, Clock } from 'lucide-react';
 import type { Company, ApiResponse, Review } from '../../types';
 import { fadeInUp, fadeIn } from '../../styles/animations';
 import { useState } from 'react';
@@ -125,6 +125,29 @@ const UsedMessage = styled.div`
   background: rgba(0, 0, 0, 0.1);
   border-radius: ${({ theme }) => theme.radii.lg};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
+`;
+
+const ScheduleSection = styled.section`
+  margin-top: 1.5rem;
+  animation: ${fadeInUp} 0.4s ease-out 0.25s both;
+`;
+
+const ScheduleGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+`;
+
+const ScheduleRow = styled.div<{ $open: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ $open, theme }) => $open ? theme.colors.text : theme.colors.textLight};
+`;
+
+const ScheduleTime = styled.span`
+  font-variant-numeric: tabular-nums;
 `;
 
 // Reviews section
@@ -353,6 +376,25 @@ export function CompanyDetailPage() {
           </UsedMessage>
         )}
       </BenefitCard>
+
+      {company.schedules && company.schedules.length > 0 && (
+        <ScheduleSection>
+          <SectionTitle><Clock size={18} /> Horários</SectionTitle>
+          <ScheduleGrid>
+            {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((name, i) => {
+              const day = company.schedules!.find(s => s.dayOfWeek === i);
+              return (
+                <ScheduleRow key={i} $open={!!day?.isOpen}>
+                  <span>{name}</span>
+                  <ScheduleTime>
+                    {day?.isOpen ? `${day.openTime} – ${day.closeTime}` : 'Fechado'}
+                  </ScheduleTime>
+                </ScheduleRow>
+              );
+            })}
+          </ScheduleGrid>
+        </ScheduleSection>
+      )}
 
       {!company.alreadyUsed && (
         <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>

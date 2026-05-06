@@ -190,13 +190,17 @@ export class CompanyService {
     }
 
     const { benefitRedemptions, qrToken: _, ...companyData } = company;
-    const reviewStats = await this.reviewRepo.getCompanyStats(companyId);
+    const [reviewStats, schedules] = await Promise.all([
+      this.reviewRepo.getCompanyStats(companyId),
+      this.companyRepo.findSchedules(companyId),
+    ]);
     return {
       ...companyData,
       alreadyUsed: benefitRedemptions.length > 0,
       usedAt: benefitRedemptions.length > 0 ? benefitRedemptions[0].redeemedAt : null,
       avgRating: reviewStats.avgRating,
       reviewCount: reviewStats.reviewCount,
+      schedules,
     };
   }
 }
