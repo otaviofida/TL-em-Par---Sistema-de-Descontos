@@ -107,6 +107,13 @@ export class CompanyRepository {
     });
   }
 
+  async findSchedules(companyId: string) {
+    return prisma.companySchedule.findMany({
+      where: { companyId },
+      orderBy: { dayOfWeek: 'asc' },
+    });
+  }
+
   async softDelete(id: string) {
     return prisma.company.update({ where: { id }, data: { deletedAt: new Date() } });
   }

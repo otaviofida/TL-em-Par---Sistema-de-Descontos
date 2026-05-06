@@ -116,8 +116,23 @@ model Company {
   editions           CompanyEdition[]
   benefitRedemptions BenefitRedemption[]
   reviews            Review[]
+  schedules          CompanySchedule[]
 
   @@map("companies")
+}
+
+model CompanySchedule {
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
+  dayOfWeek Int     @map("day_of_week") // 0 = domingo … 6 = sábado
+  isOpen    Boolean @default(true) @map("is_open")
+  openTime  String  @map("open_time")  // "HH:mm"
+  closeTime String  @map("close_time") // "HH:mm"
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, dayOfWeek])
+  @@map("company_schedules")
 }
 
 model Edition {

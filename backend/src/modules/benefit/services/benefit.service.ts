@@ -9,6 +9,7 @@ import { AuthRepository } from '../../auth/repositories/auth.repository.js';
 import { sendEmail, reviewRequestEmailHtml } from '../../../config/email.js';
 import { env } from '../../../config/env.js';
 import { PushService } from '../../push/services/push.service.js';
+import { nowInCampoGrande, isWithinSchedule } from '../../../utils/timezone.js';
 
 const REVIEW_REQUEST_DELAY_MS = 2 * 60 * 60 * 1000;    // 2 horas (email + notificação in-app)
 const PUSH_REVIEW_DELAY_MS    = 30 * 60 * 1000;          // 30 minutos
@@ -70,7 +71,24 @@ export class BenefitService {
       throw new ForbiddenError('Esta empresa não participa da edição atual.', 'COMPANY_NOT_IN_EDITION');
     }
 
-    // 6. Verificar se já usou (RN-QRC-06: idempotência)
+    // 6. Verificar horário de funcionamento (America/Campo_Grande)
+    const schedules = await this.companyRepo.findSchedules(company.id);
+    if (schedules.length > 0) {
+      const { dayOfWeek, time } = nowInCampoGrande();
+      const todaySchedule = schedules.find(s => s.dayOfWeek === dayOfWeek);
+
+      if (!todaySchedule || !todaySchedule.isOpen) {
+        throw new ForbiddenError('Este parceiro não aceita resgates hoje.', 'OUTSIDE_OPERATING_HOURS');
+      }
+      if (!isWithinSchedule(todaySchedule.openTime, todaySchedule.closeTime, time)) {
+        throw new ForbiddenError(
+          `Este parceiro aceita resgates das ${todaySchedule.openTime} às ${todaySchedule.closeTime}.`,
+          'OUTSIDE_OPERATING_HOURS',
+        );
+      }
+    }
+
+    // 7. Verificar se já usou (RN-QRC-06: idempotência)
     const existingRedemption = await this.benefitRepo.findRedemption(userId, company.id, activeEdition.id);
     if (existingRedemption) {
       throw new ConflictError('Você já utilizou este benefício nesta edição.', 'BENEFIT_ALREADY_USED');
