@@ -202,6 +202,25 @@ export class AdminController {
     }
   }
 
+  // --- Company Schedules ---
+  async getCompanySchedule(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await companyService.getSchedule(req.params.id as string);
+      return sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async upsertCompanySchedule(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await companyService.upsertSchedule(req.params.id as string, req.body);
+      return sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async uploadLogo(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.file) {

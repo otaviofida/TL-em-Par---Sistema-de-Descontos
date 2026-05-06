@@ -1,5 +1,6 @@
 import { CompanyRepository } from '../repositories/company.repository.js';
 import { CreateCompanyInput, UpdateCompanyInput, UpdateCompanyStatusInput } from '../schemas/company.schema.js';
+import { UpsertCompanyScheduleInput } from '../../admin/schemas/admin.schema.js';
 import { NotFoundError, AppError } from '../../../shared/errors/index.js';
 import { EditionRepository } from '../../edition/repositories/edition.repository.js';
 import { ReviewRepository } from '../../review/repositories/review.repository.js';
@@ -155,6 +156,18 @@ export class CompanyService {
       data: enriched,
       meta: { page: pagination.page, limit: pagination.limit, total, totalPages: Math.ceil(total / pagination.limit) },
     };
+  }
+
+  async getSchedule(companyId: string) {
+    const company = await this.companyRepo.findById(companyId);
+    if (!company) throw new NotFoundError('Empresa não encontrada.');
+    return this.companyRepo.findSchedules(companyId);
+  }
+
+  async upsertSchedule(companyId: string, days: UpsertCompanyScheduleInput) {
+    const company = await this.companyRepo.findById(companyId);
+    if (!company) throw new NotFoundError('Empresa não encontrada.');
+    return this.companyRepo.upsertSchedules(companyId, days);
   }
 
   async softDelete(id: string) {

@@ -114,6 +114,18 @@ export class CompanyRepository {
     });
   }
 
+  async upsertSchedules(companyId: string, days: { dayOfWeek: number; isOpen: boolean; openTime: string; closeTime: string }[]) {
+    return prisma.$transaction(
+      days.map(d =>
+        prisma.companySchedule.upsert({
+          where: { companyId_dayOfWeek: { companyId, dayOfWeek: d.dayOfWeek } },
+          create: { companyId, ...d },
+          update: { isOpen: d.isOpen, openTime: d.openTime, closeTime: d.closeTime },
+        }),
+      ),
+    );
+  }
+
   async softDelete(id: string) {
     return prisma.company.update({ where: { id }, data: { deletedAt: new Date() } });
   }

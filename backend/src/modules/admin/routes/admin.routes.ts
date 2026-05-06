@@ -4,6 +4,7 @@ import { validate } from '../../../middlewares/validate.js';
 import { authenticate, requireAdmin } from '../../../middlewares/auth.js';
 import { uploadLogo, uploadCover, cloudinaryUpload } from '../../../middlewares/upload.js';
 import { createCompanySchema, updateCompanySchema, updateCompanyStatusSchema } from '../../company/schemas/company.schema.js';
+import { upsertCompanyScheduleSchema } from '../schemas/admin.schema.js';
 
 const router = Router();
 const controller = new AdminController();
@@ -37,6 +38,8 @@ router.put('/companies/:id', validate(updateCompanySchema), controller.updateCom
 router.patch('/companies/:id/status', validate(updateCompanyStatusSchema), controller.updateCompanyStatus);
 router.delete('/companies/:id', controller.deleteCompany);
 router.get('/companies/:id/qr-token', controller.getCompanyQrToken);
+router.get('/companies/:id/schedule', controller.getCompanySchedule);
+router.put('/companies/:id/schedule', validate(upsertCompanyScheduleSchema), controller.upsertCompanySchedule);
 
 // Uploads
 router.post('/upload/logo', uploadLogo.single('logo'), cloudinaryUpload('logos', 'logos'), controller.uploadLogo);
