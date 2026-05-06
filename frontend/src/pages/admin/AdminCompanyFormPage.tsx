@@ -163,7 +163,7 @@ const ScheduleSection = styled(Card)`
 `;
 
 const ScheduleTitle = styled.h3`
-  font-size: ${({ theme }) => theme.fontSizes.base};
+  font-size: ${({ theme }) => theme.fontSizes.md};
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   display: flex;
   align-items: center;
