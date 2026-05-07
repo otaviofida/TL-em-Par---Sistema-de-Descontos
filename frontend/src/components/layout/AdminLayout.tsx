@@ -33,7 +33,7 @@ const Sidebar = styled.aside<{ $open: boolean }>`
 `;
 
 const SidebarHeader = styled.div`
-  padding: 1.25rem 1.5rem;
+  padding: calc(env(safe-area-inset-top, 0px) + 1.25rem) 1.5rem 1.25rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
@@ -117,7 +117,7 @@ const TopBar = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2rem 2rem;
+  padding: calc(env(safe-area-inset-top, 0px) + 1rem) 2rem 1rem;
   position: sticky;
   top: 0;
   z-index: 50;

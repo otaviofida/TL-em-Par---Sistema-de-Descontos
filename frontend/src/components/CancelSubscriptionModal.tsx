@@ -206,7 +206,7 @@ export function CancelSubscriptionModal({ onClose }: CancelModalProps) {
   const [wouldReturn, setWouldReturn] = useState<string>('');
   const [loading, setLoading] = useState(false);
 
-  const isValid = reason !== '' && rating > 0;
+  const isValid = reason !== '' && rating > 0 && improvement.trim() !== '' && wouldReturn !== '';
 
   const handleSubmit = async () => {
     if (!isValid) return;
@@ -215,8 +215,8 @@ export function CancelSubscriptionModal({ onClose }: CancelModalProps) {
       await api.post('/subscriptions/cancel', {
         reason,
         rating,
-        improvement: improvement || undefined,
-        wouldReturn: wouldReturn || undefined,
+        improvement,
+        wouldReturn,
       });
       await loadUser();
       toast.success('Assinatura cancelada. Você terá acesso até o fim do período.');
@@ -273,7 +273,7 @@ export function CancelSubscriptionModal({ onClose }: CancelModalProps) {
 
           {/* 3. Melhoria */}
           <FieldGroup>
-            <Label>O que poderíamos melhorar?</Label>
+            <Label>O que poderíamos melhorar? <Required>*</Required></Label>
             <Textarea
               placeholder="Conte-nos o que podemos fazer para melhorar..."
               value={improvement}
@@ -284,7 +284,7 @@ export function CancelSubscriptionModal({ onClose }: CancelModalProps) {
 
           {/* 4. Voltaria */}
           <FieldGroup>
-            <Label>Voltaria a assinar no futuro?</Label>
+            <Label>Voltaria a assinar no futuro? <Required>*</Required></Label>
             <OptionsRow>
               {[
                 { value: 'sim', label: 'Sim' },
