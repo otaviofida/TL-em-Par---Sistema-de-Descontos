@@ -308,3 +308,11 @@ model MarketingPush {
   @@index([status, scheduledAt])
   @@map("marketing_pushes")
 }
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}

@@ -2,11 +2,13 @@ import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button, Input, Select } from '../../components/ui';
 import { getErrorMessage } from '../../utils/errorMessages';
 import { api } from '../../lib/api';
 import toast from 'react-hot-toast';
 import { scaleIn } from '../../styles/animations';
+import { LaunchScreen } from '../../components/LaunchScreen';
 
 const Container = styled.div`
   flex: 1;
@@ -93,6 +95,19 @@ interface RegisterFormData {
 export function RegisterPage() {
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormData>();
   const [loading, setLoading] = useState(false);
+
+  const { data: settings } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: async () => {
+      const { data } = await api.get<{ success: boolean; data: { registrationEnabled: boolean } }>('/settings');
+      return data.data;
+    },
+    staleTime: 30_000,
+  });
+
+  if (settings && !settings.registrationEnabled) {
+    return <LaunchScreen />;
+  }
 
   const onSubmit = async (formData: RegisterFormData) => {
     try {

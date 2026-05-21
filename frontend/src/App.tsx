@@ -42,6 +42,7 @@ import { AdminRedemptionsPage } from './pages/admin/AdminRedemptionsPage';
 import { AdminMetricsPage } from './pages/admin/AdminMetricsPage';
 import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
 import { AdminMarketingPage } from './pages/admin/AdminMarketingPage';
+import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 
 export function App() {
   useMobilePush();
@@ -106,6 +107,7 @@ export function App() {
           <Route path="/admin/validacoes" element={<AdminRedemptionsPage />} />
           <Route path="/admin/avaliacoes" element={<AdminReviewsPage />} />
           <Route path="/admin/marketing" element={<AdminMarketingPage />} />
+          <Route path="/admin/configuracoes" element={<AdminSettingsPage />} />
         </Route>
       </Route>
     </Routes>

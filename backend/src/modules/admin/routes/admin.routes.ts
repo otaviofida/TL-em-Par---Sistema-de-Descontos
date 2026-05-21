@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AdminController } from '../controllers/admin.controller.js';
+import { SettingsController } from '../../settings/controllers/settings.controller.js';
 import { validate } from '../../../middlewares/validate.js';
 import { authenticate, requireAdmin } from '../../../middlewares/auth.js';
 import { uploadLogo, uploadCover, cloudinaryUpload } from '../../../middlewares/upload.js';
@@ -8,6 +9,7 @@ import { upsertCompanyScheduleSchema } from '../schemas/admin.schema.js';
 
 const router = Router();
 const controller = new AdminController();
+const settingsController = new SettingsController();
 
 // Todas as rotas admin requerem autenticação + role ADMIN
 router.use(authenticate, requireAdmin);
@@ -50,5 +52,9 @@ router.get('/audit-logs', controller.listAuditLogs);
 
 // Reports (PDF export)
 router.get('/reports/metrics/pdf', controller.exportMetricsPdf);
+
+// App Settings
+router.get('/settings', settingsController.getAll);
+router.patch('/settings', settingsController.update);
 
 export { router as adminRoutes };

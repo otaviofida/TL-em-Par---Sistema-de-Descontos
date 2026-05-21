@@ -17,6 +17,7 @@ import { reviewRoutes } from './modules/review/routes/review.routes.js';
 import { notificationRoutes } from './modules/notification/routes/notification.routes.js';
 import { pushRoutes } from './modules/push/routes/push.routes.js';
 import { marketingRoutes } from './modules/marketing/routes/marketing.routes.js';
+import { settingsRoutes } from './modules/settings/routes/settings.routes.js';
 
 const app = express();
 
@@ -91,6 +92,9 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/admin/marketing', marketingRoutes);
+
+// Public settings (no auth)
+app.use('/api/settings', settingsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

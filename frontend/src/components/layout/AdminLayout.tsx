@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import {
   House, Hamburger, CalendarRange, Users, CreditCard,
-  ClipboardList, LogOut, Menu, User as UserIcon, BarChart3, Star, Megaphone,
+  ClipboardList, LogOut, Menu, User as UserIcon, BarChart3, Star, Megaphone, Settings2,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react'; 
 import { fadeIn } from '../../styles/animations';
@@ -262,6 +262,7 @@ const adminNav = [
   { to: '/admin/validacoes', label: 'Validações', icon: ClipboardList },
   { to: '/admin/avaliacoes', label: 'Avaliações', icon: Star },
   { to: '/admin/marketing', label: 'Marketing', icon: Megaphone },
+  { to: '/admin/configuracoes', label: 'Configurações', icon: Settings2 },
 ];
 
 export function AdminLayout() {

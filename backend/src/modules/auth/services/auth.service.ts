@@ -5,15 +5,24 @@ import { env } from '../../../config/env.js';
 import { sendEmail, passwordResetEmailHtml, emailVerificationHtml, emailVerifiedPaymentHtml } from '../../../config/email.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { RegisterInput, LoginInput, UpdateProfileInput, ForgotPasswordInput, ResetPasswordInput } from '../schemas/auth.schema.js';
-import { UnauthorizedError, ConflictError, NotFoundError, AppError } from '../../../shared/errors/index.js';
+import { UnauthorizedError, ConflictError, NotFoundError, AppError, ForbiddenError } from '../../../shared/errors/index.js';
+import { SettingsRepository } from '../../settings/repositories/settings.repository.js';
 import { JwtPayload } from '../../../shared/types/auth.js';
 import { Role } from '../../../generated/prisma/index.js';
 import { stripe } from '../../../config/stripe.js';
 
 export class AuthService {
-  constructor(private authRepo = new AuthRepository()) {}
+  constructor(
+    private authRepo = new AuthRepository(),
+    private settingsRepo = new SettingsRepository(),
+  ) {}
 
   async register(data: RegisterInput) {
+    const registrationEnabled = await this.settingsRepo.getValue('registrationEnabled');
+    if (registrationEnabled === 'false') {
+      throw new ForbiddenError('Cadastros estão temporariamente suspensos. Aguarde o lançamento oficial.', 'REGISTRATION_DISABLED');
+    }
+
     const existingEmail = await this.authRepo.findUserByEmail(data.email);
     if (existingEmail) {
       throw new ConflictError('Este email já está cadastrado.', 'EMAIL_ALREADY_EXISTS');
