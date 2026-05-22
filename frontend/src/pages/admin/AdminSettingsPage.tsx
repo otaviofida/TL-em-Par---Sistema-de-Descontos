@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import toast from 'react-hot-toast';
-import { Settings2, Users, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Settings2, Users, ToggleLeft, ToggleRight, Link2 } from 'lucide-react';
 
 const Page = styled.div`
   display: flex;
@@ -118,6 +118,50 @@ const ToggleButton = styled.button<{ $enabled: boolean; $loading: boolean }>`
   }
 `;
 
+const InputRow = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
+const UrlInput = styled.input`
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 1rem;
+  border-radius: ${({ theme }) => theme.radii.full};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-family: ${({ theme }) => theme.fonts.body};
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus { border-color: ${({ theme }) => theme.colors.primary}; }
+`;
+
+const SaveBtn = styled.button<{ $loading: boolean }>`
+  padding: 0.625rem 1.25rem;
+  border-radius: ${({ theme }) => theme.radii.full};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  cursor: ${({ $loading }) => ($loading ? 'not-allowed' : 'pointer')};
+  opacity: ${({ $loading }) => ($loading ? 0.6 : 1)};
+  border: none;
+  background: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.dark};
+  transition: all 0.2s;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) { background: ${({ theme }) => theme.colors.primaryDark}; }
+`;
+
 const Skeleton = styled.div`
   height: 96px;
   background: ${({ theme }) => theme.colors.border};
@@ -132,11 +176,13 @@ const Skeleton = styled.div`
 
 interface AppSettings {
   registrationEnabled?: string;
+  whatsappGroupUrl?: string;
 }
 
 export function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
+  const [groupUrl, setGroupUrl] = useState('');
 
   const { data: settings, isLoading } = useQuery<AppSettings>({
     queryKey: ['admin-settings'],
@@ -145,6 +191,12 @@ export function AdminSettingsPage() {
       return data.data;
     },
   });
+
+  useEffect(() => {
+    if (settings?.whatsappGroupUrl !== undefined) {
+      setGroupUrl(settings.whatsappGroupUrl ?? '');
+    }
+  }, [settings?.whatsappGroupUrl]);
 
   const mutation = useMutation({
     mutationFn: async (payload: Partial<AppSettings>) => {
@@ -169,6 +221,21 @@ export function AdminSettingsPage() {
     const newValue = currentValue === 'true' ? 'false' : 'true';
     mutation.mutate({ [key]: newValue });
   };
+
+  const urlMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const { data } = await api.patch<{ success: boolean; data: AppSettings }>('/admin/settings', { whatsappGroupUrl: url });
+      return data.data;
+    },
+    onSuccess: (updated) => {
+      queryClient.setQueryData(['admin-settings'], updated);
+      queryClient.invalidateQueries({ queryKey: ['public-settings'] });
+      toast.success('Link do grupo atualizado!');
+    },
+    onError: () => {
+      toast.error('Erro ao salvar link.');
+    },
+  });
 
   const regEnabled = settings?.registrationEnabled !== 'false';
 
@@ -216,6 +283,44 @@ export function AdminSettingsPage() {
                 ? 'Desativar cadastros'
                 : 'Ativar cadastros'}
             </ToggleButton>
+          </SettingCard>
+        )}
+      </Section>
+
+      <Section>
+        <SectionTitle>
+          <Link2 size={20} />
+          Grupo de promoções
+        </SectionTitle>
+
+        {isLoading ? (
+          <Skeleton />
+        ) : (
+          <SettingCard>
+            <SettingInfo>
+              <SettingLabel>
+                Link do grupo (WhatsApp ou Telegram)
+              </SettingLabel>
+              <SettingDescription>
+                Quando preenchido, exibe um botão flutuante no site público convidando visitantes a entrar no grupo de promoções.
+                Deixe em branco para ocultar o botão.
+              </SettingDescription>
+            </SettingInfo>
+            <InputRow>
+              <UrlInput
+                type="url"
+                placeholder="https://chat.whatsapp.com/..."
+                value={groupUrl}
+                onChange={(e) => setGroupUrl(e.target.value)}
+              />
+              <SaveBtn
+                $loading={urlMutation.isPending}
+                disabled={urlMutation.isPending}
+                onClick={() => urlMutation.mutate(groupUrl)}
+              >
+                {urlMutation.isPending ? 'Salvando...' : 'Salvar'}
+              </SaveBtn>
+            </InputRow>
           </SettingCard>
         )}
       </Section>
