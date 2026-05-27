@@ -27,9 +27,12 @@ app.set('trust proxy', 1);
 // Security
 app.use(helmet());
 
-const allowedOrigins = env.FRONTEND_URL
-  ? env.FRONTEND_URL.split(',').map((o) => o.trim())
-  : ['http://localhost:5173'];
+const allowedOrigins = [
+  ...(env.FRONTEND_URL
+    ? env.FRONTEND_URL.split(',').map((o) => o.trim())
+    : ['http://localhost:5173']),
+  'capacitor://localhost',
+];
 
 app.use(cors({
   origin: allowedOrigins,
