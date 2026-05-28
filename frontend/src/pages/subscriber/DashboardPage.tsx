@@ -111,19 +111,22 @@ const BannerLink = styled(Link)`
 
 const EconomyCard = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 1.5rem;
   background: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radii.xl};
-  padding: 1.5rem;
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  overflow: hidden;
   box-shadow: ${({ theme }) => theme.shadows.md};
   animation: ${fadeInUp} 0.45s ease-out 0.1s both;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     flex-direction: column;
+    align-items: center;
     text-align: center;
     gap: 1rem;
+    padding: 1.5rem 1.5rem 0;
   }
 `;
 
@@ -151,6 +154,7 @@ const EconomyText = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  padding-bottom: 1.5rem;
 `;
 
 const EconomyName = styled.span`
