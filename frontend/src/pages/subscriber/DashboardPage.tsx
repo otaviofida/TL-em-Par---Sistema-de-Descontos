@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Button, SubscriptionBadge, Loading } from '../../components/ui';
-import { UtensilsCrossed, QrCode, History, CheckCircle, Calendar, TicketCheck, PiggyBank } from 'lucide-react';
+import { UtensilsCrossed, QrCode, History, CheckCircle, Calendar, TicketCheck } from 'lucide-react';
+import capivaraImg from '../../assets/capivara-porquinho.png';
 import { formatDateShort } from '../../utils/format';
 import type { SubscriptionInfo, ApiResponse, BenefitRedemption } from '../../types';
 import { fadeInUp, fadeIn, fadeInRight } from '../../styles/animations';
@@ -127,15 +128,15 @@ const EconomyCard = styled.div`
 `;
 
 const EconomyIconWrap = styled.div`
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f9d4e8 0%, #fbbedd 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 90px;
+  height: 90px;
   flex-shrink: 0;
-  color: #d63384;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 `;
 
 const EconomyText = styled.div`
@@ -401,7 +402,7 @@ export function DashboardPage() {
         {economyValue && (
           <EconomyCard>
             <EconomyIconWrap>
-              <PiggyBank size={36} />
+              <img src={capivaraImg} alt="Capivara" />
             </EconomyIconWrap>
             <EconomyText>
               <EconomyName>{user?.name?.split(' ')[0] || 'Usuário'}</EconomyName>
