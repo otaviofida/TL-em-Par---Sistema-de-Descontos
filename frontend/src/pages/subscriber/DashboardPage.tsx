@@ -144,8 +144,9 @@ const EconomyIconWrap = styled.div`
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: 150px;
-    height: 150px;
+    order: 2;
+    width: 190px;
+    height: 190px;
     align-self: center;
   }
 `;
@@ -156,6 +157,11 @@ const EconomyText = styled.div`
   gap: 0.15rem;
   padding-bottom: 1.5rem;
   justify-content: center;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    order: 1;
+    padding-bottom: 0;
+  }
 `;
 
 const EconomyName = styled.span`
