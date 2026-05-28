@@ -128,19 +128,22 @@ const EconomyCard = styled.div`
 `;
 
 const EconomyIconWrap = styled.div`
-  width: 140px;
-  height: 140px;
+  width: 200px;
+  height: 200px;
   flex-shrink: 0;
+  align-self: flex-end;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    object-position: bottom;
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: 110px;
-    height: 110px;
+    width: 150px;
+    height: 150px;
+    align-self: center;
   }
 `;
 
