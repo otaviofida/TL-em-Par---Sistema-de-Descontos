@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import toast from 'react-hot-toast';
-import { Settings2, Users, ToggleLeft, ToggleRight, Link2 } from 'lucide-react';
+import { Settings2, Users, ToggleLeft, ToggleRight, Link2, PiggyBank } from 'lucide-react';
 
 const Page = styled.div`
   display: flex;
@@ -177,12 +177,14 @@ const Skeleton = styled.div`
 interface AppSettings {
   registrationEnabled?: string;
   whatsappGroupUrl?: string;
+  monthlyEconomyValue?: string;
 }
 
 export function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
   const [groupUrl, setGroupUrl] = useState('');
+  const [economyValue, setEconomyValue] = useState('');
 
   const { data: settings, isLoading } = useQuery<AppSettings>({
     queryKey: ['admin-settings'],
@@ -197,6 +199,12 @@ export function AdminSettingsPage() {
       setGroupUrl(settings.whatsappGroupUrl ?? '');
     }
   }, [settings?.whatsappGroupUrl]);
+
+  useEffect(() => {
+    if (settings?.monthlyEconomyValue !== undefined) {
+      setEconomyValue(settings.monthlyEconomyValue ?? '');
+    }
+  }, [settings?.monthlyEconomyValue]);
 
   const mutation = useMutation({
     mutationFn: async (payload: Partial<AppSettings>) => {
@@ -234,6 +242,21 @@ export function AdminSettingsPage() {
     },
     onError: () => {
       toast.error('Erro ao salvar link.');
+    },
+  });
+
+  const economyMutation = useMutation({
+    mutationFn: async (value: string) => {
+      const { data } = await api.patch<{ success: boolean; data: AppSettings }>('/admin/settings', { monthlyEconomyValue: value });
+      return data.data;
+    },
+    onSuccess: (updated) => {
+      queryClient.setQueryData(['admin-settings'], updated);
+      queryClient.invalidateQueries({ queryKey: ['public-settings'] });
+      toast.success('Valor de economia atualizado!');
+    },
+    onError: () => {
+      toast.error('Erro ao salvar valor.');
     },
   });
 
@@ -319,6 +342,45 @@ export function AdminSettingsPage() {
                 onClick={() => urlMutation.mutate(groupUrl)}
               >
                 {urlMutation.isPending ? 'Salvando...' : 'Salvar'}
+              </SaveBtn>
+            </InputRow>
+          </SettingCard>
+        )}
+      </Section>
+
+      <Section>
+        <SectionTitle>
+          <PiggyBank size={20} />
+          Economia mensal
+        </SectionTitle>
+
+        {isLoading ? (
+          <Skeleton />
+        ) : (
+          <SettingCard>
+            <SettingInfo>
+              <SettingLabel>Valor de economia mensal (R$)</SettingLabel>
+              <SettingDescription>
+                Valor exibido no painel do usuário como economia mensal com o TL EM PAR.
+                Digite o valor em reais (ex: 250.00). Deixe em branco para ocultar o card.
+              </SettingDescription>
+            </SettingInfo>
+            <InputRow>
+              <UrlInput
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="250.00"
+                value={economyValue}
+                onChange={(e) => setEconomyValue(e.target.value)}
+                style={{ maxWidth: '180px' }}
+              />
+              <SaveBtn
+                $loading={economyMutation.isPending}
+                disabled={economyMutation.isPending}
+                onClick={() => economyMutation.mutate(economyValue)}
+              >
+                {economyMutation.isPending ? 'Salvando...' : 'Salvar'}
               </SaveBtn>
             </InputRow>
           </SettingCard>

@@ -262,6 +262,18 @@ export class SubscriptionService {
     return { url: session.url };
   }
 
+  async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+    try {
+      const period = getSubscriptionPeriod(subscription as any);
+      await this.subscriptionRepo.updateByStripeSubscriptionId(subscription.id, {
+        ...period,
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      });
+    } catch (error) {
+      console.error(`[WEBHOOK] customer.subscription.updated — failed to update subscription ${subscription.id}:`, error);
+    }
+  }
+
   async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     try {
       await this.subscriptionRepo.updateByStripeSubscriptionId(subscription.id, {

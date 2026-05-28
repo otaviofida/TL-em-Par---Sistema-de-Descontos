@@ -1,19 +1,21 @@
 import { SettingsRepository } from '../repositories/settings.repository.js';
 
-const ALLOWED_KEYS = ['registrationEnabled', 'whatsappGroupUrl'] as const;
+const ALLOWED_KEYS = ['registrationEnabled', 'whatsappGroupUrl', 'monthlyEconomyValue'] as const;
 type SettingKey = (typeof ALLOWED_KEYS)[number];
 
 export class SettingsService {
   constructor(private repo = new SettingsRepository()) {}
 
   async getPublicSettings() {
-    const [registrationEnabled, whatsappGroupUrl] = await Promise.all([
+    const [registrationEnabled, whatsappGroupUrl, monthlyEconomyValue] = await Promise.all([
       this.repo.getValue('registrationEnabled'),
       this.repo.getValue('whatsappGroupUrl'),
+      this.repo.getValue('monthlyEconomyValue'),
     ]);
     return {
       registrationEnabled: registrationEnabled !== 'false',
       whatsappGroupUrl: whatsappGroupUrl ?? null,
+      monthlyEconomyValue: monthlyEconomyValue ?? null,
     };
   }
 

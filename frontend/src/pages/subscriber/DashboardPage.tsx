@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Button, SubscriptionBadge, Loading } from '../../components/ui';
-import { UtensilsCrossed, QrCode, History, CheckCircle, Calendar, TicketCheck } from 'lucide-react';
+import { UtensilsCrossed, QrCode, History, CheckCircle, Calendar, TicketCheck, PiggyBank } from 'lucide-react';
 import { formatDateShort } from '../../utils/format';
 import type { SubscriptionInfo, ApiResponse, BenefitRedemption } from '../../types';
 import { fadeInUp, fadeIn, fadeInRight } from '../../styles/animations';
@@ -104,6 +104,67 @@ const BannerLink = styled(Link)`
   &:hover {
     background: rgba(255, 255, 255, 0.15);
   }
+`;
+
+/* ── Economy Card ───────────────────────────────────── */
+
+const EconomyCard = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: ${({ theme }) => theme.colors.surface};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.xl};
+  padding: 1.5rem;
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  animation: ${fadeInUp} 0.45s ease-out 0.1s both;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+`;
+
+const EconomyIconWrap = styled.div`
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f9d4e8 0%, #fbbedd 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #d63384;
+`;
+
+const EconomyText = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+`;
+
+const EconomyName = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.md};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.dark};
+`;
+
+const EconomyLabel = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textSecondary};
+`;
+
+const EconomyValue = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes['2xl']};
+  font-weight: ${({ theme }) => theme.fontWeights.extrabold};
+  color: #d63384;
+  line-height: 1.2;
+`;
+
+const EconomyWith = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 /* ── Quick Links ────────────────────────────────────── */
@@ -286,6 +347,12 @@ function getInitials(name?: string) {
 
 /* ── Component ──────────────────────────────────────── */
 
+function formatCurrency(value: string): string {
+  const num = parseFloat(value);
+  if (isNaN(num)) return '';
+  return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
 export function DashboardPage() {
   const { user } = useAuthStore();
 
@@ -307,7 +374,17 @@ export function DashboardPage() {
     },
   });
 
+  const { data: publicSettings } = useQuery({
+    queryKey: ['public-settings'],
+    queryFn: async () => {
+      const { data } = await api.get<{ success: boolean; data: { monthlyEconomyValue: string | null } }>('/settings');
+      return data.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
   const redemptionCount = historyMeta?.total ?? 0;
+  const economyValue = publicSettings?.monthlyEconomyValue;
 
   return (
     <PageGrid>
@@ -320,6 +397,20 @@ export function DashboardPage() {
             <BannerLink to="/empresas">Ver parceiros</BannerLink>
           </BannerInner>
         </Banner>
+
+        {economyValue && (
+          <EconomyCard>
+            <EconomyIconWrap>
+              <PiggyBank size={36} />
+            </EconomyIconWrap>
+            <EconomyText>
+              <EconomyName>{user?.name?.split(' ')[0] || 'Usuário'}</EconomyName>
+              <EconomyLabel>Esse mês você irá economizar</EconomyLabel>
+              <EconomyValue>{formatCurrency(economyValue)}</EconomyValue>
+              <EconomyWith>com o TL EM PAR</EconomyWith>
+            </EconomyText>
+          </EconomyCard>
+        )}
       </LeftColumn>
 
       {/* ── Quick Links (entre banner e perfil no mobile) ── */}

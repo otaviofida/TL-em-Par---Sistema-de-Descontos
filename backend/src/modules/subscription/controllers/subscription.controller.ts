@@ -74,6 +74,9 @@ export class SubscriptionController {
         case 'invoice.payment_failed':
           await subscriptionService.handleInvoicePaymentFailed(event.data.object as any);
           break;
+        case 'customer.subscription.updated':
+          await subscriptionService.handleSubscriptionUpdated(event.data.object as any);
+          break;
         case 'customer.subscription.deleted':
           await subscriptionService.handleSubscriptionDeleted(event.data.object as any);
           break;
