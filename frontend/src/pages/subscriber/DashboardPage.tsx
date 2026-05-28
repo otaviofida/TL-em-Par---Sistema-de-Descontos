@@ -128,14 +128,19 @@ const EconomyCard = styled.div`
 `;
 
 const EconomyIconWrap = styled.div`
-  width: 90px;
-  height: 90px;
+  width: 140px;
+  height: 140px;
   flex-shrink: 0;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 110px;
+    height: 110px;
   }
 `;
 
@@ -159,7 +164,7 @@ const EconomyLabel = styled.span`
 const EconomyValue = styled.span`
   font-size: ${({ theme }) => theme.fontSizes['2xl']};
   font-weight: ${({ theme }) => theme.fontWeights.extrabold};
-  color: #d63384;
+  color: ${({ theme }) => theme.colors.primary};
   line-height: 1.2;
 `;
 
