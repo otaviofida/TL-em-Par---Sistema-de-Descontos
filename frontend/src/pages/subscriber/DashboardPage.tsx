@@ -111,7 +111,7 @@ const BannerLink = styled(Link)`
 
 const EconomyCard = styled.div`
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   gap: 1.5rem;
   background: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -155,6 +155,7 @@ const EconomyText = styled.div`
   flex-direction: column;
   gap: 0.15rem;
   padding-bottom: 1.5rem;
+  justify-content: center;
 `;
 
 const EconomyName = styled.span`
