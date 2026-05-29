@@ -23,7 +23,7 @@ export class AuthService {
       throw new ForbiddenError('Cadastros estão temporariamente suspensos. Aguarde o lançamento oficial.', 'REGISTRATION_DISABLED');
     }
 
-    const existingEmail = await this.authRepo.findUserByEmail(data.email);
+    const existingEmail = await this.authRepo.emailExists(data.email);
     if (existingEmail) {
       throw new ConflictError('Este email já está cadastrado.', 'EMAIL_ALREADY_EXISTS');
     }

@@ -6,6 +6,10 @@ export class AuthRepository {
     return prisma.user.findFirst({ where: { email, deletedAt: null }, include: { subscription: true } });
   }
 
+  async emailExists(email: string) {
+    return prisma.user.findFirst({ where: { email }, select: { id: true } });
+  }
+
   async findUserById(id: string) {
     return prisma.user.findUnique({
       where: { id, deletedAt: null },
