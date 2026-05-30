@@ -130,7 +130,14 @@ export class AdminRepository {
   }
 
   async deleteUser(id: string) {
-    return prisma.user.update({ where: { id }, data: { deletedAt: new Date() } });
+    return prisma.user.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        email: `deleted_${id}@deleted.invalid`,
+        cpf: null,
+      },
+    });
   }
 
   async restoreUser(id: string) {

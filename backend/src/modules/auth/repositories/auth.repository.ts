@@ -113,7 +113,11 @@ export class AuthRepository {
   async softDeleteUser(userId: string) {
     return prisma.user.update({
       where: { id: userId },
-      data: { deletedAt: new Date() },
+      data: {
+        deletedAt: new Date(),
+        email: `deleted_${userId}@deleted.invalid`,
+        cpf: null,
+      },
     });
   }
 }
