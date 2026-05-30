@@ -36,3 +36,6 @@ backend/src/generated/
 
 # Claude
 .claude/
+
+# Credenciais e acessos (nunca commitar)
+ACESSOS.md

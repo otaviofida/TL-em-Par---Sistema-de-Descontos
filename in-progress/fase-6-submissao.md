@@ -1,82 +1,77 @@
 # Fase 6 — Submissão
 
-**Status:** Em andamento — app funcionando, aguardando pré-requisitos de loja
+**Status:** Em revisão nas lojas — aguardando aprovação Apple e Google
 
 ---
 
-## O que está pronto ✅
+## Concluído ✅
 
-- [x] App funciona em device físico Android (Xiaomi testado)
-- [x] Login, benefícios, histórico, perfil ✅
-- [x] QR scanner nativo (ML Kit) ✅
-- [x] Push notifications via FCM chegando no Android ✅
-- [x] Ícone e splash screen gerados para Android e iOS ✅
-- [x] Safe-area (notch/navbar) ✅
-- [x] PaywallScreen (Reader App — sem Stripe no app) ✅
-- [x] Política de privacidade redigida ✅
-- [x] Descrição e Review Notes para as lojas redigidos ✅
-- [x] APK debug disponível para testes: `frontend/android/app/build/outputs/apk/debug/app-debug.apk`
-
----
-
-## Pré-requisitos pendentes (você) ⚠️
-
-- [ ] **Apple Developer Program** ($99/ano) → https://developer.apple.com/programs/
-- [ ] **Google Play Console** ($25 único) → https://play.google.com/console/
-- [ ] Publicar política em `tlempar.com.br/privacidade` (conteúdo em `in-planning/store-assets/politica-de-privacidade.md`)
-- [ ] Screenshots (mín. 2): tirar do Xiaomi ou emulador e salvar em `in-planning/store-assets/screenshots/`
-- [ ] Feature Graphic 1024×500px para Google Play (fundo #feb621 + ícone + "Pague 1, Leve 2")
-- [ ] Criar conta de teste `reviewer@tlempar.com.br` com assinatura ACTIVE
-- [ ] Preencher senha dessa conta em `in-planning/store-assets/descricao-lojas.md` (Review Notes)
+- [x] App funciona em device físico Android e iOS
+- [x] Login, benefícios, histórico, perfil
+- [x] QR scanner nativo (ML Kit)
+- [x] Push notifications via FCM — Android e iOS funcionando
+- [x] Ícone e splash screen gerados (logo 65%) para Android, iOS e PWA
+- [x] Safe-area (notch/navbar) corrigida em todas as telas
+- [x] PaywallScreen (Reader App — sem Stripe no app)
+- [x] Política de privacidade redigida e publicada em tlempar.com.br/privacidade
+- [x] Descrição e Review Notes para as lojas redigidos
+- [x] Exclusão de conta implementada (exigência Apple 5.1.1)
+- [x] Formulário de cancelamento: todos os campos obrigatórios
+- [x] Certificado Distribution iOS recriado (nova chave gerada via Xcode após reset do PC)
+- [x] **Android v1.2 (build 4)** — em revisão no Google Play
+- [x] **iOS v1.5 (build 5)** — enviado para revisão Apple em 2026-05-07
 
 ---
 
-## Android — Google Play (quando tiver a conta)
+## Aguardando ⏳
 
-- [ ] Gerar keystore — rodar **uma vez**, guardar em local seguro (sem ela não dá para atualizar o app):
-  ```bash
-  keytool -genkey -v -keystore tlempar.jks -alias tlempar -keyalg RSA -keysize 2048 -validity 10000
-  ```
-
-- [ ] Build release assinado:
-  ```bash
-  export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-  source ~/.nvm/nvm.sh && nvm use 22
-  cd frontend/android && ./gradlew bundleRelease
-  # Saída: app/build/outputs/bundle/release/app-release.aab
-  ```
-
-- [ ] No Google Play Console:
-  1. Criar app → "TL em Par" → categoria Gastronomia
-  2. Internal Testing → upload `.aab`
-  3. Preencher ficha (usar `descricao-lojas.md`)
-  4. Testar internamente → Production
+- [ ] Aprovação Apple → publicar no App Store
+- [ ] Aprovação Google → publicar no Google Play
 
 ---
 
-## iOS — App Store (quando tiver a conta Apple Developer)
+## Versões publicadas
 
-- [ ] APNs Key para push iOS:
-  1. Apple Developer Portal → Keys → criar key com "Apple Push Notifications service"
-  2. Baixar `.p8` → Firebase Console → Project Settings → Cloud Messaging → Apple app → upload
-
-- [ ] Build e submissão:
-  ```bash
-  source ~/.nvm/nvm.sh && nvm use 22
-  cd frontend && npx cap open ios
-  ```
-  No Xcode: Signing & Capabilities → Team → Bundle ID `br.com.tlempar.app`
-  → Product → Archive → Distribute → App Store Connect
-
-- [ ] App Store Connect:
-  1. Criar app, preencher ficha (usar `descricao-lojas.md`)
-  2. TestFlight → testar antes do review
-  3. Submit for Review com Review Notes do modelo Reader App
+| Plataforma | Versão | Build | Data envio | Status |
+|------------|--------|-------|------------|--------|
+| iOS | 1.5 | 5 | 2026-05-07 | 🔄 Em revisão |
+| Android | 1.2 | 4 | 2026-05-07 | 🔄 Em revisão |
 
 ---
 
-## Pós-submissão
+## Comandos de build (referência rápida)
 
-- [ ] Monitorar review (Apple: 1–7 dias, Google: 1–3 dias)
-- [ ] Se Apple rejeitar por pagamento: responder citando Guideline 3.1.3(a) — Reader App
-- [ ] Após aprovação: anunciar lançamento
+### Android
+```bash
+export JAVA_HOME=/opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home
+cd "/Volumes/SSD-WORK/TL em par/frontend/android"
+./gradlew bundleRelease \
+  "-Pandroid.injected.signing.store.file=/Volumes/SSD-WORK/Arquivos TL em Par/tlempar.jks" \
+  "-Pandroid.injected.signing.store.password=>x_5RMb5Q,@fuCs:iLU~" \
+  -Pandroid.injected.signing.key.alias=tlempar \
+  "-Pandroid.injected.signing.key.password=>x_5RMb5Q,@fuCs:iLU~"
+```
+
+### iOS
+```bash
+cd "/Volumes/SSD-WORK/TL em par/frontend/ios/App"
+
+xcodebuild -project App.xcodeproj -scheme App -configuration Release \
+  -destination generic/platform=iOS \
+  -archivePath /tmp/TLemPar-Distribution.xcarchive \
+  archive -allowProvisioningUpdates DEVELOPMENT_TEAM=UV9LKYKF5U
+
+xcodebuild -exportArchive \
+  -archivePath /tmp/TLemPar-Distribution.xcarchive \
+  -exportOptionsPlist /tmp/ExportOptions.plist \
+  -exportPath /tmp/TLemPar-AppStore \
+  -allowProvisioningUpdates
+
+xcrun altool --upload-app \
+  --file "/tmp/TLemPar-AppStore/TL em Par.ipa" \
+  --type ios \
+  --username "aplicativotlempar@gmail.com" \
+  --password "jxhm-qqrb-hcnx-vcgm"
+```
+
+Ver **ACESSOS.md** para todas as credenciais completas.

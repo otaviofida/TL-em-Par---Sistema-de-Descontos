@@ -226,65 +226,41 @@ VITE_API_URL=/api
 VITE_STRIPE_PRICE_ID
 ```
 
-## Status do App Mobile (2026-05-05)
+## Status do App Mobile (2026-05-07)
 
-| Plataforma | Versão | Status |
-|------------|--------|--------|
-| Android (Google Play) | 1.1 (versionCode 2) | ✅ Teste fechado Alpha ativo — 14 dias a contar de ~2026-04-30 |
-| iOS (App Store) | 1.1 (Build 4) | 🔄 Reenviado para revisão App Store em 2026-05-05 — aguardando Apple |
+| Plataforma | Versão | Build | Status |
+|------------|--------|-------|--------|
+| Android (Google Play) | 1.2 | 4 | 🔄 Em revisão no Google Play — aguardando aprovação |
+| iOS (App Store) | 1.5 | 5 | 🔄 Enviado para revisão Apple em 2026-05-07 — aguardando aprovação |
 
-### Rejeição Apple (Build 3) e correções aplicadas (Build 4)
+### Mudanças acumuladas desde v1.1
 
-Build 3 foi rejeitada em 2026-05-05 com 4 problemas:
-
-**5.1.1 — Exclusão de conta (CORRIGIDO):**
-- Backend: `DELETE /api/auth/account` — cancela assinatura Stripe imediatamente + soft-delete do usuário
-- Frontend: seção "Zona de perigo" no ProfilePage com confirmação em 2 etapas
-- Deploy feito em produção (web) + Build 4 submetida
-
-**2.1.0 — QR Code para demonstração (RESOLVIDO nas Notes):**
-- QR code da empresa "Deliciê | Bolos e Doces" (token: `fa090810-19fc-4f85-a047-950d1cea3fa7`) enviado no campo Anexo do App Review Information
-- Arquivo: `~/Desktop/demo-qrcode-apple.png`
-
-**2.1 — Conta com assinatura expirada (CRIADA):**
-- E-mail: `demo-expired@tlempar.com.br` / Senha: `AppleReview2026!`
-- Subscription status: CANCELED, expirada em 2026-04-01
-- Informado nas Notes do App Review Information
-
-**2.1(b) — Modelo de negócio (EXPLICADO nas Notes):**
-- Assinaturas via Stripe no site (não usa Apple IAP)
-- App é companion de assinatura web (modelo Netflix/Spotify)
-
-### Mudanças na versão 1.1
-- App abre direto na tela de login (não exibe home pública no app nativo)
-- iOS: `NSPhotoLibraryUsageDescription` adicionado ao Info.plist
-- iOS: `ITSAppUsesNonExemptEncryption = false` adicionado ao Info.plist
-- iOS: `GoogleService-Info.plist` adicionado ao projeto (Firebase iOS)
-- Firebase: APNs Key `6D5L7BW87G` configurada (Sandbox & Production)
-- Build 4: exclusão de conta implementada (exigência Apple 5.1.1)
+- ✅ Push notifications funcionando no iOS (FCM via `tokenReceived` listener — fix race condition APNs)
+- ✅ Formulário de cancelamento: todos os 4 campos obrigatórios (motivo, nota, melhoria, voltaria)
+- ✅ Splash screen: logo redimensionada para 65% em Android, iOS e PWA
+- ✅ Safe-area corrigida: `env(safe-area-inset-top)` no TopBar e SidebarHeader
+- ✅ Horário do benefício exibido como tags por dia da semana
+- ✅ Exclusão de conta (exigência Apple 5.1.1)
+- ✅ Certificado Distribution recriado (chave perdida após reset do PC — nova gerada via Xcode)
 
 ### Pendências — Android
-- [ ] Recrutar 20 testadores (exigência Google para avançar para produção)
-- [ ] Completar 14 dias de teste ativo (prazo ~2026-05-14)
-- [ ] Após 14 dias → solicitar publicação em Produção no Google Play Console
-- [ ] Preencher ficha completa da loja (screenshots, descrição)
+- [ ] Aguardar aprovação Google Play → publicação pública
 
 ### Pendências — iOS
-- [x] TestFlight externo aprovado — testadores instalaram com sucesso
-- [x] Ficha App Store preenchida (descrição, palavras-chave, screenshots, classificação 4+)
-- [x] APNs Key configurada no Firebase
-- [x] Build 3 rejeitada e corrigida — Build 4 reenviada em 2026-05-05
+- [x] Certificado Distribution recriado e instalado no Keychain
+- [x] Archive + Export + Upload realizados (build 5, v1.5)
+- [x] Enviado para revisão em 2026-05-07
 - [ ] Aguardar aprovação Apple → publicação pública
 
 ### Como atualizar o Android
 ```bash
-cd "/Users/otaviofida/Desktop/TL em par/frontend"
+cd "/Volumes/SSD-WORK/TL em par/frontend"
 source ~/.nvm/nvm.sh && nvm use 22   # Capacitor exige Node ≥ 22
 npm run mobile:sync
 # Incrementar versionCode e versionName em android/app/build.gradle
 export JAVA_HOME=/opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home
 cd android && ./gradlew bundleRelease \
-  -Pandroid.injected.signing.store.file=/Users/otaviofida/Desktop/tlempar.jks \
+  "-Pandroid.injected.signing.store.file=/Volumes/SSD-WORK/Arquivos TL em Par/tlempar.jks" \
   "-Pandroid.injected.signing.store.password=>x_5RMb5Q,@fuCs:iLU~" \
   -Pandroid.injected.signing.key.alias=tlempar \
   "-Pandroid.injected.signing.key.password=>x_5RMb5Q,@fuCs:iLU~"
@@ -293,39 +269,47 @@ cd android && ./gradlew bundleRelease \
 
 ### Como atualizar o iOS
 ```bash
-cd "/Users/otaviofida/Desktop/TL em par/frontend"
+cd "/Volumes/SSD-WORK/TL em par/frontend"
 source ~/.nvm/nvm.sh && nvm use 22 && npm run mobile:sync
 
-# Archive (incrementar CURRENT_PROJECT_VERSION a cada envio)
-xcodebuild archive \
-  -workspace "ios/App/App.xcodeproj/project.xcworkspace" \
-  -scheme App -configuration Release \
-  -archivePath /tmp/tlempar-vX.xcarchive \
-  -allowProvisioningUpdates \
-  CURRENT_PROJECT_VERSION=X MARKETING_VERSION=1.1
+# Incrementar CURRENT_PROJECT_VERSION e MARKETING_VERSION em:
+# ios/App/App.xcodeproj/project.pbxproj
 
-# Export (requer /tmp/ExportOptions.plist com teamID UV9LKYKF5U)
+# Archive
+cd ios/App
+xcodebuild -project App.xcodeproj -scheme App -configuration Release \
+  -destination generic/platform=iOS \
+  -archivePath /tmp/TLemPar-Distribution.xcarchive \
+  archive -allowProvisioningUpdates DEVELOPMENT_TEAM=UV9LKYKF5U
+
+# Export (requer /tmp/ExportOptions.plist — ver ACESSOS.md)
 xcodebuild -exportArchive \
-  -archivePath /tmp/tlempar-vX.xcarchive \
-  -exportPath /tmp/tlempar-exportX \
+  -archivePath /tmp/TLemPar-Distribution.xcarchive \
   -exportOptionsPlist /tmp/ExportOptions.plist \
+  -exportPath /tmp/TLemPar-AppStore \
   -allowProvisioningUpdates
 
 # Upload
 xcrun altool --upload-app \
-  -f "/tmp/tlempar-exportX/TL em Par.ipa" \
-  -t ios -u "aplicativotlempar@gmail.com" -p "xuxs-hxeg-ebnf-lkzo"
+  --file "/tmp/TLemPar-AppStore/TL em Par.ipa" \
+  --type ios \
+  --username "aplicativotlempar@gmail.com" \
+  --password "jxhm-qqrb-hcnx-vcgm"
 ```
 
-**Conta de teste para revisores:**
+**Conta de teste para revisores Apple:**
 - E-mail: `reviewer@tlempar.com.br`
 - Senha: `NDXHccECvru5DVjXxddh`
 - Assinatura ACTIVE até 2027-05-01
 
-**Credenciais de build:**
-- Keystore Android: `~/Desktop/tlempar.jks` — alias: `tlempar` — senha: `>x_5RMb5Q,@fuCs:iLU~`
-- Apple ID upload: `aplicativotlempar@gmail.com` — app-specific password: `xuxs-hxeg-ebnf-lkzo`
-- Apple Team ID: `UV9LKYKF5U`
+**QR Code para demonstração Apple Review:**
+- Empresa: "Deliciê | Bolos e Doces" — token: `fa090810-19fc-4f85-a047-950d1cea3fa7`
+- Arquivo: `/Volumes/SSD-WORK/Arquivos TL em Par/demo-qrcode-apple.png`
+
+**Credenciais de build — ver também ACESSOS.md:**
+- Keystore Android: `/Volumes/SSD-WORK/Arquivos TL em Par/tlempar.jks` — alias: `tlempar` — senha: `>x_5RMb5Q,@fuCs:iLU~`
+- Apple ID upload: `aplicativotlempar@gmail.com` — app-specific password: `jxhm-qqrb-hcnx-vcgm`
+- Apple Team ID: `UV9LKYKF5U` — "Apple Distribution: Moisés Ribas Colmão"
 
 ## Infra de Produção
 
@@ -336,4 +320,4 @@ xcrun altool --upload-app \
 - **Deploy completo:** `git pull && docker compose build --no-cache && docker compose up -d`
 - **Java (build Android):** `/opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home`
 - **Android SDK:** `~/Library/Android/sdk`
-- **Keystore:** `~/Desktop/tlempar.jks` — alias: `tlempar`
+- **Keystore:** `/Volumes/SSD-WORK/Arquivos TL em Par/tlempar.jks` — alias: `tlempar`
