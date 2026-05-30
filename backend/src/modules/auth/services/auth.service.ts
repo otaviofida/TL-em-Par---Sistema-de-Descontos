@@ -45,15 +45,13 @@ export class AuthService {
       cpf: data.cpf,
       birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
       gender: data.gender,
+      emailVerified: true,
     });
-
-    // Envia email de verificação
-    await this.sendVerificationEmail(user.id, user.email, user.name);
 
     const tokens = await this.generateTokens(user.id, user.role);
 
     return {
-      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, cpf: user.cpf, birthDate: user.birthDate, gender: user.gender, avatarUrl: user.avatarUrl, role: user.role, subscription: null, emailVerified: false },
+      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, cpf: user.cpf, birthDate: user.birthDate, gender: user.gender, avatarUrl: user.avatarUrl, role: user.role, subscription: null, emailVerified: true },
       ...tokens,
     };
   }
