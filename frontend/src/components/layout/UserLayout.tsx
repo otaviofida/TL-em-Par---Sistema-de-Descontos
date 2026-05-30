@@ -14,6 +14,8 @@ import { fadeIn } from '../../styles/animations';
 import { VideoSplash } from '../VideoSplash';
 import splashVideo from '../../assets/splash-video.mp4';
 import { usePushSubscription } from '../../hooks/usePushSubscription';
+import { Browser } from '@capacitor/browser';
+import { isNative } from '../../utils/platform';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -701,7 +703,12 @@ export function UserLayout() {
   const handlePortalRedirect = async () => {
     try {
       const res = await api.post('/subscriptions/portal');
-      window.location.href = res.data.data.url;
+      const url = res.data.data.url;
+      if (isNative) {
+        await Browser.open({ url });
+      } else {
+        window.location.href = url;
+      }
     } catch {
       // fallback
     }

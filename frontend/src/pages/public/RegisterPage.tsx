@@ -7,6 +7,8 @@ import { Button, Input, Select } from '../../components/ui';
 import { getErrorMessage } from '../../utils/errorMessages';
 import { api } from '../../lib/api';
 import toast from 'react-hot-toast';
+import { Browser } from '@capacitor/browser';
+import { isNative } from '../../utils/platform';
 import { scaleIn } from '../../styles/animations';
 import { LaunchScreen } from '../../components/LaunchScreen';
 
@@ -135,7 +137,11 @@ export function RegisterPage() {
         '/subscriptions/checkout',
         { priceId: import.meta.env.VITE_STRIPE_PRICE_ID }
       );
-      window.location.href = checkout.data.data.checkoutUrl;
+      if (isNative) {
+        await Browser.open({ url: checkout.data.data.checkoutUrl });
+      } else {
+        window.location.href = checkout.data.data.checkoutUrl;
+      }
     } catch (err) {
       toast.error(getErrorMessage(err));
       setLoading(false);
