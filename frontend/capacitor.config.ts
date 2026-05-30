@@ -5,6 +5,8 @@ const config: CapacitorConfig = {
   appName: 'TL em Par',
   webDir: 'dist',
   server: {
+    url: 'https://tlempar.com.br',
+    cleartext: false,
     androidScheme: 'https',
   },
   plugins: {
