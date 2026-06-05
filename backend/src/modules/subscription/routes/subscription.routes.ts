@@ -14,7 +14,7 @@ router.post('/webhook', raw({ type: 'application/json' }), controller.webhook);
 router.post('/checkout', authenticate, validate(checkoutSchema), controller.checkout);
 router.get('/status', authenticate, controller.status);
 router.post('/cancel', authenticate, validate(cancelWithFeedbackSchema), controller.cancel);
-router.post('/verify-session', authenticate, controller.verifySession);
+router.post('/verify-session', controller.verifySession);
 router.post('/portal', authenticate, controller.portal);
 
 export { router as subscriptionRoutes };

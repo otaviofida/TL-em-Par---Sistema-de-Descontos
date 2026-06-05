@@ -390,7 +390,7 @@ export function DashboardPage() {
       const { data } = await api.get<ApiResponse<BenefitRedemption[]>>('/benefits/history', {
         params: { limit: '1' },
       });
-      return data.meta;
+      return data.meta ?? null;
     },
   });
 

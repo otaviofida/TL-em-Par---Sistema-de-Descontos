@@ -24,7 +24,7 @@ export class SubscriptionService {
     private authRepo = new AuthRepository(),
   ) {}
 
-  async createCheckoutSession(userId: string, priceId: string) {
+  async createCheckoutSession(userId: string, priceId: string, platform?: string) {
     const user = await this.authRepo.findUserById(userId);
     if (!user) {
       throw new NotFoundError('Usuário não encontrado.');
@@ -42,12 +42,16 @@ export class SubscriptionService {
       customerId = existingSub.stripeCustomerId;
     }
 
+    const successUrl = platform === 'native'
+      ? `com.tlempar.app://checkout/success?session_id={CHECKOUT_SESSION_ID}`
+      : `${env.STRIPE_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`;
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
-      success_url: `${env.STRIPE_SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: successUrl,
       cancel_url: env.STRIPE_CANCEL_URL,
       client_reference_id: userId,
       metadata: { userId },
@@ -61,7 +65,7 @@ export class SubscriptionService {
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
-    return { checkoutUrl: session.url };
+    return { checkoutUrl: session.url, sessionId: session.id };
   }
 
   async getStatus(userId: string) {
@@ -121,20 +125,26 @@ export class SubscriptionService {
     };
   }
 
-  async verifyCheckoutSession(userId: string, sessionId: string) {
+  async verifyCheckoutSession(sessionId: string) {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    if (session.client_reference_id !== userId && session.metadata?.userId !== userId) {
-      throw new AppError('Sessão não pertence a este usuário.', 403, 'FORBIDDEN');
+    const userId = session.client_reference_id || session.metadata?.userId;
+    if (!userId) {
+      throw new AppError('Sessão inválida.', 400, 'INVALID_SESSION');
     }
 
-    if (session.payment_status !== 'paid') {
+    // 'no_payment_required' = cupom 100% off (trial gratuito)
+    const isPaid = session.payment_status === 'paid' || session.payment_status === 'no_payment_required';
+    if (!isPaid) {
       return { status: 'INCOMPLETE', message: 'Pagamento ainda não confirmado.' };
     }
 
     const subscriptionId = session.subscription as string;
-    const customerId = session.customer as string;
+    if (!subscriptionId) {
+      return { status: 'INCOMPLETE', message: 'Assinatura sendo processada.' };
+    }
 
+    const customerId = session.customer as string;
     const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
     const period = getSubscriptionPeriod(stripeSubscription);
 

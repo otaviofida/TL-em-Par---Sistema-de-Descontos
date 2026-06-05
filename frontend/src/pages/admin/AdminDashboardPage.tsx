@@ -275,11 +275,11 @@ export function AdminDashboardPage() {
       </StatsGrid>
     </Left>
     <Right>
-      {stats.topCompanies.length > 0 && (
+      {stats.topCompanies?.length > 0 && (
         <>
           <SectionTitle>Top parceiros</SectionTitle>
           <TopList>
-            {stats.topCompanies.map((company, i) => (
+            {stats.topCompanies?.map((company, i) => (
               <TopItem key={company.id} $rank={i}>
                 {company.logoUrl ? (
                   <TopLogo src={company.logoUrl} alt={company.name} />

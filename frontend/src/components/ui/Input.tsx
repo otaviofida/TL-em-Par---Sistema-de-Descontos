@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { forwardRef, useState } from 'react';
+import { forwardRef, useId, useState } from 'react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -88,16 +88,19 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, type, ...props }, ref) => {
+  ({ label, error, type, id: idProp, ...props }, ref) => {
+    const generatedId = useId();
+    const id = idProp ?? generatedId;
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === 'password';
 
     return (
       <Wrapper>
-        {label && <Label>{label}</Label>}
+        {label && <Label htmlFor={id}>{label}</Label>}
         <InputContainer>
           <StyledInput
             ref={ref}
+            id={id}
             type={isPassword && showPassword ? 'text' : type}
             $hasError={!!error}
             $hasToggle={isPassword}

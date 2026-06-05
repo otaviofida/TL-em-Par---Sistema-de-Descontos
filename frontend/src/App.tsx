@@ -1,4 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { App as CapApp } from '@capacitor/app';
+import { isNative } from './utils/platform';
 
 import { InstallPrompt } from './components/InstallPrompt';
 import { useMobilePush } from './hooks/useMobilePush';
@@ -46,6 +49,19 @@ import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 
 export function App() {
   useMobilePush();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isNative) return;
+    const handle = CapApp.addListener('appUrlOpen', ({ url }) => {
+      if (url.startsWith('com.tlempar.app://checkout/success')) {
+        const params = new URLSearchParams(url.split('?')[1] ?? '');
+        const sessionId = params.get('session_id');
+        if (sessionId) navigate(`/assinatura/sucesso?session_id=${sessionId}`);
+      }
+    });
+    return () => { handle.then((h) => h.remove()); };
+  }, [navigate]);
 
   return (
     <>

@@ -276,9 +276,12 @@ export class AuthService {
       expiresIn: env.JWT_EXPIRES_IN,
     } as jwt.SignOptions);
 
-    const refreshToken = jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-      expiresIn: env.JWT_REFRESH_EXPIRES_IN,
-    } as jwt.SignOptions);
+    // jti garante unicidade mesmo se dois tokens forem gerados no mesmo segundo
+    const refreshToken = jwt.sign(
+      { ...payload, jti: crypto.randomUUID() },
+      env.JWT_REFRESH_SECRET,
+      { expiresIn: env.JWT_REFRESH_EXPIRES_IN } as jwt.SignOptions,
+    );
 
     const refreshExpiresAt = new Date();
     refreshExpiresAt.setDate(refreshExpiresAt.getDate() + 7);

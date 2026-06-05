@@ -9,7 +9,7 @@ const subscriptionService = new SubscriptionService();
 export class SubscriptionController {
   async checkout(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await subscriptionService.createCheckoutSession(req.userId!, req.body.priceId);
+      const result = await subscriptionService.createCheckoutSession(req.userId!, req.body.priceId, req.body.platform);
       return sendSuccess(res, result);
     } catch (err) {
       next(err);
@@ -37,7 +37,7 @@ export class SubscriptionController {
   async verifySession(req: Request, res: Response, next: NextFunction) {
     try {
       const { sessionId } = req.body;
-      const result = await subscriptionService.verifyCheckoutSession(req.userId!, sessionId);
+      const result = await subscriptionService.verifyCheckoutSession(sessionId);
       return sendSuccess(res, result);
     } catch (err) {
       next(err);

@@ -658,7 +658,7 @@ export function UserLayout() {
     queryKey: ['notifications-unread'],
     queryFn: async () => {
       const res = await api.get('/notifications/unread-count');
-      return res.data.data.count as number;
+      return (res.data.data?.count ?? 0) as number;
     },
     refetchInterval: 30000,
   });

@@ -5,9 +5,10 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const isMobile = mode === 'mobile'
+  const isTest = mode === 'test'
 
   return {
-    plugins: isMobile ? [react()] : [react(), basicSsl()],
+    plugins: (isMobile || isTest) ? [react()] : [react(), basicSsl()],
     server: {
       host: true,
       proxy: {

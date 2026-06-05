@@ -9,7 +9,10 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -51,9 +54,12 @@
     "@types/node-cron": "^3.0.11",
     "@types/pdfkit": "^0.17.5",
     "@types/pg": "^8.18.0",
+    "@types/supertest": "^7.2.0",
     "@types/uuid": "^10.0.0",
     "@types/web-push": "^3.6.4",
+    "supertest": "^7.2.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.8"
   }
 }

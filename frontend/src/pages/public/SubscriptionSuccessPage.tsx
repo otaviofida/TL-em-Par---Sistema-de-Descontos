@@ -52,7 +52,7 @@ export function SubscriptionSuccessPage() {
     }
 
     api.post('/subscriptions/verify-session', { sessionId })
-      .then(() => loadUser())
+      .then(() => loadUser().catch(() => {}))
       .then(() => setVerified(true))
       .catch(() => setError(true))
       .finally(() => setVerifying(false));
