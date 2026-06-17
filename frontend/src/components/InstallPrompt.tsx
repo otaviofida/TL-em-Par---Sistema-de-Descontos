@@ -13,6 +13,10 @@ function isIos() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream;
 }
 
+function isSamsungBrowser() {
+  return /SamsungBrowser/i.test(navigator.userAgent);
+}
+
 function isInStandaloneMode() {
   return ('standalone' in navigator && (navigator as unknown as { standalone: boolean }).standalone)
     || window.matchMedia('(display-mode: standalone)').matches;
@@ -117,18 +121,20 @@ const CloseBtn = styled.button`
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [show, setShow] = useState(false);
-  const [iosPrompt, setIosPrompt] = useState(false);
+  const [manualPrompt, setManualPrompt] = useState(false);
 
   useEffect(() => {
     if (isNative) return;
-    // Não mostrar se já instalado ou já dispensado
     if (isInStandaloneMode()) return;
     const dismissed = sessionStorage.getItem('pwa-install-dismissed');
     if (dismissed) return;
 
-    // iOS: mostrar banner manual
-    if (isIos()) {
-      setIosPrompt(true);
+    // iOS e Samsung Browser: mostrar instruções manuais de adicionar à tela inicial.
+    // Samsung Browser usa servidor próprio de WebAPK que gera APKs com targetSdkVersion
+    // baixo, acionando o aviso "App de risco" do Google Play Protect. Instruções manuais
+    // criam um atalho simples sem WebAPK e sem o aviso.
+    if (isIos() || isSamsungBrowser()) {
+      setManualPrompt(true);
       setShow(true);
       return;
     }
@@ -158,16 +164,18 @@ export function InstallPrompt() {
 
   if (!show) return null;
 
+  const manualInstructions = isSamsungBrowser()
+    ? <>Toque em <strong>☰</strong> → <strong>"Adicionar página a"</strong> → <strong>"Tela inicial"</strong></>
+    : <>Toque em <Share size={11} style={{ verticalAlign: 'middle', marginInline: 2 }} /> e depois <strong>"Adicionar à Tela de Início"</strong></>;
+
   return createPortal(
     <Banner>
       <Icon src="/icons/icon-192x192.png" alt="TL em Par" />
       <TextWrap>
-        {iosPrompt ? (
+        {manualPrompt ? (
           <>
             <Title>Instalar TL em Par</Title>
-            <Subtitle>
-              Toque em <Share size={11} style={{ verticalAlign: 'middle', marginInline: 2 }} /> e depois <strong>"Adicionar à Tela de Início"</strong>
-            </Subtitle>
+            <Subtitle>{manualInstructions}</Subtitle>
           </>
         ) : (
           <>
@@ -177,7 +185,7 @@ export function InstallPrompt() {
         )}
       </TextWrap>
       <Actions>
-        {!iosPrompt && <InstallBtn onClick={handleInstall}>Instalar</InstallBtn>}
+        {!manualPrompt && <InstallBtn onClick={handleInstall}>Instalar</InstallBtn>}
         <CloseBtn onClick={handleDismiss} aria-label="Fechar">×</CloseBtn>
       </Actions>
     </Banner>,
