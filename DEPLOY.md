@@ -172,6 +172,25 @@ nano .env
 docker compose restart backend
 ```
 
+## Atualizar o preço da assinatura (Stripe Price ID)
+
+> O Stripe não permite editar o valor de um Price existente — é preciso criar um novo Price no dashboard.
+
+1. No [Dashboard Stripe](https://dashboard.stripe.com) → **Products** → crie um novo Price no produto existente
+2. Copie o novo `price_xxx`
+3. No servidor, atualize o `.env`:
+```bash
+ssh root@66.253.112.233
+sed -i 's/STRIPE_PRICE_ID=.*/STRIPE_PRICE_ID=price_SEU_NOVO_ID/' ~/tl-em-par/.env
+```
+4. Rebuild do frontend e backend (o `VITE_STRIPE_PRICE_ID` é injetado como build arg):
+```bash
+cd ~/tl-em-par && docker compose up -d --build frontend backend
+```
+
+**Não é necessário publicar nova versão do app iOS/Android.** O Capacitor carrega o frontend
+do servidor (`server.url: 'https://tlempar.com.br'`), então o rebuild já atualiza os apps nativos automaticamente.
+
 ## Comandos úteis
 
 ```bash

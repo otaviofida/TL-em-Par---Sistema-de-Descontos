@@ -174,6 +174,14 @@ TL em par/
 - Safe-area (notch/navbar)
 - Ícone + splash screen nativos gerados
 
+> **⚠️ Importante — `server.url` no Capacitor:**
+> O `capacitor.config.ts` aponta `server.url: 'https://tlempar.com.br'`, o que faz o WebView do app
+> carregar o frontend **diretamente do servidor** em vez de usar assets embutidos no bundle.
+> Consequência prática: **qualquer mudança no frontend (incluindo `VITE_STRIPE_PRICE_ID`) entra em
+> vigor após rebuild no servidor — sem necessidade de nova versão na App Store ou Google Play.**
+> Só é necessário publicar nova versão nativa quando houver mudança em código Capacitor/nativo
+> (plugins, permissões, splash, ícone, `capacitor.config.ts`).
+
 ### PWA
 - Service Worker manual (offline fallback)
 - Manifest.json (instalável)
