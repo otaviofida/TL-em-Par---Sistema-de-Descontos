@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 export const checkoutSchema = z.object({
-  priceId: z.string().min(1, 'Price ID é obrigatório.'),
   platform: z.enum(['web', 'native']).optional(),
 });
 
