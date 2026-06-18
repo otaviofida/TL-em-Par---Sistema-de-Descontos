@@ -56,10 +56,19 @@ export class SubscriptionRepository {
     take: number;
     status?: SubscriptionStatus;
     userId?: string;
+    search?: string;
   }) {
     const where: any = {};
     if (params.status) where.status = params.status;
     if (params.userId) where.userId = params.userId;
+    if (params.search) {
+      where.user = {
+        OR: [
+          { name: { contains: params.search, mode: 'insensitive' } },
+          { email: { contains: params.search, mode: 'insensitive' } },
+        ],
+      };
+    }
 
     const [data, total] = await Promise.all([
       prisma.subscription.findMany({

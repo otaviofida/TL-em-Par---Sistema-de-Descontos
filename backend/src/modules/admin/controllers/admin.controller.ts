@@ -93,8 +93,8 @@ export class AdminController {
   async listSubscriptions(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPaginationParams(req.query as Record<string, string>);
-      const { status, userId } = req.query as Record<string, string>;
-      const result = await adminService.getSubscriptions(pagination, { status, userId });
+      const { status, userId, search } = req.query as Record<string, string>;
+      const result = await adminService.getSubscriptions(pagination, { status, userId, search });
       return sendSuccess(res, result.data, 200, result.meta);
     } catch (err) {
       next(err);

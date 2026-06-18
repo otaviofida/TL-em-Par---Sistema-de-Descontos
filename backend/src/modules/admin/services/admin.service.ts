@@ -89,13 +89,14 @@ export class AdminService {
     await this.adminRepo.restoreUser(id);
   }
 
-  async getSubscriptions(pagination: PaginationParams, filters: { status?: string; userId?: string }) {
+  async getSubscriptions(pagination: PaginationParams, filters: { status?: string; userId?: string; search?: string }) {
     const { skip, take } = getPrismaSkipTake(pagination);
     const { data, total } = await this.subscriptionRepo.findAll({
       skip,
       take,
       status: filters.status as any,
       userId: filters.userId,
+      search: filters.search,
     });
 
     return {
