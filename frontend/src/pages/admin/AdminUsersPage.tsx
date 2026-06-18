@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,40 @@ import { Card, Loading, EmptyState, SubscriptionBadge } from '../../components/u
 import { formatDateShort } from '../../utils/format';
 import type { User, ApiResponse } from '../../types';
 import { fadeInUp } from '../../styles/animations';
+
+const LIMIT = 20;
+
+const Toolbar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+`;
+
+const SearchInput = styled.input`
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.textSecondary};
+  }
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.primary};
+  }
+`;
+
+const TotalLabel = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  white-space: nowrap;
+`;
 
 const Table = styled.div`
   display: flex;
@@ -69,6 +103,36 @@ const DeleteButton = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
+`;
+
+const Pagination = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+`;
+
+const PageButton = styled.button<{ $active?: boolean }>`
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid ${({ theme, $active }) => $active ? theme.colors.primary : theme.colors.border};
+  background: ${({ theme, $active }) => $active ? theme.colors.primary : 'transparent'};
+  color: ${({ theme, $active }) => $active ? '#fff' : theme.colors.text};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+`;
+
+const PageInfo = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
 const ConfirmOverlay = styled.div`
@@ -135,16 +199,30 @@ export function AdminUsersPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-users'],
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const { data: response, isLoading } = useQuery({
+    queryKey: ['admin-users', page, search],
     queryFn: async () => {
       const { data } = await api.get<ApiResponse<User[]>>('/admin/users', {
-        params: { limit: '100' },
+        params: { page: String(page), limit: String(LIMIT), search: search || undefined },
       });
-      return data.data;
+      return data;
     },
   });
+
+  const users = response?.data ?? [];
+  const meta = response?.meta;
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/admin/users/${id}`),
@@ -159,32 +237,59 @@ export function AdminUsersPage() {
 
   return (
     <>
+      <Toolbar>
+        <SearchInput
+          placeholder="Buscar por nome ou e-mail..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        {meta && (
+          <TotalLabel>{meta.total} usuário{meta.total !== 1 ? 's' : ''}</TotalLabel>
+        )}
+      </Toolbar>
+
       {isLoading ? (
         <Loading />
-      ) : !data?.length ? (
-        <EmptyState title="Nenhum usuário" message="Ainda não há usuários cadastrados." />
+      ) : !users.length ? (
+        <EmptyState
+          title="Nenhum usuário"
+          message={search ? `Nenhum resultado para "${search}".` : 'Ainda não há usuários cadastrados.'}
+        />
       ) : (
-
-            <Table>
-            {data.map((user) => (
-                <Row key={user.id} variant="bordered" onClick={() => navigate(`/admin/usuarios/${user.id}`)}>
+        <>
+          <Table>
+            {users.map((user) => (
+              <Row key={user.id} variant="bordered" onClick={() => navigate(`/admin/usuarios/${user.id}`)}>
                 <UserInfo>
-                <UserName>{user.name}</UserName>
-                <UserMeta>{user.email} • Desde {user.createdAt ? formatDateShort(user.createdAt) : '...'}</UserMeta>
-              </UserInfo>
-              <Actions>
-                {user.subscription ? (
-                  <SubscriptionBadge status={user.subscription.status} cancelAtPeriodEnd={user.subscription?.cancelAtPeriodEnd} />
-                ) : (
-                  <span style={{ fontSize: '0.75rem', color: '#999' }}>Sem assinatura</span>
-                )}
-                <DeleteButton onClick={(e) => { e.stopPropagation(); setUserToDelete(user); }}>
-                  Remover
-                </DeleteButton>
-              </Actions>
-            </Row>
-          ))}
-        </Table>
+                  <UserName>{user.name}</UserName>
+                  <UserMeta>{user.email} • Desde {user.createdAt ? formatDateShort(user.createdAt) : '...'}</UserMeta>
+                </UserInfo>
+                <Actions>
+                  {user.subscription ? (
+                    <SubscriptionBadge status={user.subscription.status} cancelAtPeriodEnd={user.subscription?.cancelAtPeriodEnd} />
+                  ) : (
+                    <span style={{ fontSize: '0.75rem', color: '#999' }}>Sem assinatura</span>
+                  )}
+                  <DeleteButton onClick={(e) => { e.stopPropagation(); setUserToDelete(user); }}>
+                    Remover
+                  </DeleteButton>
+                </Actions>
+              </Row>
+            ))}
+          </Table>
+
+          {meta && meta.totalPages > 1 && (
+            <Pagination>
+              <PageButton disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                ← Anterior
+              </PageButton>
+              <PageInfo>Página {page} de {meta.totalPages}</PageInfo>
+              <PageButton disabled={page >= meta.totalPages} onClick={() => setPage((p) => p + 1)}>
+                Próxima →
+              </PageButton>
+            </Pagination>
+          )}
+        </>
       )}
 
       {userToDelete && (

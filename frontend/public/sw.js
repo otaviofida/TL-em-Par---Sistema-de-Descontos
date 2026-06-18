@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tlempar-v3';
+const CACHE_NAME = 'tlempar-v4';
 const OFFLINE_URL = '/offline.html';
 
 // Assets estáticos para pre-cache
