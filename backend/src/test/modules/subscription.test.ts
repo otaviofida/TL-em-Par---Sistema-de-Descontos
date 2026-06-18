@@ -14,7 +14,7 @@ describe('POST /api/subscriptions/checkout', () => {
   it('retorna URL de checkout do Stripe (mockado)', async () => {
     const { accessToken } = await registerUser();
     const res = await withAuth(api.post('/api/subscriptions/checkout'), accessToken)
-      .send({ priceId: 'price_fake' });
+      .send({});
 
     expect(res.status).toBe(200);
     expect(res.body.data.checkoutUrl).toContain('checkout.stripe.com');
@@ -22,22 +22,14 @@ describe('POST /api/subscriptions/checkout', () => {
   });
 
   it('retorna 401 sem autenticação', async () => {
-    const res = await api.post('/api/subscriptions/checkout')
-      .send({ priceId: 'price_fake' });
+    const res = await api.post('/api/subscriptions/checkout').send({});
     expect(res.status).toBe(401);
-  });
-
-  it('retorna 400 sem priceId', async () => {
-    const { accessToken } = await registerUser();
-    const res = await withAuth(api.post('/api/subscriptions/checkout'), accessToken)
-      .send({});
-    expect(res.status).toBe(400);
   });
 
   it('retorna 409 se usuário já tem assinatura ativa', async () => {
     const { accessToken } = await registerWithActiveSubscription();
     const res = await withAuth(api.post('/api/subscriptions/checkout'), accessToken)
-      .send({ priceId: 'price_fake' });
+      .send({});
     expect(res.status).toBe(409);
     expect(res.body.error.code).toBe('SUBSCRIPTION_ALREADY_ACTIVE');
   });

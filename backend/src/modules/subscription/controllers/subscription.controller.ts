@@ -9,7 +9,7 @@ const subscriptionService = new SubscriptionService();
 export class SubscriptionController {
   async checkout(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await subscriptionService.createCheckoutSession(req.userId!, req.body.priceId, req.body.platform);
+      const result = await subscriptionService.createCheckoutSession(req.userId!, req.body.platform);
       return sendSuccess(res, result);
     } catch (err) {
       next(err);

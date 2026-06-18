@@ -24,7 +24,8 @@ export class SubscriptionService {
     private authRepo = new AuthRepository(),
   ) {}
 
-  async createCheckoutSession(userId: string, priceId: string, platform?: string) {
+  async createCheckoutSession(userId: string, platform?: string) {
+    const priceId = env.STRIPE_PRICE_ID;
     const user = await this.authRepo.findUserById(userId);
     if (!user) {
       throw new NotFoundError('Usuário não encontrado.');

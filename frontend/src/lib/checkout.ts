@@ -5,7 +5,7 @@ import { isNative } from '../utils/platform';
 export async function startCheckout() {
   const { data } = await api.post<{ success: boolean; data: { checkoutUrl: string; sessionId: string } }>(
     '/subscriptions/checkout',
-    { priceId: import.meta.env.VITE_STRIPE_PRICE_ID, platform: isNative ? 'native' : 'web' }
+    { platform: isNative ? 'native' : 'web' }
   );
   const { checkoutUrl, sessionId } = data.data;
 
