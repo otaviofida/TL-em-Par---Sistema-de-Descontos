@@ -4,7 +4,7 @@ import { api } from '../../lib/api';
 import { Loading, EmptyState } from '../../components/ui';
 import { StarRating } from '../../components/ui';
 import { Link } from 'react-router-dom';
-import { MapPin, CheckCircle, UtensilsCrossed, Search, Tag } from 'lucide-react';
+import { MapPin, CheckCircle, UtensilsCrossed, Search, Tag, Clock } from 'lucide-react';
 import { useState } from 'react';
 import type { Company, ApiResponse } from '../../types';
 import { COMPANY_CATEGORIES } from '../../constants/categories';
@@ -118,6 +118,22 @@ const UsedTag = styled.span`
   backdrop-filter: blur(4px);
 `;
 
+const AvailabilityBadge = styled.span<{ $available: boolean }>`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: ${({ theme, $available }) => $available ? theme.colors.success : 'rgba(107, 114, 128, 0.9)'};
+  color: #fff;
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  padding: 4px 10px;
+  border-radius: ${({ theme }) => theme.radii.full};
+  backdrop-filter: blur(4px);
+`;
+
 const CardBody = styled.div`
   padding: 28px 16px 16px;
   display: flex;
@@ -186,13 +202,15 @@ const FilterChip = styled.button<{ $active?: boolean }>`
 export function CompaniesPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string>('');
+  const [availableNow, setAvailableNow] = useState(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['companies', search, category],
+    queryKey: ['companies', search, category, availableNow],
     queryFn: async () => {
       const params: Record<string, string> = { limit: '50' };
       if (search) params.search = search;
       if (category) params.category = category;
+      if (availableNow) params.availableNow = 'true';
       const { data } = await api.get<ApiResponse<Company[]>>('/companies', { params });
       return data.data;
     },
@@ -212,6 +230,10 @@ export function CompaniesPage() {
       </SearchBar>
 
       <FilterBar>
+        <FilterChip $active={availableNow} onClick={() => setAvailableNow(!availableNow)}>
+          <Clock size={13} style={{ marginRight: 4, verticalAlign: -2 }} />
+          Disponível agora
+        </FilterChip>
         <FilterChip $active={!category} onClick={() => setCategory('')}>
           Todos
         </FilterChip>
@@ -231,7 +253,7 @@ export function CompaniesPage() {
       ) : !data?.length ? (
         <EmptyState
           title="Nenhum restaurante encontrado"
-          message="Tente ajustar sua busca ou volte mais tarde."
+          message={availableNow ? 'Nenhum parceiro disponível neste horário. Tente novamente mais tarde.' : 'Tente ajustar sua busca ou volte mais tarde.'}
           icon={<UtensilsCrossed size={48} color="#ccc" />}
         />
       ) : (
@@ -259,6 +281,12 @@ export function CompaniesPage() {
                       <CheckCircle size={12} />
                       Utilizado
                     </UsedTag>
+                  )}
+                  {company.isAvailableNow !== undefined && (
+                    <AvailabilityBadge $available={company.isAvailableNow}>
+                      <Clock size={12} />
+                      {company.isAvailableNow ? 'Disponível agora' : 'Fechado agora'}
+                    </AvailabilityBadge>
                   )}
                 </CoverWrapper>
                 <CardBody>

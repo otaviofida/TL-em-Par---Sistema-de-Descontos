@@ -1,5 +1,6 @@
 import { prisma } from '../../../config/prisma.js';
 import { Prisma, CompanyStatus } from '../../../generated/prisma/index.js';
+import { isScheduleAvailableNow } from '../../../utils/timezone.js';
 
 export class CompanyRepository {
   async findById(id: string) {
@@ -57,6 +58,7 @@ export class CompanyRepository {
     search?: string;
     category?: string;
     userId: string;
+    availableNow?: boolean;
   }) {
     const where: Prisma.CompanyWhereInput = {
       status: 'ACTIVE',
@@ -82,17 +84,25 @@ export class CompanyRepository {
             where: { userId: params.userId, editionId: params.editionId },
             select: { id: true },
           },
+          schedules: true,
         },
       }),
       prisma.company.count({ where }),
     ]);
 
-    const data = companies.map(({ benefitRedemptions, qrToken: _, ...company }) => ({
+    let data = companies.map(({ benefitRedemptions, schedules, qrToken: _, ...company }) => ({
       ...company,
       alreadyUsed: benefitRedemptions.length > 0,
+      isAvailableNow: isScheduleAvailableNow(schedules),
     }));
 
-    return { data, total };
+    let total_ = total;
+    if (params.availableNow) {
+      data = data.filter(c => c.isAvailableNow);
+      total_ = data.length;
+    }
+
+    return { data, total: total_ };
   }
 
   async findByIdWithUsage(companyId: string, userId: string, editionId: string) {

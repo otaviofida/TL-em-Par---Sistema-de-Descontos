@@ -80,6 +80,7 @@ export interface Company {
   avgRating?: number;
   reviewCount?: number;
   schedules?: CompanySchedule[];
+  isAvailableNow?: boolean;
 }
 
 // Edition

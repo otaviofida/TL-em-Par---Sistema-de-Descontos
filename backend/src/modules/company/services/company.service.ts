@@ -128,7 +128,7 @@ export class CompanyService {
     return { qrToken: company.qrToken, companyName: company.name };
   }
 
-  async listForSubscriber(userId: string, pagination: PaginationParams, filters: { search?: string; category?: string }) {
+  async listForSubscriber(userId: string, pagination: PaginationParams, filters: { search?: string; category?: string; availableNow?: boolean }) {
     const activeEdition = await this.editionRepo.findActive();
     if (!activeEdition) {
       throw new AppError('Nenhuma edição ativa no momento.', 404, 'NO_ACTIVE_EDITION');
@@ -141,6 +141,7 @@ export class CompanyService {
       take,
       search: filters.search,
       category: filters.category,
+      availableNow: filters.availableNow,
       userId,
     });
 

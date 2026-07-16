@@ -29,3 +29,16 @@ export function isWithinSchedule(openTime: string, closeTime: string, current: s
   if (closeTime > openTime) return current >= openTime && current <= closeTime;
   return current >= openTime || current <= closeTime;
 }
+
+// Sem horários cadastrados = sem restrição (sempre disponível)
+export function isScheduleAvailableNow(
+  schedules: { dayOfWeek: number; isOpen: boolean; openTime: string; closeTime: string }[],
+): boolean {
+  if (schedules.length === 0) return true;
+
+  const { dayOfWeek, time } = nowInCampoGrande();
+  const todaySchedule = schedules.find(s => s.dayOfWeek === dayOfWeek);
+  if (!todaySchedule || !todaySchedule.isOpen) return false;
+
+  return isWithinSchedule(todaySchedule.openTime, todaySchedule.closeTime, time);
+}

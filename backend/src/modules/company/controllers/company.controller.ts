@@ -78,8 +78,12 @@ export class CompanyController {
   async listForSubscriber(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPaginationParams(req.query as Record<string, string>);
-      const { search, category } = req.query as Record<string, string>;
-      const result = await companyService.listForSubscriber(req.userId!, pagination, { search, category });
+      const { search, category, availableNow } = req.query as Record<string, string>;
+      const result = await companyService.listForSubscriber(req.userId!, pagination, {
+        search,
+        category,
+        availableNow: availableNow === 'true',
+      });
       return sendSuccess(res, result.data, 200, result.meta);
     } catch (err) {
       next(err);
