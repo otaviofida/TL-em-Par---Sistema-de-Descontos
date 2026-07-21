@@ -7,7 +7,6 @@ export const ERROR_MESSAGES: Record<string, string> = {
   INVALID_QR_TOKEN: 'QR Code inválido. Tente novamente.',
   COMPANY_INACTIVE: 'Esta empresa não está participando no momento.',
   NO_ACTIVE_EDITION: 'Nenhuma edição ativa no momento.',
-  COMPANY_NOT_IN_EDITION: 'Esta empresa não participa da edição atual.',
   BENEFIT_ALREADY_USED: 'Você já utilizou este benefício nesta edição.',
   UNAUTHORIZED: 'Acesso não autorizado.',
   FORBIDDEN: 'Você não tem permissão para acessar este recurso.',

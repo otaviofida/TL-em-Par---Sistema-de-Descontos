@@ -30,8 +30,7 @@ export class BenefitService {
    *  2. Token QR válido
    *  3. Empresa ativa
    *  4. Edição vigente
-   *  5. Empresa na edição
-   *  6. Uso único por empresa/edição
+   *  5. Uso único por empresa/edição
    */
   async validateBenefit(userId: string, qrToken: string) {
     // 1. Verificar assinatura ativa
@@ -60,18 +59,7 @@ export class BenefitService {
       throw new NotFoundError('Nenhuma edição ativa no momento.', 'NO_ACTIVE_EDITION');
     }
 
-    // 5. Verificar se empresa participa da edição
-    const companyInEdition = await prisma.companyEdition.findUnique({
-      where: {
-        companyId_editionId: { companyId: company.id, editionId: activeEdition.id },
-      },
-    });
-
-    if (!companyInEdition) {
-      throw new ForbiddenError('Esta empresa não participa da edição atual.', 'COMPANY_NOT_IN_EDITION');
-    }
-
-    // 6. Verificar horário de funcionamento (America/Campo_Grande)
+    // 5. Verificar horário de funcionamento (America/Campo_Grande)
     const schedules = await this.companyRepo.findSchedules(company.id);
     if (schedules.length > 0) {
       const { dayOfWeek, time } = nowInCampoGrande();
@@ -88,7 +76,7 @@ export class BenefitService {
       }
     }
 
-    // 7. Verificar se já usou (RN-QRC-06: idempotência)
+    // 6. Verificar se já usou (RN-QRC-06: idempotência)
     const existingRedemption = await this.benefitRepo.findRedemption(userId, company.id, activeEdition.id);
     if (existingRedemption) {
       throw new ConflictError('Você já utilizou este benefício nesta edição.', 'BENEFIT_ALREADY_USED');

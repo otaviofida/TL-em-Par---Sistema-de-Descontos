@@ -63,7 +63,6 @@ export class CompanyRepository {
     const where: Prisma.CompanyWhereInput = {
       status: 'ACTIVE',
       deletedAt: null,
-      editions: { some: { editionId: params.editionId } },
     };
 
     if (params.search) {
