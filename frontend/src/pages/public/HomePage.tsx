@@ -1207,9 +1207,8 @@ export function HomePage() {
             <HeroContent>
               <HeroBadge>Clube Gastronômico Três Lagoas</HeroBadge>
               <HeroTitle>
-                Acabe com a<br />
-                <span className="muted">monotonia</span><br />
-                gastronômica!
+                Convide seu par, compre seu prato<br />
+                e o segundo é <span className="muted">cortesia</span>!
               </HeroTitle>
               <HeroSubtitle>
                 Com a sua assinatura mensal, você desbloqueia ofertas exclusivas do tipo
