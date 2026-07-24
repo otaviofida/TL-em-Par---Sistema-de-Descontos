@@ -95,7 +95,7 @@ const HeroBadge = styled.span`
 `;
 
 const HeroTitle = styled.h1`
-  font-size: clamp(2.4rem, 6vw, 4rem);
+  font-size: clamp(2rem, 4vw, 3rem);
   font-weight: ${({ theme }) => theme.fontWeights.extrabold};
   line-height: 1.05;
   color: ${({ theme }) => theme.colors.white};
@@ -1207,8 +1207,8 @@ export function HomePage() {
             <HeroContent>
               <HeroBadge>Clube Gastronômico Três Lagoas</HeroBadge>
               <HeroTitle>
-                Convide seu par, compre seu prato<br />
-                e o segundo é <span className="muted">cortesia</span>!
+                Convide seu par, compre seu prato e o segundo é{' '}
+                <span className="muted">cortesia</span>!
               </HeroTitle>
               <HeroSubtitle>
                 Com a sua assinatura mensal, você desbloqueia ofertas exclusivas do tipo
